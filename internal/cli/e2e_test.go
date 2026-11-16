@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -368,6 +369,59 @@ func TestRunWithAnUnreachableLayerMeasuresTheOthers(t *testing.T) {
 		s := se.Samples[0]
 		if broken := se.Layer == config.LayerInfinidysk; (s.Err != "") != broken || !broken && len(s.Timeline.Marks) != 2 {
 			t.Errorf("%s: err %q, %d marks; want only infinidysk to fail and every other layer measured", se.Layer, s.Err, len(s.Timeline.Marks))
+		}
+	}
+}
+
+type cancelWhenWritten struct {
+	text   string
+	cancel func()
+
+	mu  sync.Mutex
+	log bytes.Buffer
+}
+
+func (w *cancelWhenWritten) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	w.log.Write(p)
+	if strings.Contains(w.log.String(), w.text) {
+		w.cancel()
+	}
+	return len(p), nil
+}
+
+func TestDevStackConfigWorksFromAnyDirectory(t *testing.T) {
+	if _, err := exec.LookPath("ffmpeg"); err != nil {
+		t.Skip("ffmpeg not on PATH")
+	}
+	t.Chdir(t.TempDir())
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	stderr := &cancelWhenWritten{text: "fake stack is up", cancel: cancel}
+	if code := Main(ctx, []string{"dev-stack", "-dir", "ds", "-o", "ds.yaml"}, io.Discard, stderr); code != exitOK {
+		t.Fatalf("dev-stack exit %d:\n%s", code, stderr.log.String())
+	}
+	raw, err := os.ReadFile("ds.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var cfg config.Config
+	if err := yaml.Unmarshal(raw, &cfg); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Chdir(t.TempDir())
+	for name, p := range map[string]string{
+		"rclone.mount_path": cfg.Rclone.MountPath, "targets[0].nzb": cfg.Targets[0].NZB, "results.dir": cfg.Results.Dir,
+	} {
+		if !filepath.IsAbs(p) {
+			t.Errorf("%s is %q, which resolves against the reader's working directory", name, p)
+		}
+	}
+	for _, p := range []string{cfg.Rclone.MountPath, cfg.Targets[0].NZB} {
+		if _, err := os.Stat(p); err != nil {
+			t.Errorf("from another directory: %v", err)
 		}
 	}
 }

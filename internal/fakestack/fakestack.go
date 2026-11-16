@@ -42,8 +42,8 @@ type Options struct {
 	Media string
 	// Spec describes the media to generate when Media is empty.
 	Spec MediaSpec
-	// Dir is the working directory (mount dir, NZB, results).
-	// Empty → a new temp dir removed by Close.
+	// Dir is the working directory (mount dir, NZB, results); a relative
+	// Dir is made absolute. Empty → a new temp dir removed by Close.
 	Dir string
 
 	JellyfinTTFB   time.Duration
@@ -108,6 +108,10 @@ func Start(ctx context.Context, opts Options) (_ *Stack, err error) {
 			return nil, err
 		}
 		s.tempDir = true
+	}
+	// Config's paths are read by another process from another directory.
+	if s.dir, err = filepath.Abs(s.dir); err != nil {
+		return nil, err
 	}
 	s.MountDir = filepath.Join(s.dir, "mount")
 	movieDir := filepath.Join(s.MountDir, filepath.FromSlash(movieDirNeedingEscapes))
