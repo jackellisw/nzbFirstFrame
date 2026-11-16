@@ -14,6 +14,7 @@ package results
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/jackellisw/nzbfirstframe/internal/config"
@@ -127,9 +128,19 @@ var ErrNoDuration = errors.New("media duration unknown; cannot resolve seek poin
 // (Offset 0), which is all the usenet layer needs; an absolute point with an
 // unknown duration is ErrNoDuration.
 func NewPlan(points []config.SeekPoint, duration time.Duration) (Plan, error) {
-	// TODO: for each point:
-	//   known duration: off := p.Resolve(duration); clamp to duration-1s;
-	//     Fraction = off/duration
-	//   unknown: percent → Fraction = Percent/100; absolute → ErrNoDuration
-	panic("not implemented")
+	plan := Plan{Seeks: make([]Seek, 0, len(points))}
+	for _, p := range points {
+		s := Seek{Point: p.String()}
+		switch {
+		case duration > 0:
+			s.Offset = min(p.Resolve(duration), max(duration-time.Second, 0))
+			s.Fraction = float64(s.Offset) / float64(duration)
+		case p.IsPercent:
+			s.Fraction = p.Percent / 100
+		default:
+			return Plan{}, fmt.Errorf("seek point %q: %w", p, ErrNoDuration)
+		}
+		plan.Seeks = append(plan.Seeks, s)
+	}
+	return plan, nil
 }
