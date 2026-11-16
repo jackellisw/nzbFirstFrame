@@ -103,7 +103,6 @@ func (p *Prober) connectNNTP(ctx context.Context, rec *recorder) (*nntpSession, 
 func (s *nntpSession) auth(user, pass string) error {
 	op := results.Op{Kind: results.OpAuth, Start: s.rec.stamp(), Offset: -1}
 	code, line, at, err := s.command("AUTHINFO USER " + user)
-	op.FirstByte = at
 	if err == nil && code == 381 {
 		code, line, at, err = s.command("AUTHINFO PASS " + pass)
 	}
@@ -115,7 +114,7 @@ func (s *nntpSession) auth(user, pass string) error {
 		s.rec.op(op)
 		return err
 	}
-	op.End = at
+	op.FirstByte, op.End = at, at
 	s.rec.op(op)
 	return nil
 }

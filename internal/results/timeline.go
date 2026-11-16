@@ -25,6 +25,8 @@ const (
 //   - Start <= End.
 //   - FirstByte == 0 means no payload byte ever arrived; otherwise
 //     Start < FirstByte <= End. TTFB is derived as FirstByte-Start.
+//   - Connect and auth carry no payload. A completed one has FirstByte ==
+//     End at its final reply, so all of its time is wait.
 //   - Bytes counts payload delivered to the client (ffprobe, or our NNTP
 //     reader), including read-ahead the client later abandons.
 type Op struct {

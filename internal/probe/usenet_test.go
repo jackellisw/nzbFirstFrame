@@ -355,3 +355,52 @@ func TestUsenetFailsAnOverlongStatusLineWithoutBufferingIt(t *testing.T) {
 		t.Errorf("reading one status line allocated %d KiB while the server sent %d KiB", alloc>>10, sent>>10)
 	}
 }
+
+func TestUsenetLoginTimeIsWaitNotTransfer(t *testing.T) {
+	const userWait, passWait = 20 * time.Millisecond, 200 * time.Millisecond
+	ln := listen(t)
+	go func() {
+		conn, err := ln.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		fmt.Fprint(conn, "200 ready\r\n")
+		in := bufio.NewScanner(conn)
+		for in.Scan() {
+			switch line := in.Text(); {
+			case strings.HasPrefix(line, "AUTHINFO USER"):
+				time.Sleep(userWait)
+				fmt.Fprint(conn, "381 password required\r\n")
+			case strings.HasPrefix(line, "AUTHINFO PASS"):
+				time.Sleep(passWait)
+				fmt.Fprint(conn, "281 ok\r\n")
+			case strings.HasPrefix(line, "BODY"):
+				fmt.Fprint(conn, "222 0 <m1@example>\r\none\r\n.\r\n")
+			case line == "QUIT":
+				fmt.Fprint(conn, "205 bye\r\n")
+				return
+			}
+		}
+	}()
+	cfg, target := usenetConfig(t, ln, mixedNZB)
+	cfg.Usenet.Username, cfg.Usenet.Password = "user", "pass"
+
+	tl, err := newProber(cfg).Sample(t.Context(), config.LayerUsenet, target, planAt())
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkTimelineInvariants(t, tl)
+	for _, op := range tl.Ops {
+		if op.Kind != results.OpArticle && op.FirstByte != op.End {
+			t.Errorf("%s op: first byte %v, end %v; an exchange without payload is all wait", op.Kind, op.FirstByte, op.End)
+		}
+	}
+	startup := results.Analyze(tl, planAt()).Phases[0]
+	if startup.Wait < userWait+passWait {
+		t.Errorf("startup wait %v, want at least the login's %v", startup.Wait, userWait+passWait)
+	}
+	if startup.Transfer > passWait/4 {
+		t.Errorf("startup transfer %v; only the article body delivers bytes, and it is a few bytes on loopback", startup.Transfer)
+	}
+}
