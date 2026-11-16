@@ -725,7 +725,14 @@ function drawWaterfall(w, target, cell, sample) {
     const bar = (a, b, cls, fill) => s('rect', { x: a, y: yc - 5, width: Math.max(1, b - a), height: 10, rx: 1.5, class: cls, fill });
     if (op.dial_ns) g.append(bar(x(op.start_ns), x(dialEnd), 'dial'));
     g.append(bar(x(dialEnd), x(fb || op.end_ns), 'wait f' + sl));
-    if (fb) g.append(op.abandoned ? bar(x(fb), x(op.end_ns), '', `url(#hatch-${sl})`) : bar(x(fb), x(op.end_ns), 'f' + sl));
+    if (fb) {
+      // Matches results.Analyze: an abandoned read's transfer stops counting
+      // when the next request starts; what arrives after is read-ahead.
+      const next = op.abandoned && ops[i + 1] ? ops[i + 1].start_ns : op.end_ns;
+      const useful = Math.max(fb, Math.min(op.end_ns, next));
+      if (useful > fb) g.append(bar(x(fb), x(useful), 'f' + sl));
+      if (op.end_ns > useful) g.append(bar(x(useful), x(op.end_ns), '', `url(#hatch-${sl})`));
+    }
     if (op.err && !fb) g.append(failCross(x(op.end_ns) + 7, yc, 3.5));
     if (wide) {
       let colX = pr + 14;
