@@ -15,14 +15,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// ffprobeArgs builds the one-process session for a plan: open, then each
-// seek in order, decoding one video frame per interval.
-//
-//	-v error -select_streams v:0 -show_frames -show_entries frame=pts_time
-//	-of compact=p=0 -read_intervals %+#1,<s1>%+#1,<s2>%+#1 <url>
-//
-// Interval starts are seconds (not percent), formatted %.3f.
-//
 // Frames, not packets: ffprobe flushes the decoder at the end of every read
 // interval, so interval k's frame line prints before interval k+1's first
 // request. Measured on MKV and MP4 (h264, 2 B-frames): frame and packet
@@ -44,11 +36,8 @@ func ffprobeArgs(url string, plan results.Plan) []string {
 	}
 }
 
-// pipeGrace is how long a killed ffprobe's output pipes may stay open
-// before we stop waiting for them.
 const pipeGrace = 500 * time.Millisecond
 
-// ffprobe runs one session and turns its stdout into marks.
 func (p *Prober) ffprobe(ctx context.Context, rec *recorder, url string, plan results.Plan) error {
 	var stderr tail
 	cmd := exec.CommandContext(ctx, p.cfg.Tools.FFprobe, ffprobeArgs(url, plan)...)
@@ -73,7 +62,7 @@ func (p *Prober) ffprobe(ctx context.Context, rec *recorder, url string, plan re
 		// Stamped before parsing: the next seek's request follows the line
 		// by ~0.3 ms, and a late stamp would move time from this phase into
 		// the next.
-		at := rec.now()
+		at := rec.stamp()
 		if pts, ok := parseFrameLine(line); !ok {
 			if strings.TrimSpace(line) != "" {
 				p.log.Debug("ffprobe: ignored output line", "line", strings.TrimSpace(line))
@@ -105,9 +94,6 @@ func (p *Prober) ffprobe(ctx context.Context, rec *recorder, url string, plan re
 	return nil
 }
 
-// parseFrameLine extracts pts_time from a compact line such as
-// "pts_time=30.000000" (p=0 drops the section name). "N/A" → -1, as is any
-// value JSON cannot store.
 func parseFrameLine(line string) (pts float64, ok bool) {
 	for _, field := range strings.Split(strings.TrimSpace(line), "|") {
 		v, found := strings.CutPrefix(field, "pts_time=")
@@ -129,7 +115,6 @@ func parseFrameLine(line string) (pts float64, ok bool) {
 	return 0, false
 }
 
-// mediaDuration runs a format=duration probe against url.
 func (p *Prober) mediaDuration(ctx context.Context, url string) (time.Duration, error) {
 	var stderr tail
 	cmd := exec.CommandContext(ctx, p.cfg.Tools.FFprobe,
@@ -152,8 +137,6 @@ func (p *Prober) mediaDuration(ctx context.Context, url string) (time.Duration, 
 	return time.Duration(secs * float64(time.Second)), nil
 }
 
-// tail keeps the last tailSize bytes written to it: enough of ffprobe's
-// stderr to say why it failed without holding a runaway log.
 type tail struct {
 	mu  sync.Mutex
 	buf []byte
@@ -171,7 +154,6 @@ func (t *tail) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-// String returns the tail on one line.
 func (t *tail) String() string {
 	t.mu.Lock()
 	defer t.mu.Unlock()

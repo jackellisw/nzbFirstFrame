@@ -8,8 +8,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// session builds a one-read-per-phase timeline whose phase latencies are
-// exactly lat (ms). Each read's TTFB is its phase latency minus 2ms.
 func session(lat ...float64) Timeline {
 	var tl Timeline
 	prev := ms(10)
@@ -30,8 +28,6 @@ func session(lat ...float64) Timeline {
 	return tl
 }
 
-// summarizeRun has a target with five measured samples (one failing its
-// seek), two warmups, an empty series and a target that could not be planned.
 func summarizeRun() *Run {
 	plan := Plan{Seeks: []Seek{{Point: "50%", Offset: 50 * time.Second, Fraction: 0.5}}}
 	return &Run{

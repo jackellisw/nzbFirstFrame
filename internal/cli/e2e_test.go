@@ -41,7 +41,6 @@ func startStack(t *testing.T, opts fakestack.Options) *fakestack.Stack {
 	return st
 }
 
-// configFile writes cfg as the YAML a user would keep.
 func configFile(t *testing.T, cfg *config.Config) string {
 	t.Helper()
 	data, err := yaml.Marshal(cfg)
@@ -64,7 +63,6 @@ func seekPoints(t *testing.T, s string) []config.SeekPoint {
 	return pts
 }
 
-// onlyRun asserts dir holds exactly one file, a run, and loads it.
 func onlyRun(t *testing.T, dir string) (*results.Store, *results.Run) {
 	t.Helper()
 	entries, err := os.ReadDir(dir)
@@ -93,7 +91,6 @@ type taken struct {
 	iter   int
 }
 
-// samplesInOrder lists every stored sample by start time.
 func samplesInOrder(run *results.Run) []taken {
 	var out []taken
 	for _, se := range run.Series {
@@ -105,8 +102,6 @@ func samplesInOrder(run *results.Run) []taken {
 	return out
 }
 
-// schedule is the documented order: warmups, then iteration-major, layers
-// top of the stack first within an iteration.
 func schedule(target string, layers []config.Layer, warmup, iterations int) []taken {
 	var out []taken
 	for _, w := range []struct {
@@ -210,10 +205,9 @@ func TestRunMeasuresEveryLayerEndToEnd(t *testing.T) {
 	}
 }
 
-// cancelAfterSamples is a log sink that cancels the run a moment after
-// the nth sample line, while the next sample is in flight.
 type cancelAfterSamples struct {
 	n      int
+	after  time.Duration
 	cancel func()
 
 	mu   sync.Mutex
@@ -227,7 +221,7 @@ func (w *cancelAfterSamples) Write(p []byte) (int, error) {
 	w.log.Write(p)
 	if bytes.Contains(p, []byte("msg=sample")) {
 		if w.seen++; w.seen == w.n {
-			time.AfterFunc(100*time.Millisecond, w.cancel)
+			time.AfterFunc(w.after, w.cancel)
 		}
 	}
 	return len(p), nil
@@ -240,8 +234,6 @@ func (w *cancelAfterSamples) String() string {
 }
 
 func TestRunInterruptedKeepsTheSamplesTaken(t *testing.T) {
-	// A sample's first frame needs at least one TTFB, so the cancel 100ms
-	// after a sample line lands inside the next sample.
 	const ttfb = 150 * time.Millisecond
 	st := startStack(t, fakestack.Options{JellyfinTTFB: ttfb, InfinidyskTTFB: ttfb})
 	cfg := st.Config()
@@ -253,7 +245,7 @@ func TestRunInterruptedKeepsTheSamplesTaken(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(t.Context())
 	defer cancel()
-	stderr := &cancelAfterSamples{n: 3, cancel: cancel}
+	stderr := &cancelAfterSamples{n: 3, after: ttfb / 2, cancel: cancel}
 	var stdout bytes.Buffer
 	code := Main(ctx, []string{"run", "-c", configFile(t, cfg), "-results", dir}, &stdout, stderr)
 	if code != exitFail || !strings.Contains(stderr.String(), "nzbff run: interrupted") {

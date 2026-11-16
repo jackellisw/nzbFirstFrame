@@ -11,34 +11,8 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// requireStore skips while results.Store is still the sketch's stub, and
-// only then: any other panic fails the test.
-func requireStore(t *testing.T) {
-	t.Helper()
-	defer func() {
-		if r := recover(); r != nil {
-			if r == "not implemented" {
-				t.Skip("needs results.Open and Store.List, not implemented in this tree yet")
-			}
-			panic(r)
-		}
-	}()
-	s, err := results.Open(t.TempDir())
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := s.List(); err != nil {
-		t.Fatal(err)
-	}
-}
-
-// serve starts `nzbff serve args...` and returns the dashboard URL it
-// printed, the dir it reported, and a stop function that cancels it and
-// returns its exit code.
 func serve(t *testing.T, args ...string) (url, dir string, stop func() int) {
 	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
@@ -72,7 +46,6 @@ func serve(t *testing.T, args ...string) (url, dir string, stop func() int) {
 }
 
 func TestServeReadsResultsDirFromConfigAndStopsOnCancel(t *testing.T) {
-	requireStore(t)
 	t.Chdir(t.TempDir())
 	t.Setenv("NZBFF_CONFIG", "")
 	dir := filepath.Join(t.TempDir(), "results")
@@ -102,7 +75,6 @@ func TestServeReadsResultsDirFromConfigAndStopsOnCancel(t *testing.T) {
 }
 
 func TestServeResultsFlagOverridesConfig(t *testing.T) {
-	requireStore(t)
 	t.Chdir(t.TempDir())
 	t.Setenv("NZBFF_CONFIG", "")
 	cfg := filepath.Join(t.TempDir(), "nzbff.yaml")

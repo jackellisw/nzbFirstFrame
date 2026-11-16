@@ -47,7 +47,6 @@ func TestRenderTable(t *testing.T) {
 	}
 	for i, want := range wantRows {
 		got := strings.Fields(rows[i])
-		// The truncated target has a space in it.
 		got = append([]string{got[0] + " " + got[1] + " " + got[2]}, got[3:]...)
 		if strings.Join(got, "|") != strings.Join(want, "|") {
 			t.Errorf("row %d = %q\nwant %q", i, got, want)

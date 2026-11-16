@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	gopLength   = 2 * time.Second // 48 frames at 24 fps
+	gopLength   = 2 * time.Second
 	segmentSize = 750_000
 )
 
@@ -83,9 +83,6 @@ func TestVideoLatencyTracksInjectedTTFB(t *testing.T) {
 					for _, op := range ph.ops {
 						waited += op.FirstByte - op.Start
 					}
-					// lead is how long after the previous mark this phase's
-					// first request began: the margin a late mark stamp has
-					// before the request is attributed to the wrong phase.
 					lead := time.Duration(0)
 					if k > 0 && n > 0 {
 						lead = ph.ops[0].Start - tl.Marks[k-1].At
@@ -143,9 +140,6 @@ func TestVideoLatencyTracksInjectedTTFB(t *testing.T) {
 	}
 }
 
-// eventuallySent returns the bytes the fake servers sent since hit index
-// from. A server only reports a response's bytes when its handler returns,
-// which can be just after the sample that abandoned the read.
 func eventuallySent(st *fakestack.Stack, from int, atLeast int64) int64 {
 	deadline := time.Now().Add(2 * time.Second)
 	for {
@@ -188,8 +182,6 @@ func TestUsenetTimelineTracksArticleTTFB(t *testing.T) {
 		t.Errorf("connect %+v / auth %+v: want Ref %s and Offset -1", connect, auth, st.NNTPAddr)
 	}
 
-	// The article for a seek is the segment holding that fraction of the
-	// file; the fake NZB has one segment per segmentSize bytes.
 	wantParts := []int64{0}
 	for _, s := range threeSeeks.Seeks {
 		wantParts = append(wantParts, int64(s.Fraction*float64(media.Size()))/segmentSize)
@@ -350,8 +342,6 @@ func closedPort(t *testing.T) string {
 func TestFailedSamplesReturnErrorAndPartialTimeline(t *testing.T) {
 	st := startStack(t, fakestack.Options{InfinidyskTTFB: 200 * time.Millisecond})
 
-	// failed runs a sample that must fail without panicking and returns
-	// what it reported.
 	failed := func(t *testing.T, cfg *config.Config, layer config.Layer, target config.Target) (results.Timeline, string) {
 		t.Helper()
 		tl, err := newProber(cfg).Sample(t.Context(), layer, target, threeSeeks)
@@ -444,8 +434,6 @@ func TestFailedSamplesReturnErrorAndPartialTimeline(t *testing.T) {
 		wantNoMarks(t, tl, msg)
 	})
 
-	// Six round trips at 200 ms cannot finish in 800 ms, and the first
-	// (startup, done by ~250 ms) has 550 ms of margin to.
 	t.Run("timeout mid-session", func(t *testing.T) {
 		cfg := st.Config()
 		cfg.Profile.Timeout = config.Duration(800 * time.Millisecond)

@@ -1,14 +1,4 @@
 // Package probe takes one measurement of one layer of the stack.
-//
-// It owns everything that knows how to reach a hop: the local HTTP tap, the
-// per-layer sources behind it (Jellyfin stream API, the rclone mount,
-// infinidysk), the ffprobe driver, the NNTP client and NZB parser, and the
-// rclone rc cold-cache call. None of that is exported: callers see
-// Sample/Media and get back a results.Timeline.
-//
-// Adding a layer: add the config.Layer constant (config.AllLayers) and one
-// entry in the layers table below. A test asserts the table's keys equal
-// config.AllLayers, so the two lists cannot drift silently.
 package probe
 
 import (
@@ -31,8 +21,6 @@ type Prober struct {
 	cfg *config.Config
 	log *slog.Logger
 
-	// nntpRoots verifies the provider's TLS certificate; nil means the
-	// system roots. Tests point it at their own CA.
 	nntpRoots *x509.CertPool
 }
 
@@ -115,9 +103,6 @@ func (p *Prober) Sample(ctx context.Context, layer config.Layer, t config.Target
 	return rec.snapshot(), err
 }
 
-// phaseError words a sample failure the same way for every layer: which
-// phase was open, and whether the per-sample timeout or a cancellation
-// ended it.
 func (p *Prober) phaseError(ctx context.Context, phase, detail string) error {
 	switch {
 	case errors.Is(ctx.Err(), context.DeadlineExceeded):
@@ -129,15 +114,12 @@ func (p *Prober) phaseError(ctx context.Context, phase, detail string) error {
 	}
 }
 
-// method is how one layer is measured: either as a byte source behind the
-// tap (ffprobe does the reading) or with a custom client (usenet).
 type method struct {
 	video     func(p *Prober, t config.Target) source
 	custom    func(p *Prober, ctx context.Context, rec *recorder, t config.Target, plan results.Plan) error
-	viaRclone bool // cold-cache flush applies
+	viaRclone bool
 }
 
-// layers is the single list of how each layer is measured.
 var layers = map[config.Layer]method{
 	config.LayerJellyfin:   {video: jellyfinSource, viaRclone: true},
 	config.LayerRclone:     {video: mountSource, viaRclone: true},
@@ -145,7 +127,6 @@ var layers = map[config.Layer]method{
 	config.LayerUsenet:     {custom: (*Prober).sampleUsenet},
 }
 
-// runVideo serves src on a local tap and drives ffprobe against it.
 func (p *Prober) runVideo(ctx context.Context, rec *recorder, src source, plan results.Plan) error {
 	defer src.close()
 	tap, err := startTap(src, rec)
@@ -160,8 +141,6 @@ func (p *Prober) runVideo(ctx context.Context, rec *recorder, src source, plan r
 	return nil
 }
 
-// withUpstream adds the first upstream failure to err. ffprobe only sees
-// the tap's 502, so its own message cannot say why the stack failed.
 func withUpstream(err error, rec *recorder) error {
 	if cause := rec.firstOpErr(); cause != "" {
 		return fmt.Errorf("%w; upstream: %s", err, cause)

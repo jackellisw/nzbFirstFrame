@@ -23,13 +23,10 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// news is a scripted NNTP server: it greets, logs every command line, and
-// answers BODY from bodies (wire form, already dot-stuffed, without the
-// terminator). A missing id answers 430.
 type news struct {
 	greeting string
 	bodies   map[string]string
-	stall    string // message-id whose body stops halfway and never ends
+	stall    string
 
 	mu       sync.Mutex
 	commands []string
@@ -89,7 +86,6 @@ func (n *news) saw() []string {
 	return slices.Clone(n.commands)
 }
 
-// usenetConfig points a usenet-only config at ln and writes nzb beside it.
 func usenetConfig(t *testing.T, ln net.Listener, nzb string) (*config.Config, config.Target) {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "release.nzb")
@@ -116,8 +112,6 @@ func listen(t *testing.T) net.Listener {
 	return ln
 }
 
-// The media is the second, larger file. Its segments are listed out of
-// order, one is repeated, and they differ in size: offsets are 0, 100, 400.
 const mixedNZB = `<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE nzb PUBLIC "-//newzBin//DTD NZB 1.1//EN" "http://www.newzbin.com/DTD/nzb/nzb-1.1.dtd">
 <nzb xmlns="http://www.newzbin.com/DTD/2003/nzb">
@@ -143,8 +137,6 @@ func TestUsenetFetchesTheSegmentAtEachFractionOfTheLargestFile(t *testing.T) {
 	srv.serve(t, ln)
 	cfg, target := usenetConfig(t, ln, mixedNZB)
 
-	// Of 1000 bytes: 0.05 is in segment 1, 0.1 is the first byte of
-	// segment 2, 0.39 its last, 0.4 the first of segment 3, 1.0 the end.
 	plan := planAt(0.05, 0.1, 0.39, 0.4, 1)
 	tl, err := newProber(cfg).Sample(t.Context(), config.LayerUsenet, target, plan)
 	if err != nil {
@@ -174,10 +166,9 @@ func TestUsenetFetchesTheSegmentAtEachFractionOfTheLargestFile(t *testing.T) {
 }
 
 func TestUsenetBodySizeIsTheContentAfterDotUnstuffing(t *testing.T) {
-	// Content lines: ".hidden", ".", "", "plain", "..two", each with CRLF.
 	const wire = "..hidden\r\n..\r\n\r\nplain\r\n...two\r\n"
 	const content = ".hidden\r\n.\r\n\r\nplain\r\n..two\r\n"
-	long := strings.Repeat("x", 200_000) + "\r\n" // longer than any read buffer
+	long := strings.Repeat("x", 200_000) + "\r\n"
 	srv := &news{greeting: "200 hi", bodies: map[string]string{"<m1@example>": wire, "<m2@example>": long}}
 	ln := listen(t)
 	srv.serve(t, ln)

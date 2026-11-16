@@ -10,8 +10,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// ms converts milliseconds, rounded to the microsecond so float arithmetic
-// on fixture constants doesn't leak sub-µs noise into the stored values.
 func ms(v float64) time.Duration { return time.Duration(math.Round(v*1000)) * time.Microsecond }
 
 func seekPoints(t *testing.T, s string) []config.SeekPoint {
@@ -31,8 +29,8 @@ func TestNewPlanKnownDuration(t *testing.T) {
 	want := []Seek{
 		{Point: "50%", Offset: 50 * time.Second, Fraction: 0.5},
 		{Point: "30s", Offset: 30 * time.Second, Fraction: 0.3},
-		{Point: "100%", Offset: 99 * time.Second, Fraction: 0.99},  // clamped: no frame past EOF
-		{Point: "02:00", Offset: 99 * time.Second, Fraction: 0.99}, // clamped
+		{Point: "100%", Offset: 99 * time.Second, Fraction: 0.99},
+		{Point: "02:00", Offset: 99 * time.Second, Fraction: 0.99},
 	}
 	if !slices.Equal(plan.Seeks, want) {
 		t.Fatalf("seeks = %+v\nwant   %+v", plan.Seeks, want)
@@ -74,8 +72,6 @@ func durEq(t *testing.T, what string, got, want time.Duration) {
 	}
 }
 
-// The prototype's MKV session: one read to first frame, then the first seek
-// pays three round trips (cues at the end of the file, seek head, target).
 func TestAnalyzeStartupAndSeeks(t *testing.T) {
 	tl := Timeline{
 		Ops: []Op{
@@ -157,7 +153,7 @@ func TestAnalyzeOverlappingOpsTransferWins(t *testing.T) {
 			{Kind: OpRead, Start: ms(1), FirstByte: ms(2), End: ms(3), Bytes: 1},
 			{Kind: OpRead, Start: ms(10), FirstByte: ms(50), End: ms(80), Bytes: 1},
 			{Kind: OpRead, Start: ms(30), FirstByte: ms(60), End: ms(70), Bytes: 1},
-			{Kind: OpRead, Start: ms(85), End: ms(95), Err: "reset"}, // no byte ever: waits throughout
+			{Kind: OpRead, Start: ms(85), End: ms(95), Err: "reset"},
 		},
 		Marks: []Mark{{Phase: 0, At: ms(5)}, {Phase: 1, At: ms(100)}},
 	}
@@ -171,29 +167,23 @@ func TestAnalyzeOverlappingOpsTransferWins(t *testing.T) {
 	}
 }
 
-// After the client seeks away, an abandoned read's late bytes overlap the
-// next request's wait. Its delivery is cut at that request's Start, so the
-// wait stays wait.
 func TestAnalyzeAbandonedReadStopsTransferringAtTheNextRequest(t *testing.T) {
 	for name, tc := range map[string]struct {
 		first                  Op
 		wait, transfer, client time.Duration
 	}{
-		// first [10,30) wait, [30,40) transfer; next [40,90) wait, [90,95) transfer
 		"bytes still landing when the next request goes out": {
 			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(30), End: ms(100), Bytes: 1000, Abandoned: true},
 			wait:     ms(20 + 50),
 			transfer: ms(10 + 5),
 			client:   ms(90 - 70 - 15),
 		},
-		// first [10,50) wait, none of its bytes before 40; next [40,90) wait, [90,95) transfer
 		"first byte after the next request went out": {
 			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(50), End: ms(100), Bytes: 1000, Abandoned: true},
 			wait:     ms(80),
 			transfer: ms(5),
 			client:   ms(90 - 80 - 5),
 		},
-		// not abandoned: its bytes count until End, and flowing bytes win
 		"a read that was not abandoned keeps its whole delivery": {
 			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(30), End: ms(100), Bytes: 1000},
 			wait:     ms(20),

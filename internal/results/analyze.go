@@ -59,7 +59,7 @@ type Analysis struct {
 // Bytes == sum(Phases[k].Bytes) + TailBytes.
 func Analyze(tl Timeline, plan Plan) Analysis {
 	res := Analysis{Phases: make([]PhaseResult, plan.Len())}
-	next := 0 // first op not yet attributed; Ops are sorted by Start
+	next := 0
 	var lo time.Duration
 	for k := range res.Phases {
 		pr := &res.Phases[k]
@@ -98,10 +98,6 @@ func Analyze(tl Timeline, plan Plan) Analysis {
 	return res
 }
 
-// split measures, within [from, to], the union of time the given ops spent
-// waiting for a first byte and the union of time bytes were flowing.
-// Transfer wins where they overlap: while any op delivers bytes the client
-// is not stalled. An op that never got a byte waits from Start to End.
 func split(ops []Op, idx []int, from, to time.Duration) (wait, transfer time.Duration) {
 	type span struct {
 		a, b     time.Duration

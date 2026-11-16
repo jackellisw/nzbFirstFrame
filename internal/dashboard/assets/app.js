@@ -1,19 +1,17 @@
 'use strict';
 
-// Layers top of stack first. The index is the layer's color slot, so a layer
-// keeps its color whichever layers a run measured.
 const LAYERS = ['jellyfin', 'rclone', 'infinidysk', 'usenet'];
 const SVGNS = 'http://www.w3.org/2000/svg';
 const POLL_MS = { running: 3000, stale: 15000, empty: 5000, error: 5000 };
 
 const state = {
-  runs: null, // GET api/runs, newest first; null until the first answer
-  runId: null, // the run on screen; null follows the newest
-  report: null, // its Report
-  sel: null, // drilled-down sample: {target, layer, idx, phase}
-  error: null, // last load failure
+  runs: null,
+  runId: null,
+  report: null,
+  sel: null,
+  error: null,
   notice: null,
-  unreadable: false, // the picked run's file exists but can't be read
+  unreadable: false,
 };
 
 const main = document.getElementById('main');
@@ -24,8 +22,6 @@ const tipEl = document.getElementById('tip');
 let charts = [];
 let pollTimer = 0;
 let loadSeq = 0;
-
-// ---- DOM ----------------------------------------------------------------
 
 function el(ns, tag, attrs, kids) {
   const e = ns ? document.createElementNS(ns, tag) : document.createElement(tag);
@@ -43,8 +39,6 @@ function el(ns, tag, attrs, kids) {
 const h = (tag, attrs, ...kids) => el(null, tag, attrs, kids);
 const s = (tag, attrs, ...kids) => el(SVGNS, tag, attrs, kids);
 
-// A chart is drawn once its box is in the page, at the box's width, and
-// redrawn when the width changes.
 function chart(cls, draw) {
   const box = h('div', { class: 'chart ' + cls });
   charts.push({ box, draw });
@@ -90,9 +84,6 @@ function stackRank(layer) {
 }
 const phaseLabel = (t, k) => (k === 0 ? 'startup' : 'seek ' + t.plan.seeks[k - 1].point);
 
-// ---- Formatting ---------------------------------------------------------
-
-// Units join their number with a no-break space so "0.4 ms" never wraps apart.
 function fmtDur(ns) {
   const ms = ns / 1e6;
   if (ms < 10) return ms.toFixed(1) + '\u00a0ms';
@@ -138,8 +129,6 @@ function tickLabel(v, tk, unit) {
   return Math.round(v / 1e6) + (last ? ' ms' : '');
 }
 
-// ---- Tooltip ------------------------------------------------------------
-
 const tips = new WeakMap();
 function withTip(node, fn) {
   tips.set(node, fn);
@@ -180,8 +169,6 @@ document.addEventListener('focusin', (e) => {
 document.addEventListener('focusout', hideTip);
 window.addEventListener('scroll', hideTip, { passive: true });
 
-// ---- Loading ------------------------------------------------------------
-
 async function getJSON(url) {
   let res;
   try {
@@ -193,7 +180,6 @@ async function getJSON(url) {
   try {
     body = await res.json();
   } catch {
-    // reported below
   }
   if (!res.ok) throw new Error(body && body.error ? body.error : `${res.status} ${res.statusText}`);
   if (body === null) throw new Error(`unreadable response from ${url}`);
@@ -223,7 +209,7 @@ async function refresh() {
       entry = runs.find((r) => !r.err) || runs[0];
       if (state.runId) {
         state.notice = `Run ${state.runId} is not in the results directory; showing the newest run.`;
-        state.sel = null; // it named a sample of the missing run
+        state.sel = null;
       } else if (entry !== runs[0]) {
         state.notice = `The newest run file, ${runs[0].id}, can't be read (${runs[0].err}); showing the newest readable run.`;
       }
@@ -296,9 +282,6 @@ function lastActivity(rep) {
   return t;
 }
 
-// A running run whose file stopped changing is probably a crashed process.
-// Samples start at most a timeout plus a cooldown apart; planning a target
-// can take another timeout.
 function isStale(rep) {
   const st = rep.run.settings || {};
   const limitMs = (2 * (st.timeout_ns || 60e9) + (st.cooldown_ns || 0)) / 1e6 + 60000;
@@ -311,8 +294,6 @@ function findSel(rep, sel) {
   const sample = cell && (cell.samples || [])[sel.idx];
   return target && sample ? { target, cell, sample } : null;
 }
-
-// ---- Rendering ----------------------------------------------------------
 
 function render() {
   hideTip();
@@ -405,7 +386,7 @@ function runView(rep) {
     r.finished && `took ${fmtDur((Date.parse(r.finished) - Date.parse(r.started)) * 1e6)}`,
     r.host, r.version && `nzbff ${r.version}`, `mode ${r.mode}`,
     `${st.iterations} iterations + ${st.warmup} warmup`,
-    st.cold_cache ? 'cold cache' : 'warm cache',
+    st.cold_cache && 'rclone dir cache dropped before each sample',
     (st.seek_points || []).length && `seeks ${st.seek_points.join(', ')}`,
     st.timeout_ns && `timeout ${fmtDur(st.timeout_ns)}`,
   ].filter(Boolean).join(' · ');
@@ -424,8 +405,6 @@ function runView(rep) {
 
 function targetCard(rep, t) {
   const cells = (rep.cells || []).filter((c) => c.target === t.name).sort((a, b) => stackRank(a.layer) - stackRank(b.layer));
-  // The scale fits the measured samples; a cold warmup can be several times
-  // slower and would squash them, so warmups past it are pinned at the edge.
   let measured = 0;
   let all = 0;
   let anyFail = false;
@@ -571,8 +550,6 @@ function statsTable(t, cells) {
         .map((x, i) => h('th', { class: i === 1 ? 't-left' : null, text: x })))),
       h('tbody', {}, rows))));
 }
-
-// ---- Sample drill-down --------------------------------------------------
 
 function sampleView(rep) {
   const found = state.sel && findSel(rep, state.sel);
@@ -726,8 +703,6 @@ function drawWaterfall(w, target, cell, sample) {
     if (op.dial_ns) g.append(bar(x(op.start_ns), x(dialEnd), 'dial'));
     g.append(bar(x(dialEnd), x(fb || op.end_ns), 'wait f' + sl));
     if (fb) {
-      // Matches results.Analyze: an abandoned read's transfer stops counting
-      // when the next request starts; what arrives after is read-ahead.
       const next = op.abandoned && ops[i + 1] ? ops[i + 1].start_ns : op.end_ns;
       const useful = Math.max(fb, Math.min(op.end_ns, next));
       if (useful > fb) g.append(bar(x(fb), x(useful), 'f' + sl));
@@ -795,8 +770,6 @@ function opsTable(target, sample) {
       h('table', {}, h('thead', {}, h('tr', {}, head)), h('tbody', {}, rows))));
 }
 
-// ---- Trends -------------------------------------------------------------
-
 function trendsView() {
   const runs = (state.runs || []).filter((r) => !r.err);
   const sec = h('section', { id: 'trends', 'aria-labelledby': 'trends-h' },
@@ -807,7 +780,6 @@ function trendsView() {
     return sec;
   }
   const asc = runs.slice().reverse();
-  // target → label → layer → p50 per run (null where missing or all failed)
   const groups = new Map();
   const layers = new Set();
   runs.forEach((r) => {
@@ -881,8 +853,6 @@ function drawTrend(w, f) {
     if (li >= 0) ends.push({ layer: sr.layer, x: x(ts[li]), y: y(sr.vals[li]), ly: y(sr.vals[li]) });
     if (cur >= 0 && sr.vals[cur] != null) svg.append(s('circle', { cx: x(ts[cur]), cy: y(sr.vals[cur]), r: 4, class: 'pt f' + sl }));
   }
-  // Direct labels at the right edge; converging lines get leader lines
-  // instead of labels stacked on top of each other.
   ends.sort((a, b) => a.ly - b.ly);
   for (let i = 1; i < ends.length; i++) ends[i].ly = Math.max(ends[i].ly, ends[i - 1].ly + 12);
   for (let i = ends.length - 1; i >= 0; i--) ends[i].ly = Math.min(ends[i].ly, i === ends.length - 1 ? M.t + ph : ends[i + 1].ly - 12);
@@ -977,8 +947,6 @@ function trendsTable(runs, groups, layers) {
       h('thead', {}, h('tr', {}, ['run', 'target', 'phase', ...layers].map((x, i) => h('th', { class: i === 1 || i === 2 ? 't-left' : null, text: x })))),
       h('tbody', {}, rows))));
 }
-
-// ---- Boot ---------------------------------------------------------------
 
 picker.addEventListener('change', () => openRun(picker.value));
 new ResizeObserver(drawCharts).observe(main);

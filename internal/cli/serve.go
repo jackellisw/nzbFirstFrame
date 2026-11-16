@@ -16,10 +16,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// runServe implements `nzbff serve [-listen 127.0.0.1:8484] [-results dir]`:
-// open the results store from config (results.dir) and serve
-// dashboard.New(store) until ctx is cancelled (graceful shutdown, 5s).
-// Needs no stack config; only the results directory.
 func runServe(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 	fs := newFlagSet("serve", "serve [flags]", stderr)
 	o := newOverrides(fs)
@@ -39,7 +35,6 @@ func runServe(ctx context.Context, args []string, stdout, stderr io.Writer) erro
 	if err != nil {
 		return err
 	}
-	// Defaults only: validating would demand stack endpoints serve never uses.
 	cfg.ApplyDerived()
 	if cfg.Results.Dir == "" {
 		return errors.New("no results directory: set results.dir in the config or pass -results")

@@ -19,13 +19,10 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// httpSource reads from an HTTP server that supports Range (Jellyfin's
-// static stream, infinidysk). The transport is created per sample and
-// closed with it.
 type httpSource struct {
 	url    string
-	header http.Header // e.g. X-Emby-Token; never on ffprobe's command line
-	user   string      // basic auth, optional
+	header http.Header
+	user   string
 	pass   string
 	client *http.Client
 }
@@ -74,8 +71,6 @@ func (s *httpSource) open(ctx context.Context, off, end int64) (opened, error) {
 
 func (s *httpSource) close() { s.client.CloseIdleConnections() }
 
-// rangeResponseSize checks that resp answers a read from off and returns
-// the full media size it reports.
 func rangeResponseSize(resp *http.Response, off int64) (int64, error) {
 	switch resp.StatusCode {
 	case http.StatusPartialContent:
@@ -89,8 +84,6 @@ func rangeResponseSize(resp *http.Response, off int64) (int64, error) {
 		}
 		return size, nil
 	case http.StatusOK:
-		// A server without Range support sends the whole file; that is
-		// only the requested bytes when the read starts at 0.
 		if off != 0 {
 			return 0, fmt.Errorf("upstream ignored Range (200 OK to a read from byte %d)", off)
 		}
@@ -114,8 +107,6 @@ func rangeResponseSize(resp *http.Response, off int64) (int64, error) {
 	}
 }
 
-// parseContentRange parses "bytes START-END/SIZE". An unknown size ("*")
-// is not ok: the tap needs it for its own Content-Range.
 func parseContentRange(h string) (start, size int64, ok bool) {
 	spec, found := strings.CutPrefix(h, "bytes ")
 	if !found {
@@ -134,15 +125,12 @@ func parseContentRange(h string) (start, size int64, ok bool) {
 	return start, size, err1 == nil && err2 == nil
 }
 
-// newSampleClient returns a client with its own connection pool, so a
-// sample pays its own connects.
 func newSampleClient(insecureSkipVerify bool) *http.Client {
 	tr := http.DefaultTransport.(*http.Transport).Clone()
 	tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: insecureSkipVerify}
 	return &http.Client{Transport: tr, CheckRedirect: credentialsStayOnOrigin}
 }
 
-// credentialHeaders are the headers the sources authenticate with.
 var credentialHeaders = []string{"X-Emby-Token", "Authorization"}
 
 // credentialsStayOnOrigin follows redirects but drops credentials from a
@@ -168,7 +156,6 @@ func credentialsStayOnOrigin(req *http.Request, via []*http.Request) error {
 	return nil
 }
 
-// fileSource reads a file on the rclone mount, as Jellyfin does.
 type fileSource struct{ path string }
 
 func (s *fileSource) open(ctx context.Context, off, end int64) (opened, error) {
@@ -197,8 +184,6 @@ func (s *fileSource) open(ctx context.Context, off, end int64) (opened, error) {
 
 func (s *fileSource) close() {}
 
-// jellyfinSource streams the item through Jellyfin unmodified:
-// {url}/Videos/{item}/stream?static=true with the API key in X-Emby-Token.
 func jellyfinSource(p *Prober, t config.Target) source {
 	j := p.cfg.Jellyfin
 	return &httpSource{
@@ -208,13 +193,10 @@ func jellyfinSource(p *Prober, t config.Target) source {
 	}
 }
 
-// mountSource reads {mount_path}/{path}.
 func mountSource(p *Prober, t config.Target) source {
 	return &fileSource{path: filepath.Join(p.cfg.Rclone.MountPath, filepath.FromSlash(t.Path))}
 }
 
-// infinidyskSource reads {url}/{path} (each segment path-escaped) with
-// optional basic auth.
 func infinidyskSource(p *Prober, t config.Target) source {
 	d := p.cfg.Infinidysk
 	segments := strings.Split(t.Path, "/")

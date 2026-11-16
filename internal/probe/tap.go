@@ -14,39 +14,17 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// source is one layer's byte supply behind the tap. It only knows how to
-// read the media from an offset; the tap owns HTTP Range semantics, timing
-// and accounting, so they are identical for every layer.
-//
-// Invariant: a source does no upstream I/O outside open. In particular it
-// learns the size from the response to the first open, never from a
-// separate stat/HEAD, so nothing that touches upstream escapes the timeline
-// (a stat on the mount would also undo a cold-cache vfs/forget).
 type source interface {
-	// open starts reading [off, end] (end == -1: to EOF). It returns once the
-	// upstream has answered (response headers, or file opened and seeked);
-	// the first Read on body then blocks for the first payload byte. size is
-	// the full media size and is greater than off. An offset at or past the
-	// end is an *unsatisfiableError.
 	open(ctx context.Context, off, end int64) (opened, error)
-	// close releases what the sample's opens left behind (pooled upstream
-	// connections).
 	close()
 }
 
-// opened is a started read.
 type opened struct {
-	// body yields the media from off. It may run past end; the tap stops at
-	// the requested length.
 	body io.ReadCloser
 	size int64
-	// dial is the time this read waited for a new upstream connection
-	// (DNS + TCP + TLS); 0 if a pooled connection was reused.
 	dial time.Duration
 }
 
-// unsatisfiableError reports a read that starts at or past the end of the
-// media. size is the media size, or -1 when the upstream did not say.
 type unsatisfiableError struct{ size int64 }
 
 func (e *unsatisfiableError) Error() string {
@@ -62,13 +40,8 @@ func (e *unsatisfiableError) Error() string {
 // mount outlive profile.timeout.
 const tapDrainGrace = time.Second
 
-// tap is a loopback HTTP server ffprobe reads from. Every request becomes
-// one results.Op: Start when the request reaches the handler, FirstByte when
-// the first payload byte arrives from the source (stamped before it is
-// written on), End when the last byte was handed to ffprobe, and Bytes the
-// payload handed over, whether or not ffprobe went on to consume it.
 type tap struct {
-	url string // http://127.0.0.1:<port>/media
+	url string
 	srv *http.Server
 	src source
 	rec *recorder
@@ -85,11 +58,10 @@ func startTap(src source, rec *recorder) (*tap, error) {
 	return t, nil
 }
 
-// handle serves one ffprobe request.
 func (t *tap) handle(w http.ResponseWriter, r *http.Request) {
-	op := results.Op{Kind: results.OpRead, Start: t.rec.now(), Ref: r.Header.Get("Range")}
+	op := results.Op{Kind: results.OpRead, Start: t.rec.stamp(), Ref: r.Header.Get("Range")}
 	fail := func(code int, msg string) {
-		op.Err, op.End = msg, t.rec.now()
+		op.Err, op.End = msg, t.rec.stamp()
 		t.rec.op(op)
 		http.Error(w, msg, code)
 	}
@@ -113,9 +85,7 @@ func (t *tap) handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil && r.Context().Err() != nil {
-		// ffprobe hung up before the upstream answered. The upstream did
-		// not fail, and nobody is left to send a status to.
-		op.Abandoned, op.End = true, t.rec.now()
+		op.Abandoned, op.End = true, t.rec.stamp()
 		t.rec.op(op)
 		return
 	}
@@ -151,7 +121,7 @@ func (t *tap) handle(w http.ResponseWriter, r *http.Request) {
 		n, rerr := body.Read(buf)
 		if n > 0 {
 			if op.FirstByte == 0 {
-				op.FirstByte = t.rec.now()
+				op.FirstByte = t.rec.stamp()
 			}
 			m, werr := w.Write(buf[:n])
 			op.Bytes += int64(m)
@@ -162,14 +132,12 @@ func (t *tap) handle(w http.ResponseWriter, r *http.Request) {
 				clientGone = true
 				break
 			}
-			op.End = t.rec.now()
+			op.End = t.rec.stamp()
 		}
 		if rerr == io.EOF {
 			break
 		}
 		if rerr != nil {
-			// The upstream read is tied to the request context, so it also
-			// fails when ffprobe hangs up while we wait for bytes.
 			if r.Context().Err() != nil {
 				clientGone = true
 			} else {
@@ -183,7 +151,7 @@ func (t *tap) handle(w http.ResponseWriter, r *http.Request) {
 	// next request's headers arrive, a whole upstream TTFB later. Ending
 	// the op there would show bytes flowing through the next op's wait.
 	if op.End == 0 {
-		op.End = t.rec.now()
+		op.End = t.rec.stamp()
 	}
 	o.body.Close()
 
@@ -197,8 +165,6 @@ func (t *tap) handle(w http.ResponseWriter, r *http.Request) {
 	t.rec.op(op)
 }
 
-// close stops the server and waits for in-flight handlers to record their
-// ops (abandoned reads finish when their client connection is gone).
 func (t *tap) close() {
 	ctx, cancel := context.WithTimeout(context.Background(), tapDrainGrace)
 	defer cancel()
@@ -207,7 +173,6 @@ func (t *tap) close() {
 	}
 }
 
-// parseRange parses a single "bytes=N-" or "bytes=N-M" header.
 func parseRange(h string) (off, end int64, ok bool) {
 	spec, found := strings.CutPrefix(strings.TrimSpace(h), "bytes=")
 	if !found {

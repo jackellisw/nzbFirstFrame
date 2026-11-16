@@ -60,7 +60,6 @@ const idTimeLayout = "20060102T150405Z"
 
 var idPattern = regexp.MustCompile(`^[0-9]{8}T[0-9]{6}Z-[0-9a-f]{6}$`)
 
-// randSuffix is a variable so a test can force an ID collision.
 var randSuffix = func() string {
 	b := make([]byte, 3)
 	_, _ = rand.Read(b)
@@ -69,7 +68,6 @@ var randSuffix = func() string {
 
 func (s *Store) path(id string) string { return filepath.Join(s.dir, id+".json") }
 
-// writeTmp writes run to a durable tmp file next to its final name.
 func (s *Store) writeTmp(run *Run) (string, error) {
 	data, err := json.MarshalIndent(run, "", " ")
 	if err != nil {
@@ -93,7 +91,6 @@ func (s *Store) writeTmp(run *Run) (string, error) {
 	return f.Name(), nil
 }
 
-// replace atomically swaps the run's file for its current contents.
 func (s *Store) replace(run *Run) error {
 	tmp, err := s.writeTmp(run)
 	if err != nil {
@@ -205,8 +202,6 @@ func (s *Store) Load(id string) (*Run, error) {
 	if err != nil {
 		return nil, fmt.Errorf("load run: %w", err)
 	}
-	// Check the schema before decoding the rest: a newer shape may not
-	// decode into this one at all.
 	var head struct {
 		Schema int `json:"schema"`
 	}

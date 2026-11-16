@@ -12,8 +12,7 @@ import (
 
 // forget asks rclone (rc vfs/forget file=<path>) to drop its directory and
 // attribute cache for the target. It does NOT evict cached file data under
-// --vfs-cache-mode full; "cold" therefore means cold metadata, and the
-// dashboard labels it that way.
+// --vfs-cache-mode full; "cold" therefore means cold metadata.
 //
 // A target without a path (jellyfin only) forgets the whole directory
 // cache, which is what rclone does when no path is passed.

@@ -18,20 +18,6 @@ var update = flag.Bool("update", false, "rewrite testdata/run.json from buildFix
 
 const fixturePath = "testdata/run.json"
 
-// The fixture is a realistic stored run for the dashboard and these tests:
-// two targets (an MKV with lazy cues, an MP4 with moov at the end), all four
-// layers, 2 warmups + 5 measured iterations, three seek points, and four
-// failures. Phase latencies follow from the constants below, so expected
-// statistics can be computed by hand:
-//
-//	video startup (MKV)  = ttfb + 18 + 2               one read
-//	video startup (MP4)  = 3*ttfb + 1.5+0.4+24+3+10+2  ftyp, moov, mdat
-//	MKV seek 1           = 3*ttfb + 0.3+4+0.5+2+0.4+12+2  cues, seek head, target
-//	other video seeks    = ttfb + 0.3 + 12 + 2
-//	usenet startup       = 38.6 + 0.1 + 41.2 + 0.2 + ttfb + 86  connect, auth, BODY
-//	usenet seeks         = 0.2 + ttfb + 86
-//
-// where ttfb = layer base + iteration jitter (ms).
 var (
 	fixtureBaseTTFB = map[config.Layer]float64{
 		config.LayerJellyfin: 262, config.LayerRclone: 228, config.LayerInfinidysk: 183, config.LayerUsenet: 118,
@@ -73,8 +59,8 @@ var fixtureFaults = map[sampleID]fault{
 }
 
 const (
-	segmentSize  = 716800 // decoded bytes per article
-	articleBytes = 739870 // yEnc-encoded body as delivered
+	segmentSize  = 716800
+	articleBytes = 739870
 )
 
 func buildFixture() Run {
@@ -149,8 +135,6 @@ func buildFixture() Run {
 	return run
 }
 
-// keyframePTS is where a seek to off lands: the keyframe at or before it,
-// with a 48-frame GOP at 23.976 fps.
 func keyframePTS(off time.Duration) float64 {
 	const gop = 48 / 23.976
 	return math.Round(math.Floor(off.Seconds()/gop)*gop*1000) / 1000
@@ -158,7 +142,7 @@ func keyframePTS(off time.Duration) float64 {
 
 func videoSession(m fixtureMedia, plan Plan, ttfb, dial float64, f fault, slowExit bool) (Timeline, string) {
 	var tl Timeline
-	now := 24.8 // ffprobe's own startup before its first request
+	now := 24.8
 	read := func(off int64, gap, transfer float64, n int64) int {
 		start := now + gap
 		fb := start + ttfb
@@ -173,7 +157,7 @@ func videoSession(m fixtureMedia, plan Plan, ttfb, dial float64, f fault, slowEx
 		now = until
 	}
 	mark := func(pts float64) {
-		now += 2 // decode one frame
+		now += 2
 		tl.Marks = append(tl.Marks, Mark{Phase: len(tl.Marks), At: ms(now), PTS: pts})
 	}
 	abandon := func(i int, at float64) {
@@ -193,7 +177,7 @@ func videoSession(m fixtureMedia, plan Plan, ttfb, dial float64, f fault, slowEx
 	if m.mp4 {
 		ftyp := read(0, 0, 1.5, 32768)
 		abandon(ftyp, now)
-		read(m.size-3_145_728, 0.4, 24, 3_145_728) // moov at the end
+		read(m.size-3_145_728, 0.4, 24, 3_145_728)
 		open = read(48, 3, 10, 851968)
 		tl.Ops[ftyp].Dial = ms(dial)
 	} else {
@@ -219,7 +203,7 @@ func videoSession(m fixtureMedia, plan Plan, ttfb, dial float64, f fault, slowEx
 				return tl, fmt.Sprintf("ffprobe: exit status 1: [mov,mp4,m4a,3gp,3g2,mj2 @ 0x6000038f0000] "+
 					"stream 0, offset 0x%x: partial file", off)
 			case !m.mp4:
-				read(m.size-2_874_112, 0.3, 4, 262144) // lazy MKV cues at the end of the file
+				read(m.size-2_874_112, 0.3, 4, 262144)
 				sh := read(104213, 0.5, 2, 65536)
 				abandon(sh, now)
 				gap = 0.4
@@ -369,7 +353,6 @@ func TestSummarizeFixture(t *testing.T) {
 	}
 	phase := func(target string, l config.Layer, k int) PhaseStats { return cells[SeriesKey{target, l}].Phases[k] }
 
-	// infinidysk ttfb = 183 + {0,14,-6,31,8}
 	startup := phase("foo", config.LayerInfinidysk, 0)
 	want := PhaseStats{Phase: 0, Label: "startup", N: 5,
 		Min: ms(197), P50: ms(211), P90: ms(234), Max: ms(234), Mean: ms(212.4),
@@ -396,13 +379,13 @@ func TestSummarizeFixture(t *testing.T) {
 		layer     config.Layer
 		k, n, bad int
 	}{
-		{"foo", config.LayerJellyfin, 0, 5, 0},          // timeout came after startup
-		{"foo", config.LayerJellyfin, 1, 4, 1},          // ... in seek 10%
-		{"foo", config.LayerJellyfin, 3, 4, 1},          // later phases never ran
-		{"foo", config.LayerUsenet, 2, 5, 0},            // 430 only on the last seek
-		{"foo", config.LayerUsenet, 3, 4, 1},            //
-		{"bar-s01e02", config.LayerInfinidysk, 1, 4, 1}, // truncated after startup
-		{"bar-s01e02", config.LayerJellyfin, 0, 5, 0},   // failed warmup is not counted
+		{"foo", config.LayerJellyfin, 0, 5, 0},
+		{"foo", config.LayerJellyfin, 1, 4, 1},
+		{"foo", config.LayerJellyfin, 3, 4, 1},
+		{"foo", config.LayerUsenet, 2, 5, 0},
+		{"foo", config.LayerUsenet, 3, 4, 1},
+		{"bar-s01e02", config.LayerInfinidysk, 1, 4, 1},
+		{"bar-s01e02", config.LayerJellyfin, 0, 5, 0},
 		{"bar-s01e02", config.LayerRclone, 3, 5, 0},
 	} {
 		if p := phase(c.target, c.layer, c.k); p.N != c.n || p.Failed != c.bad {
@@ -416,7 +399,6 @@ func TestSummarizeFixture(t *testing.T) {
 	}
 }
 
-// near tolerates ms()'s rounding of expected values computed in float.
 func near(a, b time.Duration) bool { return (a - b).Abs() <= time.Microsecond }
 
 func closeStats(a, b PhaseStats) bool {

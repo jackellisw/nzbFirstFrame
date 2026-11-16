@@ -12,8 +12,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// scriptedFFprobe returns a config whose "ffprobe" is a shell script, so
-// the driver can be shown exact output without a real media file.
 func scriptedFFprobe(t *testing.T, script string) (*config.Config, config.Target) {
 	t.Helper()
 	if runtime.GOOS == "windows" {
@@ -112,8 +110,6 @@ exit 1
 	}
 }
 
-// The script's sleep is a child that outlives the killed shell and keeps
-// stdout open, as a wrapper around ffprobe would.
 func TestDriverReturnsAtTheTimeoutWhenFFprobeHangs(t *testing.T) {
 	cfg, target := scriptedFFprobe(t, `
 echo 'pts_time=0.000000'

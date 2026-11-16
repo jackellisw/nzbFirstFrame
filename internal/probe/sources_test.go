@@ -15,8 +15,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// rangeServer serves data with net/http's own Range implementation and
-// keeps the last request it saw.
 func rangeServer(t *testing.T, data string) (*httptest.Server, *http.Request) {
 	t.Helper()
 	last := new(http.Request)
@@ -98,8 +96,8 @@ func TestInfinidyskSourceEscapesPathAndSendsBasicAuth(t *testing.T) {
 
 func TestCredentialsDoNotFollowARedirectToAnotherHost(t *testing.T) {
 	var mu sync.Mutex
-	seen := map[string]http.Header{} // host+path → headers of the last request
-	var redirect string              // where the origin sends a source's first request
+	seen := map[string]http.Header{}
+	var redirect string
 	serve := func(w http.ResponseWriter, r *http.Request) {
 		mu.Lock()
 		seen[r.Host+r.URL.Path] = r.Header.Clone()
@@ -140,7 +138,7 @@ func TestCredentialsDoNotFollowARedirectToAnotherHost(t *testing.T) {
 		{"infinidysk", func() source { return infinidyskSource(New(cfg, nil), config.Target{Path: "movie.mkv"}) }, "/movie.mkv", "Authorization"},
 	}
 	for name, tc := range map[string]struct {
-		redirect, final string // URL the origin redirects to, URL that serves the media
+		redirect, final string
 		keep            bool
 	}{
 		"to another host":                {other.URL + "/media", other.URL + "/media", false},
@@ -190,7 +188,7 @@ func TestHTTPSourceReportsDialOnlyForNewConnections(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	readAll(t, first) // drained, so the connection returns to the pool
+	readAll(t, first)
 	second, err := src.open(t.Context(), 0, -1)
 	if err != nil {
 		t.Fatal(err)

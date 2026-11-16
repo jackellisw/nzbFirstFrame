@@ -1,9 +1,4 @@
 // Package profiler runs first-frame and seek measurements across the stack.
-//
-// Run is the engine: plan each target, take samples layer-interleaved,
-// persist every sample as it lands, then render the derived report. How a
-// layer is reached lives in package probe; what is stored and derived lives
-// in package results.
 package profiler
 
 import (
@@ -110,8 +105,6 @@ targets:
 			at := time.Now().UTC()
 			tl, err := p.Sample(ctx, s.layer, t, tr.Plan)
 			if err != nil && ctx.Err() != nil {
-				// Cut short by our own cancellation, not by the stack:
-				// stored, it would read as a failure of the layer.
 				break targets
 			}
 			sample := results.Sample{Iteration: s.iteration, Warmup: s.warmup, At: at, Timeline: tl}
@@ -147,7 +140,6 @@ targets:
 	return nil
 }
 
-// sleep waits d, or reports false as soon as ctx is done.
 func sleep(ctx context.Context, d time.Duration) bool {
 	if ctx.Err() != nil {
 		return false
@@ -165,7 +157,6 @@ func sleep(ctx context.Context, d time.Duration) bool {
 	}
 }
 
-// logSample writes one line per sample with each phase's latency.
 func logSample(log *slog.Logger, target string, s step, plan results.Plan, sample results.Sample) {
 	a := results.Analyze(sample.Timeline, plan)
 	phases := make([]string, len(a.Phases))
@@ -185,10 +176,6 @@ func logSample(log *slog.Logger, target string, s step, plan results.Plan, sampl
 	log.Info("sample", attrs...)
 }
 
-// planTarget resolves duration and the seek plan. Startup-only mode skips
-// the duration probe entirely (no seeks to resolve, nothing warmed). Without
-// a video layer the duration stays unknown: percent points then resolve to a
-// fraction (all usenet uses) and absolute points are a target error.
 func planTarget(ctx context.Context, p *probe.Prober, cfg *config.Config, mode Mode, t config.Target) results.Target {
 	tr := results.Target{Name: t.Name, Path: t.Path, ItemID: t.JellyfinItemID}
 	points := seekPoints(cfg, mode)
@@ -209,7 +196,6 @@ func planTarget(ctx context.Context, p *probe.Prober, cfg *config.Config, mode M
 	return tr
 }
 
-// seekPoints are the points a run in mode seeks to.
 func seekPoints(cfg *config.Config, mode Mode) []config.SeekPoint {
 	if !mode.Seek() {
 		return nil
@@ -217,25 +203,12 @@ func seekPoints(cfg *config.Config, mode Mode) []config.SeekPoint {
 	return cfg.Profile.SeekPoints
 }
 
-// step is one scheduled sample.
 type step struct {
 	layer     config.Layer
 	iteration int
 	warmup    bool
 }
 
-// schedule orders a target's samples iteration-major: all warmups (every
-// layer), then iteration 0 of every layer, iteration 1 of every layer, ...
-// Within an iteration layers run in config.AllLayers order.
-//
-// Interleaving keeps layers comparable side by side: provider congestion
-// that drifts over a long run hits every layer of iteration i alike instead
-// of landing on whichever layer's series happened to run during it.
-//
-// Order cannot make lower caches cold: after the warmup every layer has read
-// the same byte ranges, so infinidysk/provider caches are warm for all
-// measured samples whatever the order. What is measured is the warm path
-// plus (with cold_cache) cold rclone metadata; see RATIONALE open questions.
 func schedule(p config.ProfileConfig) []step {
 	var steps []step
 	add := func(n int, warmup bool) {
@@ -250,15 +223,12 @@ func schedule(p config.ProfileConfig) []step {
 	return steps
 }
 
-// stackOrder returns the selected layers, top of the stack first.
 func stackOrder(selected []config.Layer) []config.Layer {
 	return slices.DeleteFunc(slices.Clone(config.AllLayers), func(l config.Layer) bool {
 		return !slices.Contains(selected, l)
 	})
 }
 
-// newRun builds the stored run header from config, with every target and
-// (target, layer) series in place so a partial file still shows the plan.
 func newRun(cfg *config.Config, mode Mode, started time.Time) results.Run {
 	p := cfg.Profile
 	host, _ := os.Hostname()

@@ -1,10 +1,6 @@
 // Package results owns the stored record of profiling runs and everything
 // derived from it: the on-disk store, the analyzed Report the CLI and the
 // dashboard both show, and rendering to table/json/csv.
-//
-// Stored = facts (Run: settings, per-target plan, per-sample timelines,
-// errors). Derived = Report, recomputed by Summarize on every read. There is
-// no stored derived value to keep in sync.
 package results
 
 import (

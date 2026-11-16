@@ -1,15 +1,3 @@
-// The measurement fact model shared by every layer.
-//
-// A Timeline is what one sample observed, stamped on one monotonic clock whose
-// origin is the start of the sample: the upstream operations the stack served
-// (HTTP Range reads through the tap, or NNTP connect/auth/BODY), and the marks
-// that close each phase (first frame after the open, first frame after each
-// seek, or the end of an article for the usenet layer).
-//
-// Timelines are stored verbatim. Every number the CLI or dashboard shows
-// (startup, per-seek latency, request counts, bytes, TTFB) is derived from a
-// Timeline by Analyze, so improving the derivation re-scores old runs and no
-// derived value can drift from the facts it came from.
 package results
 
 import (

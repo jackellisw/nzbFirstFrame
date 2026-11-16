@@ -13,13 +13,12 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// stubSource serves data and records what the tap asked of it.
 type stubSource struct {
 	data      []byte
-	firstByte time.Duration // delay before the first payload byte
-	short     int64         // bytes the body withholds from the end
+	firstByte time.Duration
+	short     int64
 	openErr   error
-	hang      bool // open blocks until the request is cancelled
+	hang      bool
 
 	mu    sync.Mutex
 	asked [][2]int64
@@ -107,7 +106,7 @@ func TestTapRangeSemantics(t *testing.T) {
 		status       int
 		contentRange string
 		body         []byte
-		asked        [][2]int64 // what the source must be asked; nil = not opened
+		asked        [][2]int64
 	}{
 		{"no range", "", 200, "", data, [][2]int64{{0, -1}}},
 		{"open end", "bytes=100-", 206, "bytes 100-999/1000", data[100:], [][2]int64{{100, -1}}},
@@ -165,7 +164,7 @@ func TestTapStampsFirstByteWhenItArrivesBeforeForwardingIt(t *testing.T) {
 	const delay = 120 * time.Millisecond
 	tp, rec := tapOver(t, &stubSource{data: make([]byte, 4096), firstByte: delay})
 
-	sent := rec.now()
+	sent := rec.stamp()
 	resp, err := http.Get(tp.url)
 	if err != nil {
 		t.Fatal(err)
@@ -174,7 +173,7 @@ func TestTapStampsFirstByteWhenItArrivesBeforeForwardingIt(t *testing.T) {
 	if _, err := io.ReadFull(resp.Body, make([]byte, 1)); err != nil {
 		t.Fatal(err)
 	}
-	received := rec.now()
+	received := rec.stamp()
 	io.Copy(io.Discard, resp.Body)
 
 	op := soleOp(t, tp, rec)
@@ -193,7 +192,7 @@ func TestTapStampsFirstByteWhenItArrivesBeforeForwardingIt(t *testing.T) {
 }
 
 func TestTapMarksReadAbandonedWhenClientHangsUp(t *testing.T) {
-	const size = 64 << 20 // far more than loopback socket buffers hold
+	const size = 64 << 20
 	tp, rec := tapOver(t, &stubSource{data: make([]byte, size)})
 
 	resp, err := http.Get(tp.url)

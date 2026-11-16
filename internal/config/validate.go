@@ -27,8 +27,6 @@ func (c *Config) ApplyDerived() {
 	}
 }
 
-// defaultResultsDir follows the XDG state-dir convention. Returns "" when no
-// home directory is known; the store then fails with a clear error.
 func defaultResultsDir() string {
 	if d := os.Getenv("XDG_STATE_HOME"); d != "" {
 		return filepath.Join(d, "nzbff", "results")

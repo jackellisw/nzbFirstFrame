@@ -36,7 +36,6 @@ func Render(w io.Writer, rep Report, format config.OutputFormat, dir string) err
 	return fmt.Errorf("unknown output format %q", format)
 }
 
-// Column caps keep a table row within 100 columns.
 const (
 	maxTargetWidth = 18
 	maxLabelWidth  = 16
@@ -78,8 +77,6 @@ func renderTable(w io.Writer, rep Report, dir string) error {
 	return nil
 }
 
-// failureLines lists unplanned targets and every sample (warmups included)
-// that errored or left a phase unmarked, naming the first unreached phase.
 func failureLines(rep Report) []string {
 	var out []string
 	for _, t := range rep.Targets {
@@ -145,8 +142,6 @@ func csvMS(d time.Duration) string {
 	return strconv.FormatFloat(float64(d)/float64(time.Millisecond), 'f', 3, 64)
 }
 
-// fmtDuration is milliseconds below 10s, so values that are compared side
-// by side keep one unit.
 func fmtDuration(d time.Duration) string {
 	ms := float64(d) / float64(time.Millisecond)
 	switch {

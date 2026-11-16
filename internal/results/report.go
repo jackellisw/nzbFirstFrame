@@ -142,17 +142,14 @@ func phaseStats(k int, label string, samples []SampleReport) PhaseStats {
 	return ps
 }
 
-// nearestRank returns the p-th percentile of sorted xs (zero when empty).
 func nearestRank[T int64 | time.Duration](xs []T, p int) T {
 	if len(xs) == 0 {
 		return 0
 	}
-	rank := (p*len(xs) + 99) / 100 // ceil(p/100 * n)
+	rank := (p*len(xs) + 99) / 100
 	return xs[max(rank, 1)-1]
 }
 
-// firstTTFB is the time to first byte of the phase's first request that
-// got a byte.
 func firstTTFB(ops []Op, pr PhaseResult) (time.Duration, bool) {
 	for _, i := range pr.Ops {
 		op := ops[i]

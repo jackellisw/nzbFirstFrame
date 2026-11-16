@@ -87,7 +87,6 @@ func runProfile(ctx context.Context, name string, args []string, stdout, stderr 
 	return profileErr(profiler.Run(ctx, opts))
 }
 
-// profileErr words the ends of a run that has already printed its report.
 func profileErr(err error) error {
 	if errors.Is(err, context.Canceled) {
 		return errors.New("interrupted; the partial run is stored")

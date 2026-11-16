@@ -131,9 +131,6 @@ func TestDryRunShowsResultsDir(t *testing.T) {
 	}
 }
 
-// Both targets fail to plan (ffprobe cannot run), so nothing touches the
-// network: the run is stored, the report written to -o, and the exit says
-// samples failed.
 func TestFailedRunWritesTheReportThenExits1(t *testing.T) {
 	cfg := writeConfig(t)
 	dir := filepath.Join(t.TempDir(), "results")
@@ -162,7 +159,6 @@ func TestFailedRunWritesTheReportThenExits1(t *testing.T) {
 		}
 	}
 
-	// 2 targets x 2 layers x 3 iterations, none planned.
 	summary := "nzbff run: run " + id + ": 12 of 12 samples failed (see report)\n"
 	if !strings.HasSuffix(errOut, summary) {
 		t.Errorf("stderr does not end with %q:\n%s", summary, errOut)

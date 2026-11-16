@@ -12,12 +12,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/fakestack"
 )
 
-// runDevStack implements
-// `nzbff dev-stack [-dir d] [-ttfb 200ms] [-article-ttfb 80ms] [-container mkv] [-o file]`:
-// fakestack.Start, print a YAML config pointing at it (secrets included; it
-// is all loopback), then block until ctx is cancelled. Lets a developer run
-// `nzbff run -c fake.yaml` and `nzbff serve` against known latency.
-// Not listed in usage.
 func runDevStack(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 	fs := newFlagSet("dev-stack", "dev-stack [flags]", stderr)
 	dir := fs.String("dir", "", "working `directory` for the mount, NZB and results (default: a temp dir removed on exit)")
