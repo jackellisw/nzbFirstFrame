@@ -114,6 +114,61 @@ func TestBadFlagIsUsageError(t *testing.T) {
 	}
 }
 
+func TestDryRunShowsResultsDir(t *testing.T) {
+	cfg := writeConfig(t)
+	t.Setenv("XDG_STATE_HOME", "/state")
+	for _, tc := range []struct {
+		args []string
+		want string
+	}{
+		{nil, "results:     " + filepath.Join("/state", "nzbff", "results") + "\n"},
+		{[]string{"-results", "/elsewhere/runs"}, "results:     /elsewhere/runs\n"},
+	} {
+		code, out, errOut := run(t, append([]string{"run", "-c", cfg, "-dry-run"}, tc.args...)...)
+		if code != 0 || !strings.Contains(out, tc.want) {
+			t.Errorf("%v: exit %d, want %q in:\n%s%s", tc.args, code, tc.want, out, errOut)
+		}
+	}
+}
+
+// Both targets fail to plan (ffprobe cannot run), so nothing touches the
+// network: the run is stored, the report written to -o, and the exit says
+// samples failed.
+func TestFailedRunWritesTheReportThenExits1(t *testing.T) {
+	cfg := writeConfig(t)
+	dir := filepath.Join(t.TempDir(), "results")
+	report := filepath.Join(t.TempDir(), "report.txt")
+	code, out, errOut := run(t, "run", "-c", cfg, "-ffprobe", filepath.Join(t.TempDir(), "no-ffprobe"),
+		"-results", dir, "-o", report)
+	if code != exitFail {
+		t.Fatalf("exit %d, want %d; stderr:\n%s", code, exitFail, errOut)
+	}
+	if out != "" {
+		t.Errorf("stdout %q, want the report only in the -o file", out)
+	}
+
+	entries, err := os.ReadDir(dir)
+	if err != nil || len(entries) != 1 {
+		t.Fatalf("results dir holds %v (%v), want one run file", entries, err)
+	}
+	id := strings.TrimSuffix(entries[0].Name(), ".json")
+	body, err := os.ReadFile(report)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"TARGET", "a: not planned", "b: not planned", "stored run " + id + " in " + dir} {
+		if !strings.Contains(string(body), want) {
+			t.Errorf("report lacks %q:\n%s", want, body)
+		}
+	}
+
+	// 2 targets x 2 layers x 3 iterations, none planned.
+	summary := "nzbff run: run " + id + ": 12 of 12 samples failed (see report)\n"
+	if !strings.HasSuffix(errOut, summary) {
+		t.Errorf("stderr does not end with %q:\n%s", summary, errOut)
+	}
+}
+
 func TestConfigSubcommands(t *testing.T) {
 	cfg := writeConfig(t)
 

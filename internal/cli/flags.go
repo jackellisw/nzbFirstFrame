@@ -164,6 +164,7 @@ func registerProfile(fs *flag.FlagSet, o *overrides, withSeek bool) *profileFlag
 	})
 	o.str("o", "write results to `file` (default stdout)", func(c *config.Config) *string { return &c.Output.Path })
 	o.str("output", "write results to `file` (same as -o)", func(c *config.Config) *string { return &c.Output.Path })
+	o.str("results", "store the run in `dir` (default: results.dir from the config)", func(c *config.Config) *string { return &c.Results.Dir })
 
 	fs.BoolVar(&p.dryRun, "dry-run", false, "print the resolved plan and exit without measuring")
 	return p
