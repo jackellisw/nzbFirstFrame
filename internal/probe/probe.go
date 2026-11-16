@@ -59,7 +59,6 @@ func (p *Prober) Media(ctx context.Context, t config.Target) (Media, error) {
 		if err == nil {
 			return Media{Duration: d, Via: l}, nil
 		}
-		p.log.Warn("duration probe failed, trying the next layer up", "target", t.Name, "layer", l, "err", err)
 		failures = append(failures, fmt.Sprintf("duration via %s: %v", l, err))
 	}
 	if len(failures) == 0 {
