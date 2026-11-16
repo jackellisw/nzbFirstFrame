@@ -7,8 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"slices"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 	"github.com/jackellisw/nzbfirstframe/internal/results"
@@ -139,6 +142,53 @@ func (p *Prober) runVideo(ctx context.Context, rec *recorder, src source, plan r
 		return withUpstream(err, rec)
 	}
 	return nil
+}
+
+// serverTextLimit bounds how much of a reply goes into an error. Errors are
+// stored with the run, and a server chooses what its replies say.
+const serverTextLimit = 160
+
+// scrubber prepares text a server sent for an error message: it masks every
+// configured credential, since a server may echo the login it rejected, and
+// keeps a short prefix.
+type scrubber struct{ secrets []string }
+
+func newScrubber(cfg *config.Config) scrubber {
+	var secrets []string
+	for _, s := range []string{
+		cfg.Jellyfin.APIKey, cfg.Rclone.RCUser, cfg.Rclone.RCPassword,
+		cfg.Infinidysk.Username, cfg.Infinidysk.Password, cfg.Usenet.Username, cfg.Usenet.Password,
+	} {
+		if s != "" {
+			secrets = append(secrets, s)
+		}
+	}
+	// Longest first, so a password that contains the username is masked whole.
+	slices.SortFunc(secrets, func(a, b string) int { return len(b) - len(a) })
+	return scrubber{secrets: secrets}
+}
+
+func (s scrubber) text(reply string) string {
+	for _, secret := range s.secrets {
+		reply = strings.ReplaceAll(reply, secret, "***")
+	}
+	if len(reply) <= serverTextLimit {
+		return reply
+	}
+	cut := serverTextLimit
+	for !utf8.RuneStart(reply[cut]) {
+		cut--
+	}
+	return reply[:cut] + "…"
+}
+
+// clientErr scrubs the cause of an http.Client error, which can quote a
+// malformed response, and keeps the request it names (ours) whole.
+func (s scrubber) clientErr(err error) error {
+	if ue, ok := err.(*url.Error); ok {
+		ue.Err = errors.New(s.text(ue.Err.Error()))
+	}
+	return err
 }
 
 func withUpstream(err error, rec *recorder) error {

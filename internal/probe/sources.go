@@ -25,6 +25,7 @@ type httpSource struct {
 	user   string
 	pass   string
 	client *http.Client
+	scrub  scrubber
 }
 
 func (s *httpSource) open(ctx context.Context, off, end int64) (opened, error) {
@@ -59,9 +60,9 @@ func (s *httpSource) open(ctx context.Context, off, end int64) (opened, error) {
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		return opened{}, err
+		return opened{}, s.scrub.clientErr(err)
 	}
-	size, err := rangeResponseSize(resp, off)
+	size, err := rangeResponseSize(resp, off, s.scrub)
 	if err != nil {
 		resp.Body.Close()
 		return opened{}, err
@@ -71,16 +72,16 @@ func (s *httpSource) open(ctx context.Context, off, end int64) (opened, error) {
 
 func (s *httpSource) close() { s.client.CloseIdleConnections() }
 
-func rangeResponseSize(resp *http.Response, off int64) (int64, error) {
+func rangeResponseSize(resp *http.Response, off int64, scrub scrubber) (int64, error) {
 	switch resp.StatusCode {
 	case http.StatusPartialContent:
 		cr := resp.Header.Get("Content-Range")
 		start, size, ok := parseContentRange(cr)
 		if !ok {
-			return 0, fmt.Errorf("upstream sent 206 with unusable Content-Range %q", cr)
+			return 0, fmt.Errorf("upstream sent 206 with unusable Content-Range %q", scrub.text(cr))
 		}
 		if start != off || size <= off {
-			return 0, fmt.Errorf("upstream answered Content-Range %q to a read from byte %d", cr, off)
+			return 0, fmt.Errorf("upstream answered Content-Range %q to a read from byte %d", scrub.text(cr), off)
 		}
 		return size, nil
 	case http.StatusOK:
@@ -103,7 +104,7 @@ func rangeResponseSize(resp *http.Response, off int64) (int64, error) {
 		}
 		return 0, &unsatisfiableError{size: size}
 	default:
-		return 0, fmt.Errorf("upstream answered %s", resp.Status)
+		return 0, fmt.Errorf("upstream answered %s", scrub.text(resp.Status))
 	}
 }
 
@@ -190,6 +191,7 @@ func jellyfinSource(p *Prober, t config.Target) source {
 		url:    strings.TrimRight(j.URL, "/") + "/Videos/" + url.PathEscape(t.JellyfinItemID) + "/stream?static=true",
 		header: http.Header{"X-Emby-Token": {j.APIKey}},
 		client: newSampleClient(j.InsecureSkipVerify),
+		scrub:  newScrubber(p.cfg),
 	}
 }
 
@@ -208,5 +210,6 @@ func infinidyskSource(p *Prober, t config.Target) source {
 		user:   d.Username,
 		pass:   d.Password,
 		client: newSampleClient(d.InsecureSkipVerify),
+		scrub:  newScrubber(p.cfg),
 	}
 }

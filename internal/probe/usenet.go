@@ -47,10 +47,11 @@ func (p *Prober) sampleUsenet(ctx context.Context, rec *recorder, t config.Targe
 }
 
 type nntpSession struct {
-	conn net.Conn
-	r    *bufio.Reader
-	rec  *recorder
-	stop func() bool
+	conn  net.Conn
+	r     *bufio.Reader
+	rec   *recorder
+	scrub scrubber
+	stop  func() bool
 }
 
 func (s *nntpSession) close() {
@@ -82,7 +83,7 @@ func (p *Prober) connectNNTP(ctx context.Context, rec *recorder) (*nntpSession, 
 		conn = secure
 	}
 
-	s := &nntpSession{conn: conn, r: bufio.NewReaderSize(conn, 64<<10), rec: rec}
+	s := &nntpSession{conn: conn, r: bufio.NewReaderSize(conn, 64<<10), rec: rec, scrub: newScrubber(p.cfg)}
 	// Reads on the connection ignore ctx; closing it is what makes the
 	// per-sample timeout and Ctrl-C interrupt a stalled provider.
 	s.stop = context.AfterFunc(ctx, func() { conn.Close() })
@@ -169,9 +170,9 @@ func (s *nntpSession) status() (code int, line string, at time.Duration, err err
 	digits, _, _ := strings.Cut(line, " ")
 	code, err = strconv.Atoi(digits)
 	if err != nil || len(digits) != 3 {
-		return 0, "", at, fmt.Errorf("malformed NNTP status line %q", line)
+		return 0, "", at, fmt.Errorf("malformed NNTP status line %q", s.scrub.text(line))
 	}
-	return code, line, at, nil
+	return code, s.scrub.text(line), at, nil
 }
 
 // maxStatusLine is RFC 3977's limit on a response line, CRLF included.
