@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 )
@@ -15,6 +17,27 @@ func (c *Config) ApplyDerived() {
 	if len(c.Profile.Layers) == 0 {
 		c.Profile.Layers = c.configuredLayers()
 	}
+	if c.Results.Dir == "" {
+		c.Results.Dir = defaultResultsDir()
+	}
+	for i := range c.Targets {
+		if c.Targets[i].Name == "" {
+			c.Targets[i].Name = fmt.Sprintf("target-%d", i+1)
+		}
+	}
+}
+
+// defaultResultsDir follows the XDG state-dir convention. Returns "" when no
+// home directory is known; the store then fails with a clear error.
+func defaultResultsDir() string {
+	if d := os.Getenv("XDG_STATE_HOME"); d != "" {
+		return filepath.Join(d, "nzbff", "results")
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return ""
+	}
+	return filepath.Join(home, ".local", "state", "nzbff", "results")
 }
 
 // Finalize is ApplyDerived followed by Validate.
