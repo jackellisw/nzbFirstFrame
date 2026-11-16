@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -315,6 +316,30 @@ func TestReportIsAnalyzedOncePerModTime(t *testing.T) {
 	get(t, h, "/api/runs/"+id)
 	if st.loads[id] != 2 {
 		t.Fatalf("rewritten file loaded %d times in total, want 2", st.loads[id])
+	}
+}
+
+func TestRunListDoesNotReloadViewedHistory(t *testing.T) {
+	requireSummarize(t)
+	ids := []string{"20261116T101502Z-3f9a1c", "20261115T030005Z-1a2b3c", "20261114T030005Z-4d5e6f"}
+	var infos []results.RunInfo
+	for _, id := range ids {
+		infos = append(infos, info(id, time.Now()))
+	}
+	st := newFakeStore(infos...)
+	for _, id := range ids {
+		st.runs[id] = run(id)
+	}
+	h := New(st)
+
+	get(t, h, "/api/runs")
+	for _, id := range ids {
+		get(t, h, "/api/runs/"+id)
+	}
+	before := maps.Clone(st.loads)
+	get(t, h, "/api/runs")
+	if !maps.Equal(st.loads, before) {
+		t.Fatalf("listing unchanged runs reloaded files: loads %v, before %v", st.loads, before)
 	}
 }
 

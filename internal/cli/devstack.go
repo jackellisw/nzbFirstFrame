@@ -58,9 +58,10 @@ func runDevStack(ctx context.Context, args []string, stdout, stderr io.Writer) e
 		defer f.Close()
 		cfg = f
 	}
+	stackCfg := st.Config()
 	enc := yaml.NewEncoder(cfg)
 	enc.SetIndent(2)
-	if err := enc.Encode(st.Config()); err != nil {
+	if err := enc.Encode(stackCfg); err != nil {
 		return err
 	}
 	if err := enc.Close(); err != nil {
@@ -76,7 +77,7 @@ func runDevStack(ctx context.Context, args []string, stdout, stderr io.Writer) e
 measure it with `+"`nzbff run -c <config>`"+`, view it with `+"`nzbff serve -c <config>`"+`; Ctrl-C stops the stack
 `,
 		st.JellyfinURL, *ttfb, st.MountDir, st.RCURL, st.InfinidyskURL, *ttfb, st.NNTPAddr, *articleTTFB,
-		st.Config().Results.Dir)
+		stackCfg.Results.Dir)
 
 	<-ctx.Done()
 	return nil

@@ -48,7 +48,7 @@ func New(store Store) http.Handler {
 	if err != nil {
 		panic(err) // the embed directive guarantees the directory exists
 	}
-	s := &server{store: store, cache: map[string]cached{}}
+	s := &server{store: store, trends: map[string]cachedTrend{}}
 	mux := http.NewServeMux()
 	mux.Handle("GET /", http.FileServerFS(static))
 	mux.HandleFunc("GET /api/runs", s.handleRuns)
@@ -57,20 +57,27 @@ func New(store Store) http.Handler {
 	return withHeaders(mux)
 }
 
-// server memoizes Summarize per run file. Key includes mtime: finished runs
-// never change so they are analyzed once; a running run is re-analyzed when
-// its file is rewritten. Correctness never depends on the cache (it is keyed
-// by the only thing that can change), so it can be dropped at any time.
+// server memoizes Summarize per run file, keyed by ID and mtime: finished
+// runs never change so they are analyzed once; a running run is re-analyzed
+// when its file is rewritten. Every run's trend projection is kept, because
+// the run list needs all of them, but only the last full report is, because
+// reports carry every timeline and history grows with each cron run.
+// Correctness never depends on the cache, so it can be dropped at any time.
 type server struct {
 	store Store
 
-	mu    sync.Mutex
-	cache map[string]cached // by run ID
+	mu     sync.Mutex
+	trends map[string]cachedTrend // by run ID
+	last   struct {
+		id       string
+		modified time.Time
+		report   results.Report
+	}
 }
 
-type cached struct {
+type cachedTrend struct {
 	modified time.Time
-	report   results.Report
+	trend    results.RunSummary
 }
 
 // report returns the analyzed run, loading it if the file changed.
@@ -81,16 +88,33 @@ type cached struct {
 func (s *server) report(info results.RunInfo) (results.Report, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	if c, ok := s.cache[info.ID]; ok && c.modified.Equal(info.Modified) {
-		return c.report, nil
+	if s.last.id == info.ID && s.last.modified.Equal(info.Modified) {
+		return s.last.report, nil
 	}
 	run, err := s.store.Load(info.ID)
 	if err != nil {
 		return results.Report{}, err
 	}
 	rep := results.Summarize(run)
-	s.cache[info.ID] = cached{modified: info.Modified, report: rep}
+	s.last.id, s.last.modified, s.last.report = info.ID, info.Modified, rep
+	s.trends[info.ID] = cachedTrend{modified: info.Modified, trend: rep.Trend()}
 	return rep, nil
+}
+
+// trend returns the run's trend projection, analyzing it only if the file
+// changed since it was last seen.
+func (s *server) trend(info results.RunInfo) (results.RunSummary, error) {
+	s.mu.Lock()
+	c, ok := s.trends[info.ID]
+	s.mu.Unlock()
+	if ok && c.modified.Equal(info.Modified) {
+		return c.trend, nil
+	}
+	rep, err := s.report(info)
+	if err != nil {
+		return results.RunSummary{}, err
+	}
+	return rep.Trend(), nil
 }
 
 // runEntry is one row of GET /api/runs. A run file that cannot be loaded is
@@ -109,7 +133,7 @@ func (s *server) handleRuns(w http.ResponseWriter, r *http.Request) {
 	}
 	out := make([]runEntry, 0, len(infos))
 	for _, info := range infos {
-		rep, err := s.report(info)
+		trend, err := s.trend(info)
 		if err != nil {
 			out = append(out, runEntry{
 				RunSummary: results.RunSummary{RunHeader: results.RunHeader{ID: info.ID, Started: info.Started}},
@@ -117,7 +141,7 @@ func (s *server) handleRuns(w http.ResponseWriter, r *http.Request) {
 			})
 			continue
 		}
-		out = append(out, runEntry{RunSummary: rep.Trend()})
+		out = append(out, runEntry{RunSummary: trend})
 	}
 	writeJSON(w, out)
 }

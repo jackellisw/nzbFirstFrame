@@ -8,6 +8,7 @@ package profiler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -98,9 +99,9 @@ targets:
 		}
 		log.Info("target planned", "target", t.Name, "duration", tr.Duration, "phases", tr.Plan.Len())
 
-		for _, s := range steps {
+		for i, s := range steps {
 			pause := cfg.Profile.Cooldown.D()
-			if s.first {
+			if i == 0 {
 				pause = 0
 			}
 			if !sleep(ctx, pause) {
@@ -185,20 +186,15 @@ func logSample(log *slog.Logger, target string, s step, plan results.Plan, sampl
 }
 
 // planTarget resolves duration and the seek plan. Startup-only mode skips
-// the duration probe entirely (no seeks to resolve, nothing warmed).
-// Usenet-only runs have no video layer to probe; percent points then
-// resolve without a duration (Fraction is all usenet uses) and absolute
-// points are a target error.
+// the duration probe entirely (no seeks to resolve, nothing warmed). Without
+// a video layer the duration stays unknown: percent points then resolve to a
+// fraction (all usenet uses) and absolute points are a target error.
 func planTarget(ctx context.Context, p *probe.Prober, cfg *config.Config, mode Mode, t config.Target) results.Target {
 	tr := results.Target{Name: t.Name, Path: t.Path, ItemID: t.JellyfinItemID}
-	var points []config.SeekPoint
-	if mode.Seek() {
-		points = cfg.Profile.SeekPoints
-	}
-	usenetOnly := slices.Equal(cfg.Profile.Layers, []config.Layer{config.LayerUsenet})
-	if len(points) > 0 && !usenetOnly {
+	points := seekPoints(cfg, mode)
+	if len(points) > 0 {
 		m, err := p.Media(ctx, t)
-		if err != nil {
+		if err != nil && !errors.Is(err, probe.ErrNoVideoLayer) {
 			tr.Err = err.Error()
 			return tr
 		}
@@ -206,11 +202,19 @@ func planTarget(ctx context.Context, p *probe.Prober, cfg *config.Config, mode M
 	}
 	plan, err := results.NewPlan(points, tr.Duration)
 	if err != nil {
-		tr.Err = err.Error() + " (a usenet-only run has no video layer to read it from; use percent seek points)"
+		tr.Err = err.Error() + " (no video layer is selected to read it from; use percent seek points)"
 		return tr
 	}
 	tr.Plan = plan
 	return tr
+}
+
+// seekPoints are the points a run in mode seeks to.
+func seekPoints(cfg *config.Config, mode Mode) []config.SeekPoint {
+	if !mode.Seek() {
+		return nil
+	}
+	return cfg.Profile.SeekPoints
 }
 
 // step is one scheduled sample.
@@ -218,7 +222,6 @@ type step struct {
 	layer     config.Layer
 	iteration int
 	warmup    bool
-	first     bool // no cooldown before the first step of a target
 }
 
 // schedule orders a target's samples iteration-major: all warmups (every
@@ -238,7 +241,7 @@ func schedule(p config.ProfileConfig) []step {
 	add := func(n int, warmup bool) {
 		for i := range n {
 			for _, l := range stackOrder(p.Layers) {
-				steps = append(steps, step{layer: l, iteration: i, warmup: warmup, first: len(steps) == 0})
+				steps = append(steps, step{layer: l, iteration: i, warmup: warmup})
 			}
 		}
 	}
@@ -274,10 +277,8 @@ func newRun(cfg *config.Config, mode Mode, started time.Time) results.Run {
 			ColdCache:  p.ColdCache,
 		},
 	}
-	if mode.Seek() {
-		for _, sp := range p.SeekPoints {
-			run.Settings.SeekPoints = append(run.Settings.SeekPoints, sp.String())
-		}
+	for _, sp := range seekPoints(cfg, mode) {
+		run.Settings.SeekPoints = append(run.Settings.SeekPoints, sp.String())
 	}
 	for _, t := range cfg.Targets {
 		run.Targets = append(run.Targets, results.Target{Name: t.Name, Path: t.Path, ItemID: t.JellyfinItemID})

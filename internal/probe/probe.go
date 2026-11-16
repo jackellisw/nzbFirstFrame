@@ -47,12 +47,14 @@ type Media struct {
 	Via      config.Layer // which layer answered the duration probe
 }
 
+// ErrNoVideoLayer is returned by Media when no selected layer can be read by
+// ffprobe, so the duration cannot be known.
+var ErrNoVideoLayer = errors.New("no video layer selected to read the media duration from")
+
 // Media resolves the target's runtime with a quick
 // `ffprobe -show_entries format=duration` through the deepest configured
 // video layer (infinidysk, then rclone, then jellyfin), so the probe warms as
-// little of the stack above it as possible. Returns an error when no video
-// layer is selected; usenet-only runs can still use percent seek points (see
-// the engine).
+// little of the stack above it as possible.
 func (p *Prober) Media(ctx context.Context, t config.Target) (Media, error) {
 	for _, l := range slices.Backward(config.AllLayers) {
 		if m := layers[l]; p.cfg.HasLayer(l) && m.video != nil {
@@ -63,7 +65,7 @@ func (p *Prober) Media(ctx context.Context, t config.Target) (Media, error) {
 			return Media{Duration: d, Via: l}, nil
 		}
 	}
-	return Media{}, errors.New("no video layer selected to read the media duration from")
+	return Media{}, ErrNoVideoLayer
 }
 
 func (p *Prober) durationVia(ctx context.Context, src source) (time.Duration, error) {
