@@ -1,0 +1,5355 @@
+{
+ "schema": 1,
+ "id": "20261116T031502Z-7c41e9",
+ "status": "done",
+ "started": "2026-11-16T03:15:02Z",
+ "finished": "2026-11-16T03:23:30Z",
+ "host": "mediabox",
+ "version": "v0.3.0",
+ "mode": "all",
+ "settings": {
+  "layers": [
+   "jellyfin",
+   "rclone",
+   "infinidysk",
+   "usenet"
+  ],
+  "iterations": 5,
+  "warmup": 2,
+  "timeout_ns": 60000000000,
+  "cooldown_ns": 2000000000,
+  "cold_cache": true,
+  "seek_points": [
+   "10%",
+   "50%",
+   "00:45:00"
+  ]
+ },
+ "targets": [
+  {
+   "name": "foo",
+   "path": "movies/Foo (2024)/Foo (2024).mkv",
+   "jellyfin_item_id": "a1b2c3d4e5f60718",
+   "duration_ns": 7512000000000,
+   "plan": {
+    "seeks": [
+     {
+      "point": "10%",
+      "offset_ns": 751200000000,
+      "fraction": 0.1
+     },
+     {
+      "point": "50%",
+      "offset_ns": 3756000000000,
+      "fraction": 0.5
+     },
+     {
+      "point": "00:45:00",
+      "offset_ns": 2700000000000,
+      "fraction": 0.35942492012779553
+     }
+    ]
+   }
+  },
+  {
+   "name": "bar-s01e02",
+   "path": "tv/Bar/Season 01/Bar - S01E02.mp4",
+   "jellyfin_item_id": "f6e5d4c3b2a10987",
+   "duration_ns": 2497000000000,
+   "plan": {
+    "seeks": [
+     {
+      "point": "10%",
+      "offset_ns": 249700000000,
+      "fraction": 0.1
+     },
+     {
+      "point": "50%",
+      "offset_ns": 1248500000000,
+      "fraction": 0.5
+     },
+     {
+      "point": "00:45:00",
+      "offset_ns": 2496000000000,
+      "fraction": 0.9995995194233079
+     }
+    ]
+   }
+  }
+ ],
+ "series": [
+  {
+   "target": "foo",
+   "layer": "jellyfin",
+   "samples": [
+    {
+     "iteration": 0,
+     "warmup": true,
+     "at": "2026-11-16T03:15:02Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 426800000,
+        "end_ns": 447100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 447100000,
+        "first_byte_ns": 849100000,
+        "end_ns": 853100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 853600000,
+        "first_byte_ns": 1255600000,
+        "end_ns": 1257600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1258000000,
+        "first_byte_ns": 1660000000,
+        "end_ns": 1674300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1674300000,
+        "first_byte_ns": 2076300000,
+        "end_ns": 2090600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 2090600000,
+        "first_byte_ns": 2492600000,
+        "end_ns": 2914200000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 2507200000,
+        "first_byte_ns": 2909200000,
+        "end_ns": 2914200000,
+        "offset": 1621821694,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 446800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1674000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 2090300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 2506600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 2915200000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": true,
+     "at": "2026-11-16T03:15:38Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 341800000,
+        "end_ns": 362100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 362100000,
+        "first_byte_ns": 679100000,
+        "end_ns": 683100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 683600000,
+        "first_byte_ns": 1000600000,
+        "end_ns": 1002600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1003000000,
+        "first_byte_ns": 1320000000,
+        "end_ns": 1334300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1334300000,
+        "first_byte_ns": 1651300000,
+        "end_ns": 1665600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1665600000,
+        "first_byte_ns": 1982600000,
+        "end_ns": 2005600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1997200000,
+        "end_ns": 2005600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 361800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1334000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1665300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1996600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 2006600000
+     }
+    },
+    {
+     "iteration": 0,
+     "warmup": false,
+     "at": "2026-11-16T03:16:14Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 286800000,
+        "end_ns": 307100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 307100000,
+        "first_byte_ns": 569100000,
+        "end_ns": 573100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 573600000,
+        "first_byte_ns": 835600000,
+        "end_ns": 837600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 838000000,
+        "first_byte_ns": 1100000000,
+        "end_ns": 1114300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1114300000,
+        "first_byte_ns": 1376300000,
+        "end_ns": 1390600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1390600000,
+        "first_byte_ns": 1652600000,
+        "end_ns": 1675600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1667200000,
+        "end_ns": 1675600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 306800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1114000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1390300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1666600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1676600000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": false,
+     "at": "2026-11-16T03:16:50Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 300800000,
+        "end_ns": 321100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 321100000,
+        "first_byte_ns": 597100000,
+        "end_ns": 601100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 601600000,
+        "first_byte_ns": 877600000,
+        "end_ns": 879600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 880000000,
+        "first_byte_ns": 1156000000,
+        "end_ns": 1170300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1170300000,
+        "first_byte_ns": 1446300000,
+        "end_ns": 1460600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1460600000,
+        "first_byte_ns": 1736600000,
+        "end_ns": 1759600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1751200000,
+        "end_ns": 1759600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 320800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1170000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1460300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1750600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1760600000
+     }
+    },
+    {
+     "iteration": 2,
+     "warmup": false,
+     "at": "2026-11-16T03:17:26Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 280800000,
+        "end_ns": 301100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 301100000,
+        "first_byte_ns": 557100000,
+        "end_ns": 561100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 561600000,
+        "first_byte_ns": 817600000,
+        "end_ns": 819600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 820000000,
+        "first_byte_ns": 1076000000,
+        "end_ns": 1090300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1090300000,
+        "first_byte_ns": 1346300000,
+        "end_ns": 1360600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1360600000,
+        "first_byte_ns": 1616600000,
+        "end_ns": 1639600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1631200000,
+        "end_ns": 1639600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 300800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1090000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1360300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1630600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1640600000
+     }
+    },
+    {
+     "iteration": 3,
+     "warmup": false,
+     "at": "2026-11-16T03:18:02Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 317800000,
+        "end_ns": 338100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 338100000,
+        "end_ns": 60000000000,
+        "offset": 4506841548,
+        "bytes": 0,
+        "ref": "bytes=4506841548-",
+        "err": "context deadline exceeded"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 337800000,
+        "pts": 0
+       }
+      ],
+      "end_ns": 60000400000
+     },
+     "err": "timeout after 1m0s in phase \"seek 10%\" (ffprobe: signal: killed)"
+    },
+    {
+     "iteration": 4,
+     "warmup": false,
+     "at": "2026-11-16T03:18:38Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 294800000,
+        "end_ns": 315100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 315100000,
+        "first_byte_ns": 585100000,
+        "end_ns": 589100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 589600000,
+        "first_byte_ns": 859600000,
+        "end_ns": 861600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 862000000,
+        "first_byte_ns": 1132000000,
+        "end_ns": 1146300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1146300000,
+        "first_byte_ns": 1416300000,
+        "end_ns": 1430600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1430600000,
+        "first_byte_ns": 1700600000,
+        "end_ns": 1723600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1715200000,
+        "end_ns": 1723600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 314800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1146000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1430300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1714600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1724600000
+     }
+    }
+   ]
+  },
+  {
+   "target": "foo",
+   "layer": "rclone",
+   "samples": [
+    {
+     "iteration": 0,
+     "warmup": true,
+     "at": "2026-11-16T03:15:11Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 392800000,
+        "end_ns": 413100000,
+        "offset": 0,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 413100000,
+        "first_byte_ns": 781100000,
+        "end_ns": 785100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 785600000,
+        "first_byte_ns": 1153600000,
+        "end_ns": 1155600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1156000000,
+        "first_byte_ns": 1524000000,
+        "end_ns": 1538300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1538300000,
+        "first_byte_ns": 1906300000,
+        "end_ns": 1920600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1920600000,
+        "first_byte_ns": 2288600000,
+        "end_ns": 2676200000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 2303200000,
+        "first_byte_ns": 2671200000,
+        "end_ns": 2676200000,
+        "offset": 1621821694,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 412800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1538000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1920300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 2302600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 2677200000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": true,
+     "at": "2026-11-16T03:15:47Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 307800000,
+        "end_ns": 328100000,
+        "offset": 0,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 328100000,
+        "first_byte_ns": 611100000,
+        "end_ns": 615100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 615600000,
+        "first_byte_ns": 898600000,
+        "end_ns": 900600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 901000000,
+        "first_byte_ns": 1184000000,
+        "end_ns": 1198300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1198300000,
+        "first_byte_ns": 1481300000,
+        "end_ns": 1495600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1495600000,
+        "first_byte_ns": 1778600000,
+        "end_ns": 1801600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1793200000,
+        "end_ns": 1801600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 327800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1198000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1495300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1792600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1802600000
+     }
+    },
+    {
+     "iteration": 0,
+     "warmup": false,
+     "at": "2026-11-16T03:16:23Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 252800000,
+        "end_ns": 273100000,
+        "offset": 0,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 273100000,
+        "first_byte_ns": 501100000,
+        "end_ns": 505100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 505600000,
+        "first_byte_ns": 733600000,
+        "end_ns": 735600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 736000000,
+        "first_byte_ns": 964000000,
+        "end_ns": 978300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 978300000,
+        "first_byte_ns": 1206300000,
+        "end_ns": 1220600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1220600000,
+        "first_byte_ns": 1448600000,
+        "end_ns": 1471600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1463200000,
+        "end_ns": 1471600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 272800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 978000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1220300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1462600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1472600000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": false,
+     "at": "2026-11-16T03:16:59Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 266800000,
+        "end_ns": 287100000,
+        "offset": 0,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 287100000,
+        "first_byte_ns": 529100000,
+        "end_ns": 533100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 533600000,
+        "first_byte_ns": 775600000,
+        "end_ns": 777600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 778000000,
+        "first_byte_ns": 1020000000,
+        "end_ns": 1034300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1034300000,
+        "first_byte_ns": 1276300000,
+        "end_ns": 1290600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1290600000,
+        "first_byte_ns": 1532600000,
+        "end_ns": 1555600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1547200000,
+        "end_ns": 1555600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 286800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1034000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1290300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1546600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1556600000
+     }
+    },
+    {
+     "iteration": 2,
+     "warmup": false,
+     "at": "2026-11-16T03:17:35Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 246800000,
+        "end_ns": 267100000,
+        "offset": 0,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 267100000,
+        "first_byte_ns": 489100000,
+        "end_ns": 493100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 493600000,
+        "first_byte_ns": 715600000,
+        "end_ns": 717600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 718000000,
+        "first_byte_ns": 940000000,
+        "end_ns": 954300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 954300000,
+        "first_byte_ns": 1176300000,
+        "end_ns": 1190600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1190600000,
+        "first_byte_ns": 1412600000,
+        "end_ns": 1435600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1427200000,
+        "end_ns": 1435600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 266800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 954000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1190300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1426600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1436600000
+     }
+    },
+    {
+     "iteration": 3,
+     "warmup": false,
+     "at": "2026-11-16T03:18:11Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 283800000,
+        "end_ns": 304100000,
+        "offset": 0,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 304100000,
+        "first_byte_ns": 563100000,
+        "end_ns": 567100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 567600000,
+        "first_byte_ns": 826600000,
+        "end_ns": 828600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 829000000,
+        "first_byte_ns": 1088000000,
+        "end_ns": 1102300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1102300000,
+        "first_byte_ns": 1361300000,
+        "end_ns": 1375600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1375600000,
+        "first_byte_ns": 1634600000,
+        "end_ns": 1913200000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1649200000,
+        "first_byte_ns": 1908200000,
+        "end_ns": 1913200000,
+        "offset": 1621821694,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 303800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1102000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1375300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1648600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1914200000
+     }
+    },
+    {
+     "iteration": 4,
+     "warmup": false,
+     "at": "2026-11-16T03:18:47Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 260800000,
+        "end_ns": 281100000,
+        "offset": 0,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 281100000,
+        "first_byte_ns": 517100000,
+        "end_ns": 521100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 521600000,
+        "first_byte_ns": 757600000,
+        "end_ns": 759600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 760000000,
+        "first_byte_ns": 996000000,
+        "end_ns": 1010300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1010300000,
+        "first_byte_ns": 1246300000,
+        "end_ns": 1260600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1260600000,
+        "first_byte_ns": 1496600000,
+        "end_ns": 1519600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1511200000,
+        "end_ns": 1519600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 280800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1010000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1260300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1510600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1520600000
+     }
+    }
+   ]
+  },
+  {
+   "target": "foo",
+   "layer": "infinidysk",
+   "samples": [
+    {
+     "iteration": 0,
+     "warmup": true,
+     "at": "2026-11-16T03:15:20Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 347800000,
+        "end_ns": 368100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 368100000,
+        "first_byte_ns": 691100000,
+        "end_ns": 695100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 695600000,
+        "first_byte_ns": 1018600000,
+        "end_ns": 1020600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1021000000,
+        "first_byte_ns": 1344000000,
+        "end_ns": 1358300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1358300000,
+        "first_byte_ns": 1681300000,
+        "end_ns": 1695600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1695600000,
+        "first_byte_ns": 2018600000,
+        "end_ns": 2361200000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 2033200000,
+        "first_byte_ns": 2356200000,
+        "end_ns": 2361200000,
+        "offset": 1621821694,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 367800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1358000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1695300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 2032600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 2362200000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": true,
+     "at": "2026-11-16T03:15:56Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 262800000,
+        "end_ns": 283100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 283100000,
+        "first_byte_ns": 521100000,
+        "end_ns": 525100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 525600000,
+        "first_byte_ns": 763600000,
+        "end_ns": 765600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 766000000,
+        "first_byte_ns": 1004000000,
+        "end_ns": 1018300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1018300000,
+        "first_byte_ns": 1256300000,
+        "end_ns": 1270600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1270600000,
+        "first_byte_ns": 1508600000,
+        "end_ns": 1531600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1523200000,
+        "end_ns": 1531600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 282800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1018000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1270300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1522600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1532600000
+     }
+    },
+    {
+     "iteration": 0,
+     "warmup": false,
+     "at": "2026-11-16T03:16:32Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 207800000,
+        "end_ns": 228100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 228100000,
+        "first_byte_ns": 411100000,
+        "end_ns": 415100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 415600000,
+        "first_byte_ns": 598600000,
+        "end_ns": 600600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 601000000,
+        "first_byte_ns": 784000000,
+        "end_ns": 798300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 798300000,
+        "first_byte_ns": 981300000,
+        "end_ns": 995600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 995600000,
+        "first_byte_ns": 1178600000,
+        "end_ns": 1201600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1193200000,
+        "end_ns": 1201600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 227800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 798000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 995300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1192600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1202600000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": false,
+     "at": "2026-11-16T03:17:08Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 221800000,
+        "end_ns": 242100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 242100000,
+        "first_byte_ns": 439100000,
+        "end_ns": 443100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 443600000,
+        "first_byte_ns": 640600000,
+        "end_ns": 642600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 643000000,
+        "first_byte_ns": 840000000,
+        "end_ns": 854300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 854300000,
+        "first_byte_ns": 1051300000,
+        "end_ns": 1065600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1065600000,
+        "first_byte_ns": 1262600000,
+        "end_ns": 1285600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1277200000,
+        "end_ns": 1285600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 241800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 854000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1065300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1276600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1286600000
+     }
+    },
+    {
+     "iteration": 2,
+     "warmup": false,
+     "at": "2026-11-16T03:17:44Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 201800000,
+        "end_ns": 222100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 222100000,
+        "first_byte_ns": 399100000,
+        "end_ns": 403100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 403600000,
+        "first_byte_ns": 580600000,
+        "end_ns": 582600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 583000000,
+        "first_byte_ns": 760000000,
+        "end_ns": 774300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 774300000,
+        "first_byte_ns": 951300000,
+        "end_ns": 965600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 965600000,
+        "first_byte_ns": 1142600000,
+        "end_ns": 1165600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1157200000,
+        "end_ns": 1165600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 221800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 774000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 965300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1156600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1166600000
+     }
+    },
+    {
+     "iteration": 3,
+     "warmup": false,
+     "at": "2026-11-16T03:18:20Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 238800000,
+        "end_ns": 259100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 259100000,
+        "first_byte_ns": 473100000,
+        "end_ns": 477100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 477600000,
+        "first_byte_ns": 691600000,
+        "end_ns": 693600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 694000000,
+        "first_byte_ns": 908000000,
+        "end_ns": 922300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 922300000,
+        "first_byte_ns": 1136300000,
+        "end_ns": 1150600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1150600000,
+        "first_byte_ns": 1364600000,
+        "end_ns": 1598200000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1379200000,
+        "first_byte_ns": 1593200000,
+        "end_ns": 1598200000,
+        "offset": 1621821694,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 258800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 922000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1150300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1378600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1599200000
+     }
+    },
+    {
+     "iteration": 4,
+     "warmup": false,
+     "at": "2026-11-16T03:18:56Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 215800000,
+        "end_ns": 236100000,
+        "offset": 0,
+        "bytes": 851968,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 236100000,
+        "first_byte_ns": 427100000,
+        "end_ns": 431100000,
+        "offset": 4506841548,
+        "bytes": 262144,
+        "ref": "bytes=4506841548-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 431600000,
+        "first_byte_ns": 622600000,
+        "end_ns": 624600000,
+        "offset": 104213,
+        "bytes": 65536,
+        "abandoned": true,
+        "ref": "bytes=104213-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 625000000,
+        "first_byte_ns": 816000000,
+        "end_ns": 830300000,
+        "offset": 450971566,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=450971566-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 830300000,
+        "first_byte_ns": 1021300000,
+        "end_ns": 1035600000,
+        "offset": 2254857830,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=2254857830-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1035600000,
+        "first_byte_ns": 1226600000,
+        "end_ns": 1249600000,
+        "offset": 1620904190,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1620904190-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1241200000,
+        "end_ns": 1249600000,
+        "offset": 1621821694,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1621821694-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 235800000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 830000000,
+        "pts": 750.751
+       },
+       {
+        "phase": 2,
+        "at_ns": 1035300000,
+        "pts": 3755.756
+       },
+       {
+        "phase": 3,
+        "at_ns": 1240600000,
+        "pts": 2698.699
+       }
+      ],
+      "end_ns": 1250600000
+     }
+    }
+   ]
+  },
+  {
+   "target": "foo",
+   "layer": "usenet",
+   "samples": [
+    {
+     "iteration": 0,
+     "warmup": true,
+     "at": "2026-11-16T03:15:29Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 338500000,
+        "end_ns": 424500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 424700000,
+        "first_byte_ns": 682700000,
+        "end_ns": 768700000,
+        "offset": 450867200,
+        "bytes": 739870,
+        "ref": "\u003cpart630of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 768900000,
+        "first_byte_ns": 1026900000,
+        "end_ns": 1112900000,
+        "offset": 2255052800,
+        "bytes": 739870,
+        "ref": "\u003cpart3147of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 1113100000,
+        "first_byte_ns": 1371100000,
+        "end_ns": 1457100000,
+        "offset": 1620684800,
+        "bytes": 739870,
+        "ref": "\u003cpart2262of6292.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 424500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 768700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 1112900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 1457100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 1457900000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": true,
+     "at": "2026-11-16T03:16:05Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 253500000,
+        "end_ns": 339500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 339700000,
+        "first_byte_ns": 512700000,
+        "end_ns": 598700000,
+        "offset": 450867200,
+        "bytes": 739870,
+        "ref": "\u003cpart630of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 598900000,
+        "first_byte_ns": 771900000,
+        "end_ns": 857900000,
+        "offset": 2255052800,
+        "bytes": 739870,
+        "ref": "\u003cpart3147of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 858100000,
+        "first_byte_ns": 1031100000,
+        "end_ns": 1117100000,
+        "offset": 1620684800,
+        "bytes": 739870,
+        "ref": "\u003cpart2262of6292.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 339500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 598700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 857900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 1117100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 1117900000
+     }
+    },
+    {
+     "iteration": 0,
+     "warmup": false,
+     "at": "2026-11-16T03:16:41Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 198500000,
+        "end_ns": 284500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 284700000,
+        "first_byte_ns": 402700000,
+        "end_ns": 488700000,
+        "offset": 450867200,
+        "bytes": 739870,
+        "ref": "\u003cpart630of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 488900000,
+        "first_byte_ns": 606900000,
+        "end_ns": 692900000,
+        "offset": 2255052800,
+        "bytes": 739870,
+        "ref": "\u003cpart3147of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 693100000,
+        "first_byte_ns": 811100000,
+        "end_ns": 897100000,
+        "offset": 1620684800,
+        "bytes": 739870,
+        "ref": "\u003cpart2262of6292.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 284500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 488700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 692900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 897100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 897900000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": false,
+     "at": "2026-11-16T03:17:17Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 212500000,
+        "end_ns": 298500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 298700000,
+        "first_byte_ns": 430700000,
+        "end_ns": 516700000,
+        "offset": 450867200,
+        "bytes": 739870,
+        "ref": "\u003cpart630of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 516900000,
+        "first_byte_ns": 648900000,
+        "end_ns": 734900000,
+        "offset": 2255052800,
+        "bytes": 739870,
+        "ref": "\u003cpart3147of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 735100000,
+        "first_byte_ns": 867100000,
+        "end_ns": 953100000,
+        "offset": 1620684800,
+        "bytes": 739870,
+        "ref": "\u003cpart2262of6292.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 298500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 516700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 734900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 953100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 953900000
+     }
+    },
+    {
+     "iteration": 2,
+     "warmup": false,
+     "at": "2026-11-16T03:17:53Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 192500000,
+        "end_ns": 278500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 278700000,
+        "first_byte_ns": 390700000,
+        "end_ns": 476700000,
+        "offset": 450867200,
+        "bytes": 739870,
+        "ref": "\u003cpart630of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 476900000,
+        "first_byte_ns": 588900000,
+        "end_ns": 674900000,
+        "offset": 2255052800,
+        "bytes": 739870,
+        "ref": "\u003cpart3147of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 675100000,
+        "first_byte_ns": 787100000,
+        "end_ns": 873100000,
+        "offset": 1620684800,
+        "bytes": 739870,
+        "ref": "\u003cpart2262of6292.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 278500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 476700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 674900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 873100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 873900000
+     }
+    },
+    {
+     "iteration": 3,
+     "warmup": false,
+     "at": "2026-11-16T03:18:29Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 229500000,
+        "end_ns": 315500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 315700000,
+        "first_byte_ns": 464700000,
+        "end_ns": 550700000,
+        "offset": 450867200,
+        "bytes": 739870,
+        "ref": "\u003cpart630of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 550900000,
+        "first_byte_ns": 699900000,
+        "end_ns": 785900000,
+        "offset": 2255052800,
+        "bytes": 739870,
+        "ref": "\u003cpart3147of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 786100000,
+        "first_byte_ns": 935100000,
+        "end_ns": 1021100000,
+        "offset": 1620684800,
+        "bytes": 739870,
+        "ref": "\u003cpart2262of6292.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 315500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 550700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 785900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 1021100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 1021900000
+     }
+    },
+    {
+     "iteration": 4,
+     "warmup": false,
+     "at": "2026-11-16T03:19:05Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 206500000,
+        "end_ns": 292500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 292700000,
+        "first_byte_ns": 418700000,
+        "end_ns": 504700000,
+        "offset": 450867200,
+        "bytes": 739870,
+        "ref": "\u003cpart630of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 504900000,
+        "first_byte_ns": 630900000,
+        "end_ns": 716900000,
+        "offset": 2255052800,
+        "bytes": 739870,
+        "ref": "\u003cpart3147of6292.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 717100000,
+        "end_ns": 825100000,
+        "offset": 1620684800,
+        "bytes": 0,
+        "ref": "\u003cpart2262of6292.Xq3vT9@news.example\u003e",
+        "err": "430 No Such Article"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 292500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 504700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 716900000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 825900000
+     },
+     "err": "nntp: BODY \u003cpart2262of6292.Xq3vT9@news.example\u003e: 430 No Such Article"
+    }
+   ]
+  },
+  {
+   "target": "bar-s01e02",
+   "layer": "jellyfin",
+   "samples": [
+    {
+     "iteration": 0,
+     "warmup": true,
+     "at": "2026-11-16T03:19:14Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "end_ns": 65800000,
+        "offset": 0,
+        "bytes": 0,
+        "dial_ns": 1800000,
+        "ref": "bytes=0-",
+        "err": "upstream status 503 Service Unavailable"
+       }
+      ],
+      "marks": null,
+      "end_ns": 71800000
+     },
+     "err": "ffprobe: exit status 1: http://127.0.0.1:41873/Videos/f6e5d4c3b2a10987/stream: Server returned 5XX Server Error reply"
+    },
+    {
+     "iteration": 1,
+     "warmup": true,
+     "at": "2026-11-16T03:19:50Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 341800000,
+        "end_ns": 343300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 343700000,
+        "first_byte_ns": 660700000,
+        "end_ns": 684700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 687700000,
+        "first_byte_ns": 1004700000,
+        "end_ns": 1017000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1017000000,
+        "first_byte_ns": 1334000000,
+        "end_ns": 1348300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1348300000,
+        "first_byte_ns": 1665300000,
+        "end_ns": 1679600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1679600000,
+        "first_byte_ns": 1996600000,
+        "end_ns": 2019600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 2011200000,
+        "end_ns": 2019600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 1016700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1348000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1679300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 2010600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 2020600000
+     }
+    },
+    {
+     "iteration": 0,
+     "warmup": false,
+     "at": "2026-11-16T03:20:26Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 286800000,
+        "end_ns": 288300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 288700000,
+        "first_byte_ns": 550700000,
+        "end_ns": 574700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 577700000,
+        "first_byte_ns": 839700000,
+        "end_ns": 852000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 852000000,
+        "first_byte_ns": 1114000000,
+        "end_ns": 1128300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1128300000,
+        "first_byte_ns": 1390300000,
+        "end_ns": 1404600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1404600000,
+        "first_byte_ns": 1666600000,
+        "end_ns": 1689600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1681200000,
+        "end_ns": 1689600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 851700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1128000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1404300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1680600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1690600000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": false,
+     "at": "2026-11-16T03:21:02Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 300800000,
+        "end_ns": 302300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 302700000,
+        "first_byte_ns": 578700000,
+        "end_ns": 602700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 605700000,
+        "first_byte_ns": 881700000,
+        "end_ns": 894000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 894000000,
+        "first_byte_ns": 1170000000,
+        "end_ns": 1184300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1184300000,
+        "first_byte_ns": 1460300000,
+        "end_ns": 1474600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1474600000,
+        "first_byte_ns": 1750600000,
+        "end_ns": 1773600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1765200000,
+        "end_ns": 1773600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 893700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1184000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1474300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1764600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1774600000
+     }
+    },
+    {
+     "iteration": 2,
+     "warmup": false,
+     "at": "2026-11-16T03:21:38Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 280800000,
+        "end_ns": 282300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 282700000,
+        "first_byte_ns": 538700000,
+        "end_ns": 562700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 565700000,
+        "first_byte_ns": 821700000,
+        "end_ns": 834000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 834000000,
+        "first_byte_ns": 1090000000,
+        "end_ns": 1104300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1104300000,
+        "first_byte_ns": 1360300000,
+        "end_ns": 1374600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1374600000,
+        "first_byte_ns": 1630600000,
+        "end_ns": 1653600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1645200000,
+        "end_ns": 1653600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 833700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1104000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1374300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1644600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1654600000
+     }
+    },
+    {
+     "iteration": 3,
+     "warmup": false,
+     "at": "2026-11-16T03:22:14Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 317800000,
+        "end_ns": 319300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 319700000,
+        "first_byte_ns": 612700000,
+        "end_ns": 636700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 639700000,
+        "first_byte_ns": 932700000,
+        "end_ns": 945000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 945000000,
+        "first_byte_ns": 1238000000,
+        "end_ns": 1252300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1252300000,
+        "first_byte_ns": 1545300000,
+        "end_ns": 1559600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1559600000,
+        "first_byte_ns": 1852600000,
+        "end_ns": 2165200000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1867200000,
+        "first_byte_ns": 2160200000,
+        "end_ns": 2165200000,
+        "offset": 1396222858,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 944700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1252000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1559300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1866600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 2166200000
+     }
+    },
+    {
+     "iteration": 4,
+     "warmup": false,
+     "at": "2026-11-16T03:22:50Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 294800000,
+        "end_ns": 296300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 1800000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 296700000,
+        "first_byte_ns": 566700000,
+        "end_ns": 590700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 593700000,
+        "first_byte_ns": 863700000,
+        "end_ns": 876000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 876000000,
+        "first_byte_ns": 1146000000,
+        "end_ns": 1160300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1160300000,
+        "first_byte_ns": 1430300000,
+        "end_ns": 1444600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1444600000,
+        "first_byte_ns": 1714600000,
+        "end_ns": 1737600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1729200000,
+        "end_ns": 1737600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 875700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1160000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1444300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1728600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1738600000
+     }
+    }
+   ]
+  },
+  {
+   "target": "bar-s01e02",
+   "layer": "rclone",
+   "samples": [
+    {
+     "iteration": 0,
+     "warmup": true,
+     "at": "2026-11-16T03:19:23Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 392800000,
+        "end_ns": 394300000,
+        "offset": 0,
+        "bytes": 32768,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 394700000,
+        "first_byte_ns": 762700000,
+        "end_ns": 786700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 789700000,
+        "first_byte_ns": 1157700000,
+        "end_ns": 1170000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1170000000,
+        "first_byte_ns": 1538000000,
+        "end_ns": 1552300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1552300000,
+        "first_byte_ns": 1920300000,
+        "end_ns": 1934600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1934600000,
+        "first_byte_ns": 2302600000,
+        "end_ns": 2690200000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 2317200000,
+        "first_byte_ns": 2685200000,
+        "end_ns": 2690200000,
+        "offset": 1396222858,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 1169700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1552000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1934300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 2316600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 2691200000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": true,
+     "at": "2026-11-16T03:19:59Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 307800000,
+        "end_ns": 309300000,
+        "offset": 0,
+        "bytes": 32768,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 309700000,
+        "first_byte_ns": 592700000,
+        "end_ns": 616700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 619700000,
+        "first_byte_ns": 902700000,
+        "end_ns": 915000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 915000000,
+        "first_byte_ns": 1198000000,
+        "end_ns": 1212300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1212300000,
+        "first_byte_ns": 1495300000,
+        "end_ns": 1509600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1509600000,
+        "first_byte_ns": 1792600000,
+        "end_ns": 1815600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1807200000,
+        "end_ns": 1815600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 914700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1212000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1509300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1806600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1816600000
+     }
+    },
+    {
+     "iteration": 0,
+     "warmup": false,
+     "at": "2026-11-16T03:20:35Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 252800000,
+        "end_ns": 254300000,
+        "offset": 0,
+        "bytes": 32768,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 254700000,
+        "first_byte_ns": 482700000,
+        "end_ns": 506700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 509700000,
+        "first_byte_ns": 737700000,
+        "end_ns": 750000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 750000000,
+        "first_byte_ns": 978000000,
+        "end_ns": 992300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 992300000,
+        "first_byte_ns": 1220300000,
+        "end_ns": 1234600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1234600000,
+        "first_byte_ns": 1462600000,
+        "end_ns": 1485600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1477200000,
+        "end_ns": 1485600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 749700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 992000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1234300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1476600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1486600000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": false,
+     "at": "2026-11-16T03:21:11Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 266800000,
+        "end_ns": 268300000,
+        "offset": 0,
+        "bytes": 32768,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 268700000,
+        "first_byte_ns": 510700000,
+        "end_ns": 534700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 537700000,
+        "first_byte_ns": 779700000,
+        "end_ns": 792000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 792000000,
+        "first_byte_ns": 1034000000,
+        "end_ns": 1048300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1048300000,
+        "first_byte_ns": 1290300000,
+        "end_ns": 1304600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1304600000,
+        "first_byte_ns": 1546600000,
+        "end_ns": 1569600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1561200000,
+        "end_ns": 1569600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 791700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1048000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1304300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1560600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1570600000
+     }
+    },
+    {
+     "iteration": 2,
+     "warmup": false,
+     "at": "2026-11-16T03:21:47Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 246800000,
+        "end_ns": 248300000,
+        "offset": 0,
+        "bytes": 32768,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 248700000,
+        "first_byte_ns": 470700000,
+        "end_ns": 494700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 497700000,
+        "first_byte_ns": 719700000,
+        "end_ns": 732000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 732000000,
+        "first_byte_ns": 954000000,
+        "end_ns": 968300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 968300000,
+        "first_byte_ns": 1190300000,
+        "end_ns": 1204600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1204600000,
+        "first_byte_ns": 1426600000,
+        "end_ns": 1449600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1441200000,
+        "end_ns": 1449600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 731700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 968000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1204300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1440600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1450600000
+     }
+    },
+    {
+     "iteration": 3,
+     "warmup": false,
+     "at": "2026-11-16T03:22:23Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 283800000,
+        "end_ns": 285300000,
+        "offset": 0,
+        "bytes": 32768,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 285700000,
+        "first_byte_ns": 544700000,
+        "end_ns": 568700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 571700000,
+        "first_byte_ns": 830700000,
+        "end_ns": 843000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 843000000,
+        "first_byte_ns": 1102000000,
+        "end_ns": 1116300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1116300000,
+        "first_byte_ns": 1375300000,
+        "end_ns": 1389600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1389600000,
+        "first_byte_ns": 1648600000,
+        "end_ns": 1927200000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1663200000,
+        "first_byte_ns": 1922200000,
+        "end_ns": 1927200000,
+        "offset": 1396222858,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 842700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1116000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1389300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1662600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1928200000
+     }
+    },
+    {
+     "iteration": 4,
+     "warmup": false,
+     "at": "2026-11-16T03:22:59Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 260800000,
+        "end_ns": 262300000,
+        "offset": 0,
+        "bytes": 32768,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 262700000,
+        "first_byte_ns": 498700000,
+        "end_ns": 522700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 525700000,
+        "first_byte_ns": 761700000,
+        "end_ns": 774000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 774000000,
+        "first_byte_ns": 1010000000,
+        "end_ns": 1024300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1024300000,
+        "first_byte_ns": 1260300000,
+        "end_ns": 1274600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1274600000,
+        "first_byte_ns": 1510600000,
+        "end_ns": 1533600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1525200000,
+        "end_ns": 1533600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 773700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1024000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1274300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1524600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1534600000
+     }
+    }
+   ]
+  },
+  {
+   "target": "bar-s01e02",
+   "layer": "infinidysk",
+   "samples": [
+    {
+     "iteration": 0,
+     "warmup": true,
+     "at": "2026-11-16T03:19:32Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 347800000,
+        "end_ns": 349300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 349700000,
+        "first_byte_ns": 672700000,
+        "end_ns": 696700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 699700000,
+        "first_byte_ns": 1022700000,
+        "end_ns": 1035000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1035000000,
+        "first_byte_ns": 1358000000,
+        "end_ns": 1372300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1372300000,
+        "first_byte_ns": 1695300000,
+        "end_ns": 1709600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1709600000,
+        "first_byte_ns": 2032600000,
+        "end_ns": 2375200000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 2047200000,
+        "first_byte_ns": 2370200000,
+        "end_ns": 2375200000,
+        "offset": 1396222858,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 1034700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1372000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1709300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 2046600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 2376200000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": true,
+     "at": "2026-11-16T03:20:08Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 262800000,
+        "end_ns": 264300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 264700000,
+        "first_byte_ns": 502700000,
+        "end_ns": 526700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 529700000,
+        "first_byte_ns": 767700000,
+        "end_ns": 780000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 780000000,
+        "first_byte_ns": 1018000000,
+        "end_ns": 1032300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1032300000,
+        "first_byte_ns": 1270300000,
+        "end_ns": 1284600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1284600000,
+        "first_byte_ns": 1522600000,
+        "end_ns": 1545600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1537200000,
+        "end_ns": 1545600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 779700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 1032000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1284300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1536600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1546600000
+     }
+    },
+    {
+     "iteration": 0,
+     "warmup": false,
+     "at": "2026-11-16T03:20:44Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 207800000,
+        "end_ns": 209300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 209700000,
+        "first_byte_ns": 392700000,
+        "end_ns": 416700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 419700000,
+        "first_byte_ns": 602700000,
+        "end_ns": 615000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 615000000,
+        "first_byte_ns": 798000000,
+        "end_ns": 812300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 812300000,
+        "first_byte_ns": 995300000,
+        "end_ns": 1009600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1009600000,
+        "first_byte_ns": 1192600000,
+        "end_ns": 1215600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1207200000,
+        "end_ns": 1215600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 614700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 812000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1009300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1206600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1216600000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": false,
+     "at": "2026-11-16T03:21:20Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 221800000,
+        "end_ns": 223300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 223700000,
+        "first_byte_ns": 420700000,
+        "end_ns": 444700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 447700000,
+        "first_byte_ns": 644700000,
+        "end_ns": 657000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 657000000,
+        "first_byte_ns": 854000000,
+        "end_ns": 855200000,
+        "offset": 139586437,
+        "bytes": 16384,
+        "ref": "bytes=139586437-",
+        "err": "unexpected EOF"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 656700000,
+        "pts": 0
+       }
+      ],
+      "end_ns": 858300000
+     },
+     "err": "ffprobe: exit status 1: [mov,mp4,m4a,3gp,3g2,mj2 @ 0x6000038f0000] stream 0, offset 0x851eb85: partial file"
+    },
+    {
+     "iteration": 2,
+     "warmup": false,
+     "at": "2026-11-16T03:21:56Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 201800000,
+        "end_ns": 203300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 203700000,
+        "first_byte_ns": 380700000,
+        "end_ns": 404700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 407700000,
+        "first_byte_ns": 584700000,
+        "end_ns": 597000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 597000000,
+        "first_byte_ns": 774000000,
+        "end_ns": 788300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 788300000,
+        "first_byte_ns": 965300000,
+        "end_ns": 979600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 979600000,
+        "first_byte_ns": 1156600000,
+        "end_ns": 1179600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1171200000,
+        "end_ns": 1179600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 596700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 788000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 979300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1170600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1180600000
+     }
+    },
+    {
+     "iteration": 3,
+     "warmup": false,
+     "at": "2026-11-16T03:22:32Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 238800000,
+        "end_ns": 240300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 240700000,
+        "first_byte_ns": 454700000,
+        "end_ns": 478700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 481700000,
+        "first_byte_ns": 695700000,
+        "end_ns": 708000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 708000000,
+        "first_byte_ns": 922000000,
+        "end_ns": 936300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 936300000,
+        "first_byte_ns": 1150300000,
+        "end_ns": 1164600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1164600000,
+        "first_byte_ns": 1378600000,
+        "end_ns": 1612200000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1393200000,
+        "first_byte_ns": 1607200000,
+        "end_ns": 1612200000,
+        "offset": 1396222858,
+        "bytes": 393216,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 707700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 936000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1164300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1392600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1613200000
+     }
+    },
+    {
+     "iteration": 4,
+     "warmup": false,
+     "at": "2026-11-16T03:23:08Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "read",
+        "start_ns": 24800000,
+        "first_byte_ns": 215800000,
+        "end_ns": 217300000,
+        "offset": 0,
+        "bytes": 32768,
+        "dial_ns": 600000,
+        "abandoned": true,
+        "ref": "bytes=0-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 217700000,
+        "first_byte_ns": 408700000,
+        "end_ns": 432700000,
+        "offset": 1392718643,
+        "bytes": 3145728,
+        "ref": "bytes=1392718643-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 435700000,
+        "first_byte_ns": 626700000,
+        "end_ns": 639000000,
+        "offset": 48,
+        "bytes": 851968,
+        "abandoned": true,
+        "ref": "bytes=48-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 639000000,
+        "first_byte_ns": 830000000,
+        "end_ns": 844300000,
+        "offset": 139586437,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=139586437-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 844300000,
+        "first_byte_ns": 1035300000,
+        "end_ns": 1049600000,
+        "offset": 697932185,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=697932185-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1049600000,
+        "first_byte_ns": 1240600000,
+        "end_ns": 1263600000,
+        "offset": 1395305354,
+        "bytes": 917504,
+        "abandoned": true,
+        "ref": "bytes=1395305354-"
+       },
+       {
+        "kind": "read",
+        "start_ns": 1255200000,
+        "end_ns": 1263600000,
+        "offset": 1396222858,
+        "bytes": 0,
+        "abandoned": true,
+        "ref": "bytes=1396222858-"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 638700000,
+        "pts": 0
+       },
+       {
+        "phase": 1,
+        "at_ns": 844000000,
+        "pts": 248.248
+       },
+       {
+        "phase": 2,
+        "at_ns": 1049300000,
+        "pts": 1247.247
+       },
+       {
+        "phase": 3,
+        "at_ns": 1254600000,
+        "pts": 2494.494
+       }
+      ],
+      "end_ns": 1264600000
+     }
+    }
+   ]
+  },
+  {
+   "target": "bar-s01e02",
+   "layer": "usenet",
+   "samples": [
+    {
+     "iteration": 0,
+     "warmup": true,
+     "at": "2026-11-16T03:19:41Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 338500000,
+        "end_ns": 424500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 424700000,
+        "first_byte_ns": 682700000,
+        "end_ns": 768700000,
+        "offset": 139059200,
+        "bytes": 739870,
+        "ref": "\u003cpart195of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 768900000,
+        "first_byte_ns": 1026900000,
+        "end_ns": 1112900000,
+        "offset": 698163200,
+        "bytes": 739870,
+        "ref": "\u003cpart975of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 1113100000,
+        "first_byte_ns": 1371100000,
+        "end_ns": 1457100000,
+        "offset": 1395609600,
+        "bytes": 739870,
+        "ref": "\u003cpart1948of1948.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 424500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 768700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 1112900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 1457100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 1457900000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": true,
+     "at": "2026-11-16T03:20:17Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 253500000,
+        "end_ns": 339500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 339700000,
+        "first_byte_ns": 512700000,
+        "end_ns": 598700000,
+        "offset": 139059200,
+        "bytes": 739870,
+        "ref": "\u003cpart195of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 598900000,
+        "first_byte_ns": 771900000,
+        "end_ns": 857900000,
+        "offset": 698163200,
+        "bytes": 739870,
+        "ref": "\u003cpart975of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 858100000,
+        "first_byte_ns": 1031100000,
+        "end_ns": 1117100000,
+        "offset": 1395609600,
+        "bytes": 739870,
+        "ref": "\u003cpart1948of1948.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 339500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 598700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 857900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 1117100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 1117900000
+     }
+    },
+    {
+     "iteration": 0,
+     "warmup": false,
+     "at": "2026-11-16T03:20:53Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 198500000,
+        "end_ns": 284500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 284700000,
+        "first_byte_ns": 402700000,
+        "end_ns": 488700000,
+        "offset": 139059200,
+        "bytes": 739870,
+        "ref": "\u003cpart195of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 488900000,
+        "first_byte_ns": 606900000,
+        "end_ns": 692900000,
+        "offset": 698163200,
+        "bytes": 739870,
+        "ref": "\u003cpart975of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 693100000,
+        "first_byte_ns": 811100000,
+        "end_ns": 897100000,
+        "offset": 1395609600,
+        "bytes": 739870,
+        "ref": "\u003cpart1948of1948.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 284500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 488700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 692900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 897100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 897900000
+     }
+    },
+    {
+     "iteration": 1,
+     "warmup": false,
+     "at": "2026-11-16T03:21:29Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 212500000,
+        "end_ns": 298500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 298700000,
+        "first_byte_ns": 430700000,
+        "end_ns": 516700000,
+        "offset": 139059200,
+        "bytes": 739870,
+        "ref": "\u003cpart195of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 516900000,
+        "first_byte_ns": 648900000,
+        "end_ns": 734900000,
+        "offset": 698163200,
+        "bytes": 739870,
+        "ref": "\u003cpart975of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 735100000,
+        "first_byte_ns": 867100000,
+        "end_ns": 953100000,
+        "offset": 1395609600,
+        "bytes": 739870,
+        "ref": "\u003cpart1948of1948.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 298500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 516700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 734900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 953100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 953900000
+     }
+    },
+    {
+     "iteration": 2,
+     "warmup": false,
+     "at": "2026-11-16T03:22:05Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 192500000,
+        "end_ns": 278500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 278700000,
+        "first_byte_ns": 390700000,
+        "end_ns": 476700000,
+        "offset": 139059200,
+        "bytes": 739870,
+        "ref": "\u003cpart195of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 476900000,
+        "first_byte_ns": 588900000,
+        "end_ns": 674900000,
+        "offset": 698163200,
+        "bytes": 739870,
+        "ref": "\u003cpart975of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 675100000,
+        "first_byte_ns": 787100000,
+        "end_ns": 873100000,
+        "offset": 1395609600,
+        "bytes": 739870,
+        "ref": "\u003cpart1948of1948.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 278500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 476700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 674900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 873100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 873900000
+     }
+    },
+    {
+     "iteration": 3,
+     "warmup": false,
+     "at": "2026-11-16T03:22:41Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 229500000,
+        "end_ns": 315500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 315700000,
+        "first_byte_ns": 464700000,
+        "end_ns": 550700000,
+        "offset": 139059200,
+        "bytes": 739870,
+        "ref": "\u003cpart195of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 550900000,
+        "first_byte_ns": 699900000,
+        "end_ns": 785900000,
+        "offset": 698163200,
+        "bytes": 739870,
+        "ref": "\u003cpart975of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 786100000,
+        "first_byte_ns": 935100000,
+        "end_ns": 1021100000,
+        "offset": 1395609600,
+        "bytes": 739870,
+        "ref": "\u003cpart1948of1948.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 315500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 550700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 785900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 1021100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 1021900000
+     }
+    },
+    {
+     "iteration": 4,
+     "warmup": false,
+     "at": "2026-11-16T03:23:17Z",
+     "timeline": {
+      "ops": [
+       {
+        "kind": "connect",
+        "start_ns": 400000,
+        "end_ns": 39000000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "news.example.net:563"
+       },
+       {
+        "kind": "auth",
+        "start_ns": 39100000,
+        "end_ns": 80300000,
+        "offset": -1,
+        "bytes": 0,
+        "ref": "AUTHINFO USER"
+       },
+       {
+        "kind": "article",
+        "start_ns": 80500000,
+        "first_byte_ns": 206500000,
+        "end_ns": 292500000,
+        "offset": 0,
+        "bytes": 739870,
+        "ref": "\u003cpart1of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 292700000,
+        "first_byte_ns": 418700000,
+        "end_ns": 504700000,
+        "offset": 139059200,
+        "bytes": 739870,
+        "ref": "\u003cpart195of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 504900000,
+        "first_byte_ns": 630900000,
+        "end_ns": 716900000,
+        "offset": 698163200,
+        "bytes": 739870,
+        "ref": "\u003cpart975of1948.Xq3vT9@news.example\u003e"
+       },
+       {
+        "kind": "article",
+        "start_ns": 717100000,
+        "first_byte_ns": 843100000,
+        "end_ns": 929100000,
+        "offset": 1395609600,
+        "bytes": 739870,
+        "ref": "\u003cpart1948of1948.Xq3vT9@news.example\u003e"
+       }
+      ],
+      "marks": [
+       {
+        "phase": 0,
+        "at_ns": 292500000,
+        "pts": -1
+       },
+       {
+        "phase": 1,
+        "at_ns": 504700000,
+        "pts": -1
+       },
+       {
+        "phase": 2,
+        "at_ns": 716900000,
+        "pts": -1
+       },
+       {
+        "phase": 3,
+        "at_ns": 929100000,
+        "pts": -1
+       }
+      ],
+      "end_ns": 929900000
+     }
+    }
+   ]
+  }
+ ]
+}

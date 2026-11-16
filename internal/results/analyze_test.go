@@ -2,6 +2,7 @@ package results
 
 import (
 	"errors"
+	"math"
 	"slices"
 	"testing"
 	"time"
@@ -9,7 +10,9 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-func ms(v float64) time.Duration { return time.Duration(v * float64(time.Millisecond)) }
+// ms converts milliseconds, rounded to the microsecond so float arithmetic
+// on fixture constants doesn't leak sub-µs noise into the stored values.
+func ms(v float64) time.Duration { return time.Duration(math.Round(v*1000)) * time.Microsecond }
 
 func seekPoints(t *testing.T, s string) []config.SeekPoint {
 	t.Helper()

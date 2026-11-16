@@ -138,3 +138,25 @@ func TestRenderCSV(t *testing.T) {
 		t.Errorf("unmarked seek row = %v", r)
 	}
 }
+
+func TestRenderFixtureTable(t *testing.T) {
+	out := render(t, Summarize(loadFixture(t)), config.FormatTable)
+	t.Log("\n" + out)
+	lines := strings.Split(out, "\n")
+	for _, l := range lines[:1+8*4] {
+		if n := utf8.RuneCountInString(l); n > 100 {
+			t.Errorf("row is %d columns, want <= 100: %q", n, l)
+		}
+	}
+	for _, want := range []string{
+		"4 failed:\n",
+		`  foo/jellyfin #3 seek 10%: timeout after 1m0s in phase "seek 10%" (ffprobe: signal: killed)` + "\n",
+		"  bar-s01e02/jellyfin warmup #0 startup: ffprobe: exit status 1:",
+		"  foo/usenet #4 seek 00:45:00: nntp: BODY <part2262of6292.Xq3vT9@news.example>: 430 No Such Article\n",
+		"stored run 20261116T031502Z-7c41e9 in /var/lib/nzbff/results\n",
+	} {
+		if !strings.Contains(out, want) {
+			t.Errorf("missing %q", want)
+		}
+	}
+}
