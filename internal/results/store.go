@@ -197,8 +197,8 @@ func (s *Store) List() ([]RunInfo, error) {
 		}
 		out = append(out, RunInfo{ID: id, Started: started, Modified: info.ModTime()})
 	}
-	// By time, not text: '.' sorts before 'Z', so an old ID would list
-	// after a newer one from the same second.
+	// By time, not text: '.' sorts before 'Z', so as text an old ID would
+	// list ahead of a newer one from the same second.
 	slices.SortFunc(out, func(a, b RunInfo) int {
 		if c := b.Started.Compare(a.Started); c != 0 {
 			return c
