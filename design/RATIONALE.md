@@ -21,7 +21,7 @@ foo     infinidysk  startup    5  217ms   222ms   215ms   230ms   1     832K
 foo     usenet      startup    5  264ms   270ms   259ms   281ms   3     750K
 foo     infinidysk  seek 30s   5  611ms   640ms   605ms   660ms   3     1.9M
 1 failed: foo/infinidysk #1: timeout after 60s in phase "seek 30s" (ffprobe: signal: killed)
-stored run 20261116T101502Z-3f9a1c in ~/.local/state/nzbff/results
+stored run 20261116T101502.123Z-3f9a1c in ~/.local/state/nzbff/results
 ```
 
 Dashboard (`/`): **Latest run**: per target, a strip plot for each phase with one row per layer (top of stack first), a dot per sample (warmups hollow, failures ×), the p50 tick, with layers in stack order so the hops read side by side. **Trends**: p50 per (target, phase label) over runs, one line per layer. **Sample**: a waterfall of one sample's ops, with wait and transfer bars, abandoned reads hatched, and mark lines with shaded phases. This view answers why a number is what it is.
@@ -59,6 +59,8 @@ json.NewEncoder(w).Encode(rep)
 
 **ffprobe uses `-show_frames`.** ffprobe flushes the decoder at the end of each read interval, so interval k's frame line prints before interval k+1's first request. On the prototype (MKV and MP4, h264 with 2 B-frames, 200 ms injected TTFB) frame and packet lines agreed within 15 ms per interval. Frames measure what the user asked for and fail loudly on undecodable streams. Marks are stamped right after the pipe read, before parsing.
 
+ffprobe also prints `-show_packets`, but only to delimit intervals: `#1` reads exactly one packet per interval, so each packet line opens an interval and the frame line after it belongs to that interval. Without that, a file that starts between keyframes decodes no frame for startup and every later frame shifts one phase (found in review). An interval that ends without a frame fails its own phase, and no later phase is marked.
+
 **Engine** (`profiler.Run`). Order is target-major, then **iteration-interleaved layers**: all warmups, then iteration i of every layer, and so on. Provider drift over a long run then hits all layers of iteration i alike, so layers shown side by side are comparable. The engine does not subtract one layer from another: the layers run different workloads (a video session versus whole NNTP articles), so a difference would not isolate a hop. A failed sample is data (`Sample.Err`, with marked phases still counted), and so is an unplannable target (`Target.Err`). Only store I/O or cancellation stops a run. A cancelled run is written as `interrupted` and rendered. When samples failed, the engine returns `*FailedError` after rendering, so cron gets both output and a non-zero exit.
 
 **Persistence: per-actor files, merge at read** (per separate-before-serializing-shared-state). The layout is `results.dir/<UTC-timestamp>-<rand>.json`, one file per run with one `RunWriter` as its only writer. Every write goes to a tmp file and is then renamed. The first publish is a hard link, which is exclusive, so two processes cannot claim the same ID. The engine rewrites the file after every sample, so a crash loses at most one sample. IDs sort by time, so `List` reads no file contents. Readers never see a torn file, and concurrent runs never share a file. `Finish` is idempotent. The dashboard memoizes `Summarize` by (id, mtime). Finished files never change, so that cache is exact, not a later patch.
@@ -77,7 +79,7 @@ Three runners sketched in parallel (opus high, codex gpt-6.1-sol high, grok-4.7 
 
 **Grafts.** From codex: the `timeline` package folded into `results` (one fewer package and hop), and fsync of file and directory on publish. From grok: the report's grid comes from the plan, so a layer that failed every sample stays visible, and percent seek points plan without a known duration (usenet-only runs use the fraction).
 
-**Settled after the sketches:** `-show_frames` over opus's `-show_packets`, measured in the prototype.
+**Settled after the sketches:** frame lines mark phases, measured in the prototype. Review later added packet lines as interval delimiters, so the final command uses both.
 
 **Rejected:** grok's per-sample files plus completion marker (more files, same guarantee as one atomically rewritten run file) and its production self-checks at init (tests do that job). Codex's end-of-run-only publication (crash loses the run).
 
