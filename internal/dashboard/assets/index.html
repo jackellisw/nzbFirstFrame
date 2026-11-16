@@ -1,18 +1,30 @@
 <!doctype html>
-<!-- Sketch: layout only. Three views driven by app.js from /api/*. -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>nzbff</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="app.css">
 </head>
 <body>
-<header><h1>nzbff</h1><select id="run"></select><span id="status"></span></header>
-<main>
-  <section id="latest"><!-- strip plots: target × phase, rows = layers in stack order --></section>
-  <section id="trends"><!-- p50 over runs per (target, phase label), line per layer --></section>
-  <section id="sample"><!-- waterfall of one sample's ops and marks --></section>
-</main>
+<header class="bar">
+  <span class="brand">nzbff</span>
+  <label class="picker"><span class="vh">Run</span><select id="run" disabled></select></label>
+  <span id="status" class="status" role="status"></span>
+</header>
+<main id="main" aria-live="polite"></main>
+<div id="tip" class="tip" role="tooltip" hidden></div>
+<svg class="defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="hatch-0" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" class="f0 tint"/><line x1="1" y1="0" x2="1" y2="5" class="s0" stroke-width="2.2"/></pattern>
+    <pattern id="hatch-1" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" class="f1 tint"/><line x1="1" y1="0" x2="1" y2="5" class="s1" stroke-width="2.2"/></pattern>
+    <pattern id="hatch-2" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" class="f2 tint"/><line x1="1" y1="0" x2="1" y2="5" class="s2" stroke-width="2.2"/></pattern>
+    <pattern id="hatch-3" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" class="f3 tint"/><line x1="1" y1="0" x2="1" y2="5" class="s3" stroke-width="2.2"/></pattern>
+    <pattern id="hatch-u" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="5" height="5" class="fu tint"/><line x1="1" y1="0" x2="1" y2="5" class="su" stroke-width="2.2"/></pattern>
+  </defs>
+</svg>
 <script src="app.js"></script>
 </body>
 </html>
