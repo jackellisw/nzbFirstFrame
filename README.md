@@ -245,7 +245,7 @@ If infinidysk answers a read from an offset with `200 OK`, the layer fails with 
 - nzbff sends the Jellyfin API key in the `X-Emby-Token` header from its own HTTP client. It never puts the key, a password, or a stack URL on ffprobe's command line, which other users on the machine can read with `ps`. ffprobe only ever sees `http://127.0.0.1:<port>/media`.
 - If a server redirects to another host, port, or scheme, nzbff follows the redirect without the API key and without basic auth.
 - Run files store no secrets. They hold target names, paths, Jellyfin item IDs, byte offsets, `Range` headers, article message IDs, the NNTP server address, and error messages. nzbff writes them with mode 0600, and creates a missing results directory with mode 0700.
-- `nzbff config show` prints the effective config with secrets replaced by `********`.
+- `nzbff config show` prints the effective config with secrets replaced by `********`. In the URL fields it replaces a password in the URL (`user:xxxxx@host`) and the value of any query parameter named like a credential, such as `api_key` or `token`, with `xxxxx`.
 - With `usenet.tls: false`, the usenet password crosses the network in clear text.
 
 ## Configuration

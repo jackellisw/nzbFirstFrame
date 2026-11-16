@@ -199,7 +199,10 @@ func ParseLayers(s string) ([]Layer, error) {
 	return out, nil
 }
 
-// Redacted returns a copy with secrets masked, safe to print.
+// Redacted returns a copy with secrets masked, safe to print. A URL field
+// keeps its user name, host and path but loses its userinfo password and
+// the value of every query parameter named like a credential (api_key,
+// X-Emby-Token, access_token, ...).
 func (c *Config) Redacted() *Config {
 	r := *c
 	mask := func(s *string) {
@@ -211,5 +214,31 @@ func (c *Config) Redacted() *Config {
 	mask(&r.Rclone.RCPassword)
 	mask(&r.Infinidysk.Password)
 	mask(&r.Usenet.Password)
+	for _, u := range []*string{&r.Jellyfin.URL, &r.Rclone.RCURL, &r.Infinidysk.URL} {
+		*u = redactURL(*u)
+	}
 	return &r
+}
+
+var credentialParams = []string{"key", "token", "secret", "pass", "auth", "sig"}
+
+func redactURL(raw string) string {
+	if raw == "" {
+		return ""
+	}
+	u, err := url.Parse(raw)
+	if err != nil {
+		// Nothing says which part of it is the secret.
+		return "********"
+	}
+	params := strings.Split(u.RawQuery, "&")
+	for i, p := range params {
+		name, _, _ := strings.Cut(p, "=")
+		lower := strings.ToLower(name)
+		if slices.ContainsFunc(credentialParams, func(c string) bool { return strings.Contains(lower, c) }) {
+			params[i] = name + "=xxxxx"
+		}
+	}
+	u.RawQuery = strings.Join(params, "&")
+	return u.Redacted()
 }
