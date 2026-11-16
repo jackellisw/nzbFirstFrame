@@ -1,0 +1,65 @@
+# nzbff example config
+#
+# Lookup order when -config isn't given:
+#   $NZBFF_CONFIG, ./nzbff.yaml, <user config dir>/nzbff/config.yaml, ~/.config/nzbff/config.yaml
+#
+# Values may reference environment variables as ${VAR} or ${VAR:-fallback}.
+# CLI flags override anything set here.
+
+# --- Stack, top to bottom: jellyfin -> rclone -> infinidysk -> usenet ---------
+# Each section configured here becomes a measurable layer (see profile.layers).
+
+jellyfin:
+  url: http://jellyfin.local:8096
+  api_key: ${NZBFF_JELLYFIN_API_KEY}
+  user_id: ""                # optional; some endpoints are user-scoped
+  insecure_skip_verify: false
+
+rclone:
+  mount_path: /mnt/media     # where the infinidysk remote is mounted
+  rc_url: ""                 # e.g. http://127.0.0.1:5572 — needed for cold_cache
+  rc_user: ""
+  rc_password: ""
+
+infinidysk:
+  url: http://infinidysk.local:8080   # the HTTP/WebDAV endpoint rclone mounts
+  username: ""
+  password: ""
+  insecure_skip_verify: false
+
+# Optional provider baseline (raw NNTP latency). Uncomment to enable.
+# usenet:
+#   host: news.example.com
+#   port: 563
+#   tls: true
+#   username: ${NZBFF_USENET_USER}
+#   password: ${NZBFF_USENET_PASSWORD}
+
+# --- How to measure -------------------------------------------------------
+profile:
+  layers: []                 # empty = every layer configured above
+  iterations: 5              # measured runs per target per layer
+  warmup: 1                  # discarded runs before measuring
+  timeout: 60s               # per first-frame / seek measurement
+  cooldown: 2s               # pause between iterations
+  cold_cache: false          # flush rclone VFS cache before each run (needs rclone.rc_url)
+  seek_points: ["10%", "50%", "90%"]   # also accepts 90s, 1m30s, 00:42:00
+
+tools:
+  ffprobe: ffprobe
+  ffmpeg: ffmpeg
+
+output:
+  format: table              # table | json | csv
+  path: ""                   # empty or "-" = stdout
+
+log:
+  level: info                # debug | info | warn | error
+  format: text               # text | json
+
+# --- What to measure ------------------------------------------------------
+targets:
+  - name: example-movie
+    jellyfin_item_id: "0123456789abcdef0123456789abcdef"
+    path: "movies/Example (2024)/Example (2024).mkv"   # relative to rclone mount & infinidysk root
+    # nzb: /path/to/Example.nzb                         # needed for the usenet layer

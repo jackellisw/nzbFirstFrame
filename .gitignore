@@ -1,0 +1,4 @@
+/bin/
+# local config usually holds API keys / passwords
+/nzbff.yaml
+/nzbff.yml
