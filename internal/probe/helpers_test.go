@@ -18,8 +18,6 @@ func newProber(cfg *config.Config) *probe.Prober {
 	return probe.New(cfg, slog.New(slog.NewTextHandler(io.Discard, nil)))
 }
 
-// planAt builds the plan results.NewPlan would for seeks at the given
-// fractions of the media.
 func planAt(fractions ...float64) results.Plan {
 	var p results.Plan
 	for _, f := range fractions {
@@ -32,9 +30,6 @@ func planAt(fractions ...float64) results.Plan {
 	return p
 }
 
-// phase is one phase of a timeline, derived the way the design defines it:
-// startup runs from the first op to mark 0, seek k from mark k-1 to mark k,
-// and an op belongs to the phase whose window contains its Start.
 type phase struct {
 	latency time.Duration
 	ops     []results.Op

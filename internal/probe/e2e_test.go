@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	gopLength   = 2 * time.Second // 48 frames at 24 fps
+	gopLength   = 2 * time.Second
 	segmentSize = 750_000
 )
 
@@ -83,9 +83,6 @@ func TestVideoLatencyTracksInjectedTTFB(t *testing.T) {
 					for _, op := range ph.ops {
 						waited += op.FirstByte - op.Start
 					}
-					// lead is how long after the previous mark this phase's
-					// first request began: the margin a late mark stamp has
-					// before the request is attributed to the wrong phase.
 					lead := time.Duration(0)
 					if k > 0 && n > 0 {
 						lead = ph.ops[0].Start - tl.Marks[k-1].At
@@ -143,9 +140,6 @@ func TestVideoLatencyTracksInjectedTTFB(t *testing.T) {
 	}
 }
 
-// eventuallySent returns the bytes the fake servers sent since hit index
-// from. A server only reports a response's bytes when its handler returns,
-// which can be just after the sample that abandoned the read.
 func eventuallySent(st *fakestack.Stack, from int, atLeast int64) int64 {
 	deadline := time.Now().Add(2 * time.Second)
 	for {
@@ -188,8 +182,6 @@ func TestUsenetTimelineTracksArticleTTFB(t *testing.T) {
 		t.Errorf("connect %+v / auth %+v: want Ref %s and Offset -1", connect, auth, st.NNTPAddr)
 	}
 
-	// The article for a seek is the segment holding that fraction of the
-	// file; the fake NZB has one segment per segmentSize bytes.
 	wantParts := []int64{0}
 	for _, s := range threeSeeks.Seeks {
 		wantParts = append(wantParts, int64(s.Fraction*float64(media.Size()))/segmentSize)
@@ -291,6 +283,20 @@ func TestMediaUsesDeepestSelectedVideoLayer(t *testing.T) {
 	if m, err := newProber(cfg).Media(t.Context(), st.Target); err == nil {
 		t.Errorf("usenet-only: got %+v, want an error because no layer can report a duration", m)
 	}
+
+	cfg = st.Config()
+	cfg.Infinidysk.URL = "http://" + closedPort(t)
+	if m, err := newProber(cfg).Media(t.Context(), st.Target); err != nil || m.Via != config.LayerRclone {
+		t.Errorf("infinidysk down: got %+v, %v; want the duration read via rclone, the next layer up", m, err)
+	}
+	cfg.Rclone.MountPath = t.TempDir()
+	cfg.Jellyfin.APIKey = "wrong"
+	_, err := newProber(cfg).Media(t.Context(), st.Target)
+	for _, l := range []string{"via infinidysk", "via rclone", "via jellyfin"} {
+		if err == nil || !strings.Contains(err.Error(), l) {
+			t.Errorf("every video layer down: err = %v, want it to report the failure %s", err, l)
+		}
+	}
 }
 
 func TestColdCacheForgetsOnlyForLayersBehindRclone(t *testing.T) {
@@ -350,8 +356,6 @@ func closedPort(t *testing.T) string {
 func TestFailedSamplesReturnErrorAndPartialTimeline(t *testing.T) {
 	st := startStack(t, fakestack.Options{InfinidyskTTFB: 200 * time.Millisecond})
 
-	// failed runs a sample that must fail without panicking and returns
-	// what it reported.
 	failed := func(t *testing.T, cfg *config.Config, layer config.Layer, target config.Target) (results.Timeline, string) {
 		t.Helper()
 		tl, err := newProber(cfg).Sample(t.Context(), layer, target, threeSeeks)
@@ -444,8 +448,6 @@ func TestFailedSamplesReturnErrorAndPartialTimeline(t *testing.T) {
 		wantNoMarks(t, tl, msg)
 	})
 
-	// Six round trips at 200 ms cannot finish in 800 ms, and the first
-	// (startup, done by ~250 ms) has 550 ms of margin to.
 	t.Run("timeout mid-session", func(t *testing.T) {
 		cfg := st.Config()
 		cfg.Profile.Timeout = config.Duration(800 * time.Millisecond)
@@ -524,5 +526,49 @@ func TestSecretsStayOffFFprobeCommandLine(t *testing.T) {
 		if strings.Contains(argv, secret) {
 			t.Errorf("%s %q is on ffprobe's command line:\n%s", name, secret, argv)
 		}
+	}
+}
+
+// A file cut by stream copy at a non-keyframe: ffprobe's startup interval
+// reads one packet it cannot decode, so it prints no frame for startup and
+// one frame for each seek.
+func TestStreamStartingBetweenKeyframesFailsStartupInsteadOfShiftingFrames(t *testing.T) {
+	for _, tool := range []string{"ffmpeg", "ffprobe"} {
+		if _, err := exec.LookPath(tool); err != nil {
+			t.Skipf("%s not on PATH", tool)
+		}
+	}
+	src, err := fakestack.Generate(t.Context(), "ffmpeg", t.TempDir(), fakestack.MediaSpec{Length: mediaLength})
+	if err != nil {
+		t.Fatal(err)
+	}
+	mount := t.TempDir()
+	cut := exec.Command("ffmpeg", "-v", "error", "-nostdin", "-y", "-i", src,
+		"-ss", (gopLength / 2).String(), "-c", "copy", "-copyinkf", filepath.Join(mount, "cut.mkv"))
+	if out, err := cut.CombinedOutput(); err != nil {
+		t.Fatalf("cut: %v: %s", err, out)
+	}
+	cfg := config.Default()
+	cfg.Rclone.MountPath = mount
+	cfg.Profile.Layers = []config.Layer{config.LayerRclone}
+	target := config.Target{Name: "cut", Path: "cut.mkv"}
+	prober := newProber(cfg)
+	m, err := prober.Media(t.Context(), target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	points, _ := config.ParseSeekPoints("10%,30%")
+	plan, err := results.NewPlan(points, m.Duration)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tl, err := prober.Sample(t.Context(), config.LayerRclone, target, plan)
+	checkTimelineInvariants(t, tl)
+	if err == nil || !strings.Contains(err.Error(), `phase "startup"`) {
+		t.Errorf("err = %v, want startup reported as the phase without a frame", err)
+	}
+	for _, mk := range tl.Marks {
+		t.Errorf("phase %s marked by the frame at %.3fs; no phase may be marked after startup failed", plan.Label(mk.Phase), mk.PTS)
 	}
 }

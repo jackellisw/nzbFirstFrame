@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 func TestExampleConfigLoadsAndValidates(t *testing.T) {
@@ -235,4 +237,33 @@ func toStrings(ls []Layer) []string {
 		s[i] = string(l)
 	}
 	return s
+}
+
+func TestRedactedMasksCredentialsInURLs(t *testing.T) {
+	cfg := Default()
+	cfg.Jellyfin.URL = "https://jf.example/base?api_key=jf-secret&static=true"
+	cfg.Rclone.RCURL = "http://rc:rc-secret@127.0.0.1:5572/?token=tok-secret"
+	cfg.Infinidysk.URL = "https://dysk-user:dysk-secret@dysk.example/library?ApiKey=key-secret&X-Emby-Token=emby-secret&access_token=at-secret"
+	before := *cfg
+
+	out, err := yaml.Marshal(cfg.Redacted())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, secret := range []string{"jf-secret", "rc-secret", "tok-secret", "dysk-secret", "key-secret", "emby-secret", "at-secret"} {
+		if strings.Contains(string(out), secret) {
+			t.Errorf("redacted config shows %q:\n%s", secret, out)
+		}
+	}
+	for _, kept := range []string{"https://jf.example/base?", "static=true", "dysk-user", "dysk.example/library", "127.0.0.1:5572"} {
+		if !strings.Contains(string(out), kept) {
+			t.Errorf("redacted config lost %q, which is not a secret:\n%s", kept, out)
+		}
+	}
+	if cfg.Jellyfin.URL != before.Jellyfin.URL || cfg.Infinidysk.URL != before.Infinidysk.URL {
+		t.Error("Redacted mutated the original")
+	}
+	if bad := (&Config{Jellyfin: JellyfinConfig{URL: "http://u:p%zz@host"}}).Redacted(); strings.Contains(bad.Jellyfin.URL, "p%zz") {
+		t.Errorf("an unparsable URL printed as %q; it may hold a credential", bad.Jellyfin.URL)
+	}
 }

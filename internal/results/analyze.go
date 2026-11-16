@@ -30,10 +30,12 @@ type PhaseResult struct {
 
 	// Breakdown of Latency over the phase window, from the attributed ops
 	// only. Transfer = union of time any op was delivering bytes (FirstByte
-	// to End). Wait = union of time an op was waiting for its first byte (an
-	// op that never got one waits Start to End), minus Transfer: overlaps are
-	// counted once and flowing bytes win. Client = Latency - Wait - Transfer:
-	// time the client spent between ops (parsing, seeking, decoding).
+	// to End, where an abandoned op's delivery ends no later than the Start
+	// of the next op in the timeline). Wait = union of time an op was
+	// waiting for its first byte (an op that never got one waits Start to
+	// End), minus Transfer: overlaps are counted once and flowing bytes win.
+	// Client = Latency - Wait - Transfer: time the client spent between ops
+	// (parsing, seeking, decoding).
 	Wait     time.Duration `json:"wait_ns"`
 	Transfer time.Duration `json:"transfer_ns"`
 	Client   time.Duration `json:"client_ns"`
@@ -57,7 +59,7 @@ type Analysis struct {
 // Bytes == sum(Phases[k].Bytes) + TailBytes.
 func Analyze(tl Timeline, plan Plan) Analysis {
 	res := Analysis{Phases: make([]PhaseResult, plan.Len())}
-	next := 0 // first op not yet attributed; Ops are sorted by Start
+	next := 0
 	var lo time.Duration
 	for k := range res.Phases {
 		pr := &res.Phases[k]
@@ -96,10 +98,6 @@ func Analyze(tl Timeline, plan Plan) Analysis {
 	return res
 }
 
-// split measures, within [from, to], the union of time the given ops spent
-// waiting for a first byte and the union of time bytes were flowing.
-// Transfer wins where they overlap: while any op delivers bytes the client
-// is not stalled. An op that never got a byte waits from Start to End.
 func split(ops []Op, idx []int, from, to time.Duration) (wait, transfer time.Duration) {
 	type span struct {
 		a, b     time.Duration
@@ -118,8 +116,16 @@ func split(ops []Op, idx []int, from, to time.Duration) (wait, transfer time.Dur
 			add(op.Start, op.End, false)
 			continue
 		}
+		end := op.End
+		// A client that seeks away stops reading, but the kernel keeps
+		// accepting the abandoned read's bytes into the socket buffer while
+		// the next request waits. Those bytes serve nobody, and counting
+		// them as flowing would hide that wait.
+		if op.Abandoned && i+1 < len(ops) {
+			end = min(end, ops[i+1].Start)
+		}
 		add(op.Start, op.FirstByte, false)
-		add(op.FirstByte, op.End, true)
+		add(op.FirstByte, end, true)
 	}
 	if len(spans) == 0 {
 		return 0, 0

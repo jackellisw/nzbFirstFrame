@@ -15,19 +15,15 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// newsServer is a minimal NNTP server holding the media as yEnc articles,
-// one per SegmentSize bytes, plus a one-article .nfo. The .nfo is listed
-// first in the NZB, so a client that takes the first file instead of the
-// largest fetches the wrong article.
 type newsServer struct {
 	stack *Stack
-	name  string // media file name, for subjects and yEnc headers
+	name  string
 	size  int64
 	parts int
 
 	ln   net.Listener
 	wg   sync.WaitGroup
-	ctx  context.Context // cancelled by close, so injected latency does not delay it
+	ctx  context.Context
 	stop context.CancelFunc
 
 	mu    sync.Mutex
@@ -35,8 +31,8 @@ type newsServer struct {
 }
 
 const (
-	nfoMessageID = "nfo@fakestack"
-	nfoText      = "fakestack test release\r\n"
+	decoyNFOMessageID = "nfo@fakestack"
+	nfoText           = "fakestack test release\r\n"
 )
 
 func newNewsServer(s *Stack, name string, size int64) *newsServer {
@@ -48,14 +44,11 @@ func newNewsServer(s *Stack, name string, size int64) *newsServer {
 
 func partMessageID(part int) string { return fmt.Sprintf("part%05d@fakestack", part) }
 
-// partRange is the slice of the media that 1-based part carries.
 func (n *newsServer) partRange(part int) (off, length int64) {
 	off = int64(part-1) * n.stack.opts.SegmentSize
 	return off, min(n.stack.opts.SegmentSize, n.size-off)
 }
 
-// nzb describes the articles. Segment sizes are the decoded bytes each
-// part carries.
 func (n *newsServer) nzb() []byte {
 	var b bytes.Buffer
 	b.WriteString(xml.Header)
@@ -69,7 +62,7 @@ func (n *newsServer) nzb() []byte {
 		b.WriteString("  </segments>\n </file>\n")
 	}
 	file(`"fake.nfo" yEnc (1/1)`, func() {
-		fmt.Fprintf(&b, `   <segment bytes="%d" number="1">%s</segment>`+"\n", len(nfoText), nfoMessageID)
+		fmt.Fprintf(&b, `   <segment bytes="%d" number="1">%s</segment>`+"\n", len(nfoText), decoyNFOMessageID)
 	})
 	file(fmt.Sprintf(`"%s" yEnc (1/%d)`, n.name, n.parts), func() {
 		for part := 1; part <= n.parts; part++ {
@@ -81,9 +74,8 @@ func (n *newsServer) nzb() []byte {
 	return b.Bytes()
 }
 
-// article returns the yEnc-encoded article for a message-id.
 func (n *newsServer) article(id string) ([]byte, bool) {
-	if id == nfoMessageID {
+	if id == decoyNFOMessageID {
 		return yenc("fake.nfo", 1, 1, int64(len(nfoText)), 0, []byte(nfoText)), true
 	}
 	var part int
@@ -127,8 +119,6 @@ func yenc(name string, part, total int, fileSize, off int64, data []byte) []byte
 	return b.Bytes()
 }
 
-// dotStuff doubles the dot of every line that starts with one, so no line
-// of the payload can be mistaken for the "." terminator.
 func dotStuff(payload []byte) []byte {
 	out := bytes.ReplaceAll(payload, []byte("\r\n."), []byte("\r\n.."))
 	if bytes.HasPrefix(out, []byte(".")) {
@@ -176,7 +166,6 @@ func (n *newsServer) close() {
 	n.wg.Wait()
 }
 
-// session speaks NNTP to one client until QUIT or disconnect.
 func (n *newsServer) session(conn net.Conn) {
 	in := bufio.NewReader(conn)
 	say := func(line string) { io.WriteString(conn, line+"\r\n") }

@@ -36,8 +36,6 @@ func (m MediaSpec) withDefaults() MediaSpec {
 // layout that costs a player extra round trips.
 var muxers = map[string]string{"mkv": "matroska", "mp4": "mp4"}
 
-// recipe names the encode settings below. Bump it when they change, so
-// media cached by an older build is not reused.
 const recipe = "r1"
 
 // Generate encodes testsrc2 at 720p with libx264 into dir and returns the
@@ -60,8 +58,6 @@ func Generate(ctx context.Context, ffmpeg, dir string, spec MediaSpec) (string, 
 		if err := os.MkdirAll(cacheDir, 0o755); err != nil {
 			return "", err
 		}
-		// Encode beside the cache entry and rename, so a concurrent test
-		// process never sees a half-written file.
 		tmp, err := os.CreateTemp(cacheDir, "encoding-*")
 		if err != nil {
 			return "", err

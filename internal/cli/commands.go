@@ -56,6 +56,9 @@ func runProfile(ctx context.Context, name string, args []string, stdout, stderr 
 	if mode.Seek() && len(cfg.Profile.SeekPoints) == 0 {
 		err = errors.Join(err, errors.New("no seek points: set profile.seek_points or pass -seek"))
 	}
+	if cfg.Results.Dir == "" {
+		err = errors.Join(err, errors.New("no results directory: set results.dir or pass -results"))
+	}
 	if err != nil {
 		return fmt.Errorf("invalid configuration%s:\n%w", sourceSuffix(cfg), err)
 	}
@@ -68,16 +71,27 @@ func runProfile(ctx context.Context, name string, args []string, stdout, stderr 
 		return nil
 	}
 
-	out := stdout
+	opts := profiler.Options{Config: cfg, Mode: mode, Logger: logger, Out: stdout}
 	if p := cfg.Output.Path; p != "" && p != "-" {
 		f, err := os.Create(p)
 		if err != nil {
 			return err
 		}
-		defer f.Close()
-		out = f
+		opts.Out = f
+		err = profiler.Run(ctx, opts)
+		if cerr := f.Close(); cerr != nil {
+			err = errors.Join(err, cerr)
+		}
+		return profileErr(err)
 	}
-	return profiler.Run(ctx, profiler.Options{Config: cfg, Mode: mode, Logger: logger, Out: out})
+	return profileErr(profiler.Run(ctx, opts))
+}
+
+func profileErr(err error) error {
+	if errors.Is(err, context.Canceled) {
+		return errors.New("interrupted; the partial run is stored")
+	}
+	return err
 }
 
 func printPlan(w io.Writer, cfg *config.Config, mode profiler.Mode) {
@@ -95,6 +109,7 @@ func printPlan(w io.Writer, cfg *config.Config, mode profiler.Mode) {
 		fmt.Fprintf(w, "seek points: %s\n", joinStringers(p.SeekPoints))
 	}
 	fmt.Fprintf(w, "output:      %s -> %s\n", cfg.Output.Format, orStdout(cfg.Output.Path))
+	fmt.Fprintf(w, "results:     %s\n", cfg.Results.Dir)
 	fmt.Fprintf(w, "targets:\n")
 	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 	fmt.Fprintln(tw, "  NAME\tJELLYFIN ITEM\tPATH\tNZB")

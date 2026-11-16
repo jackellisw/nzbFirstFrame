@@ -12,7 +12,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// jellyfinHandler imitates the one Jellyfin route the profiler uses.
 func (s *Stack) jellyfinHandler() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /Videos/{id}/stream", func(w http.ResponseWriter, r *http.Request) {
@@ -31,7 +30,6 @@ func (s *Stack) jellyfinHandler() http.Handler {
 	return mux
 }
 
-// infinidyskHandler serves MountDir over HTTP behind basic auth.
 func (s *Stack) infinidyskHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !s.authorized(w, r) {
@@ -60,8 +58,6 @@ func (s *Stack) authorized(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-// serveMedia answers one read of a file after ttfb, leaving Range handling
-// to net/http.
 func (s *Stack) serveMedia(w http.ResponseWriter, r *http.Request, layer config.Layer, ttfb time.Duration, file string) {
 	f, err := os.Open(file)
 	if err != nil {
@@ -94,8 +90,6 @@ func (c *countingWriter) Write(p []byte) (int, error) {
 	return n, err
 }
 
-// rcHandler imitates rclone's remote control for the one call cold-cache
-// runs make.
 func (s *Stack) rcHandler() http.Handler {
 	type failure struct {
 		Error  string `json:"error"`

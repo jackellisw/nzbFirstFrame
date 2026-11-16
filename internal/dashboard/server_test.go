@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -57,21 +58,6 @@ func errorBody(t *testing.T, rec *httptest.ResponseRecorder) string {
 	return body.Error
 }
 
-// requireSummarize skips while results.Summarize is still the sketch's stub,
-// and only then: any other panic fails the test.
-func requireSummarize(t *testing.T) {
-	t.Helper()
-	defer func() {
-		if r := recover(); r != nil {
-			if r == "not implemented" {
-				t.Skip("needs results.Summarize and Report.Trend, not implemented in this tree yet")
-			}
-			panic(r)
-		}
-	}()
-	_ = results.Summarize(&results.Run{}).Trend()
-}
-
 func info(id string, modified time.Time) results.RunInfo {
 	started, _ := time.Parse("20060102T150405Z", strings.SplitN(id, "-", 2)[0])
 	return results.RunInfo{ID: id, Started: started, Modified: modified}
@@ -110,9 +96,9 @@ func TestLatestWithoutRunsIsNotFound(t *testing.T) {
 }
 
 func TestOnlyListedRunsAreLoaded(t *testing.T) {
-	st := newFakeStore(info("20261116T101502Z-3f9a1c", time.Now()))
+	st := newFakeStore(info("20261116T101502.000Z-3f9a1c", time.Now()))
 	h := New(st)
-	for _, path := range []string{"/api/runs/20261116T000000Z-000000", "/api/runs/..%2F..%2Fetc%2Fpasswd"} {
+	for _, path := range []string{"/api/runs/20261116T000000.000Z-000000", "/api/runs/..%2F..%2Fetc%2Fpasswd"} {
 		rec := get(t, h, path)
 		if rec.Code != http.StatusNotFound {
 			t.Errorf("%s: got %d, want 404", path, rec.Code)
@@ -124,7 +110,7 @@ func TestOnlyListedRunsAreLoaded(t *testing.T) {
 }
 
 func TestUnreadableRunIsListedWithItsError(t *testing.T) {
-	const id = "20261116T120000Z-0badf0"
+	const id = "20261116T120000.000Z-0badf0"
 	st := newFakeStore(info(id, time.Now()))
 	st.errs[id] = errors.New("decode: unexpected end of JSON input")
 	h := New(st)
@@ -180,8 +166,6 @@ func TestServesEmbeddedUI(t *testing.T) {
 	}
 }
 
-// The dashboard runs on homelab boxes that may be offline: nothing it ships
-// may reach for a CDN or a web font.
 func TestAssetsFetchNothingRemote(t *testing.T) {
 	url := regexp.MustCompile(`(https?:)?//[a-zA-Z0-9.-]+\.[a-z]{2,}[^\s"'<>)]*`)
 	err := fs.WalkDir(assets, "assets", func(path string, d fs.DirEntry, err error) error {
@@ -207,8 +191,6 @@ func TestAssetsFetchNothingRemote(t *testing.T) {
 	}
 }
 
-// The UI was built against the fixtures in testdata, so they must be exactly
-// what the Go types encode: no unknown field, no field the types would drop.
 func TestFixturesMatchTheAPIShapes(t *testing.T) {
 	var rep results.Report
 	roundTrip(t, "testdata/report.json", &rep)
@@ -289,8 +271,7 @@ func firstDiff(want, got any, at string) string {
 }
 
 func TestReportIsAnalyzedOncePerModTime(t *testing.T) {
-	requireSummarize(t)
-	const id = "20261116T101502Z-3f9a1c"
+	const id = "20261116T101502.000Z-3f9a1c"
 	t0 := time.Date(2026, 11, 16, 10, 16, 0, 0, time.UTC)
 	st := newFakeStore(info(id, t0))
 	st.runs[id] = run(id)
@@ -311,16 +292,38 @@ func TestReportIsAnalyzedOncePerModTime(t *testing.T) {
 		t.Fatalf("unchanged file loaded %d times, want 1", st.loads[id])
 	}
 
-	st.infos[0].Modified = t0.Add(3 * time.Second) // a running run rewrote its file
+	st.infos[0].Modified = t0.Add(3 * time.Second)
 	get(t, h, "/api/runs/"+id)
 	if st.loads[id] != 2 {
 		t.Fatalf("rewritten file loaded %d times in total, want 2", st.loads[id])
 	}
 }
 
+func TestRunListDoesNotReloadViewedHistory(t *testing.T) {
+	ids := []string{"20261116T101502.000Z-3f9a1c", "20261115T030005Z-1a2b3c", "20261114T030005Z-4d5e6f"}
+	var infos []results.RunInfo
+	for _, id := range ids {
+		infos = append(infos, info(id, time.Now()))
+	}
+	st := newFakeStore(infos...)
+	for _, id := range ids {
+		st.runs[id] = run(id)
+	}
+	h := New(st)
+
+	get(t, h, "/api/runs")
+	for _, id := range ids {
+		get(t, h, "/api/runs/"+id)
+	}
+	before := maps.Clone(st.loads)
+	get(t, h, "/api/runs")
+	if !maps.Equal(st.loads, before) {
+		t.Fatalf("listing unchanged runs reloaded files: loads %v, before %v", st.loads, before)
+	}
+}
+
 func TestRunsAndLatestFollowTheListing(t *testing.T) {
-	requireSummarize(t)
-	newer, older := "20261116T101502Z-3f9a1c", "20261115T030005Z-1a2b3c"
+	newer, older := "20261116T101502.000Z-3f9a1c", "20261115T030005Z-1a2b3c"
 	st := newFakeStore(info(newer, time.Now()), info(older, time.Now()))
 	st.runs[newer], st.runs[older] = run(newer), run(older)
 	h := New(st)

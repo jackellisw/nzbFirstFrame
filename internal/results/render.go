@@ -36,7 +36,6 @@ func Render(w io.Writer, rep Report, format config.OutputFormat, dir string) err
 	return fmt.Errorf("unknown output format %q", format)
 }
 
-// Column caps keep a table row within 100 columns.
 const (
 	maxTargetWidth = 18
 	maxLabelWidth  = 16
@@ -78,18 +77,12 @@ func renderTable(w io.Writer, rep Report, dir string) error {
 	return nil
 }
 
-// failureLines lists unplanned targets and every sample (warmups included)
-// that errored or left a phase unmarked, naming the first unreached phase.
 func failureLines(rep Report) []string {
 	var out []string
 	for _, t := range rep.Targets {
 		if t.Err != "" {
 			out = append(out, fmt.Sprintf("%s: not planned: %s", t.Name, t.Err))
 		}
-	}
-	plans := make(map[string]Plan, len(rep.Targets))
-	for _, t := range rep.Targets {
-		plans[t.Name] = t.Plan
 	}
 	for _, c := range rep.Cells {
 		for _, s := range c.Samples {
@@ -109,7 +102,7 @@ func failureLines(rep Report) []string {
 			}
 			line += "#" + strconv.Itoa(s.Iteration)
 			if phase >= 0 {
-				line += " " + plans[c.Target].Label(phase)
+				line += " " + c.Phases[phase].Label
 			}
 			msg := s.Err
 			if msg == "" {
@@ -125,12 +118,7 @@ func renderCSV(w io.Writer, rep Report) error {
 	cw := csv.NewWriter(w)
 	_ = cw.Write([]string{"run_id", "target", "layer", "iteration", "warmup", "phase", "label", "ok",
 		"latency_ms", "requests", "bytes", "first_ttfb_ms", "wait_ms", "transfer_ms", "client_ms", "err"})
-	plans := make(map[string]Plan, len(rep.Targets))
-	for _, t := range rep.Targets {
-		plans[t.Name] = t.Plan
-	}
 	for _, c := range rep.Cells {
-		plan := plans[c.Target]
 		for _, s := range c.Samples {
 			for _, p := range s.Analysis.Phases {
 				var latency, ttfb, wait, transfer, client string
@@ -141,7 +129,7 @@ func renderCSV(w io.Writer, rep Report) error {
 					}
 				}
 				_ = cw.Write([]string{rep.Run.ID, c.Target, string(c.Layer), strconv.Itoa(s.Iteration),
-					strconv.FormatBool(s.Warmup), strconv.Itoa(p.Phase), plan.Label(p.Phase), strconv.FormatBool(p.OK),
+					strconv.FormatBool(s.Warmup), strconv.Itoa(p.Phase), c.Phases[p.Phase].Label, strconv.FormatBool(p.OK),
 					latency, strconv.Itoa(p.Requests), strconv.FormatInt(p.Bytes, 10), ttfb, wait, transfer, client, s.Err})
 			}
 		}
@@ -154,8 +142,6 @@ func csvMS(d time.Duration) string {
 	return strconv.FormatFloat(float64(d)/float64(time.Millisecond), 'f', 3, 64)
 }
 
-// fmtDuration is milliseconds below 10s, so values that are compared side
-// by side keep one unit.
 func fmtDuration(d time.Duration) string {
 	ms := float64(d) / float64(time.Millisecond)
 	switch {

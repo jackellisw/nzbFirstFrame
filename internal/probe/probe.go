@@ -1,14 +1,4 @@
 // Package probe takes one measurement of one layer of the stack.
-//
-// It owns everything that knows how to reach a hop: the local HTTP tap, the
-// per-layer sources behind it (Jellyfin stream API, the rclone mount,
-// infinidysk), the ffprobe driver, the NNTP client and NZB parser, and the
-// rclone rc cold-cache call. None of that is exported: callers see
-// Sample/Media and get back a results.Timeline.
-//
-// Adding a layer: add the config.Layer constant (config.AllLayers) and one
-// entry in the layers table below. A test asserts the table's keys equal
-// config.AllLayers, so the two lists cannot drift silently.
 package probe
 
 import (
@@ -17,8 +7,11 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"net/url"
 	"slices"
+	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 	"github.com/jackellisw/nzbfirstframe/internal/results"
@@ -31,8 +24,6 @@ type Prober struct {
 	cfg *config.Config
 	log *slog.Logger
 
-	// nntpRoots verifies the provider's TLS certificate; nil means the
-	// system roots. Tests point it at their own CA.
 	nntpRoots *x509.CertPool
 }
 
@@ -47,23 +38,33 @@ type Media struct {
 	Via      config.Layer // which layer answered the duration probe
 }
 
+// ErrNoVideoLayer is returned by Media when no selected layer can be read by
+// ffprobe, so the duration cannot be known.
+var ErrNoVideoLayer = errors.New("no video layer selected to read the media duration from")
+
 // Media resolves the target's runtime with a quick
-// `ffprobe -show_entries format=duration` through the deepest configured
+// `ffprobe -show_entries format=duration` through the deepest selected
 // video layer (infinidysk, then rclone, then jellyfin), so the probe warms as
-// little of the stack above it as possible. Returns an error when no video
-// layer is selected; usenet-only runs can still use percent seek points (see
-// the engine).
+// little of the stack above it as possible. A layer that fails hands over to
+// the next one up: one broken layer must not keep the others from being
+// measured. The error reports every layer's failure once all have failed.
 func (p *Prober) Media(ctx context.Context, t config.Target) (Media, error) {
+	var failures []string
 	for _, l := range slices.Backward(config.AllLayers) {
-		if m := layers[l]; p.cfg.HasLayer(l) && m.video != nil {
-			d, err := p.durationVia(ctx, m.video(p, t))
-			if err != nil {
-				return Media{}, fmt.Errorf("duration via %s: %w", l, err)
-			}
+		m := layers[l]
+		if !p.cfg.HasLayer(l) || m.video == nil {
+			continue
+		}
+		d, err := p.durationVia(ctx, m.video(p, t))
+		if err == nil {
 			return Media{Duration: d, Via: l}, nil
 		}
+		failures = append(failures, fmt.Sprintf("duration via %s: %v", l, err))
 	}
-	return Media{}, errors.New("no video layer selected to read the media duration from")
+	if len(failures) == 0 {
+		return Media{}, ErrNoVideoLayer
+	}
+	return Media{}, errors.New(strings.Join(failures, "; "))
 }
 
 func (p *Prober) durationVia(ctx context.Context, src source) (time.Duration, error) {
@@ -113,9 +114,6 @@ func (p *Prober) Sample(ctx context.Context, layer config.Layer, t config.Target
 	return rec.snapshot(), err
 }
 
-// phaseError words a sample failure the same way for every layer: which
-// phase was open, and whether the per-sample timeout or a cancellation
-// ended it.
 func (p *Prober) phaseError(ctx context.Context, phase, detail string) error {
 	switch {
 	case errors.Is(ctx.Err(), context.DeadlineExceeded):
@@ -127,15 +125,12 @@ func (p *Prober) phaseError(ctx context.Context, phase, detail string) error {
 	}
 }
 
-// method is how one layer is measured: either as a byte source behind the
-// tap (ffprobe does the reading) or with a custom client (usenet).
 type method struct {
 	video     func(p *Prober, t config.Target) source
 	custom    func(p *Prober, ctx context.Context, rec *recorder, t config.Target, plan results.Plan) error
-	viaRclone bool // cold-cache flush applies
+	viaRclone bool
 }
 
-// layers is the single list of how each layer is measured.
 var layers = map[config.Layer]method{
 	config.LayerJellyfin:   {video: jellyfinSource, viaRclone: true},
 	config.LayerRclone:     {video: mountSource, viaRclone: true},
@@ -143,7 +138,6 @@ var layers = map[config.Layer]method{
 	config.LayerUsenet:     {custom: (*Prober).sampleUsenet},
 }
 
-// runVideo serves src on a local tap and drives ffprobe against it.
 func (p *Prober) runVideo(ctx context.Context, rec *recorder, src source, plan results.Plan) error {
 	defer src.close()
 	tap, err := startTap(src, rec)
@@ -158,8 +152,53 @@ func (p *Prober) runVideo(ctx context.Context, rec *recorder, src source, plan r
 	return nil
 }
 
-// withUpstream adds the first upstream failure to err. ffprobe only sees
-// the tap's 502, so its own message cannot say why the stack failed.
+// serverTextLimit bounds how much of a reply goes into an error. Errors are
+// stored with the run, and a server chooses what its replies say.
+const serverTextLimit = 160
+
+// scrubber prepares text a server sent for an error message: it masks every
+// configured credential, since a server may echo the login it rejected, and
+// keeps a short prefix.
+type scrubber struct{ secrets []string }
+
+func newScrubber(cfg *config.Config) scrubber {
+	var secrets []string
+	for _, s := range []string{
+		cfg.Jellyfin.APIKey, cfg.Rclone.RCUser, cfg.Rclone.RCPassword,
+		cfg.Infinidysk.Username, cfg.Infinidysk.Password, cfg.Usenet.Username, cfg.Usenet.Password,
+	} {
+		if s != "" {
+			secrets = append(secrets, s)
+		}
+	}
+	// Longest first, so a password that contains the username is masked whole.
+	slices.SortFunc(secrets, func(a, b string) int { return len(b) - len(a) })
+	return scrubber{secrets: secrets}
+}
+
+func (s scrubber) text(reply string) string {
+	for _, secret := range s.secrets {
+		reply = strings.ReplaceAll(reply, secret, "***")
+	}
+	if len(reply) <= serverTextLimit {
+		return reply
+	}
+	cut := serverTextLimit
+	for !utf8.RuneStart(reply[cut]) {
+		cut--
+	}
+	return reply[:cut] + "…"
+}
+
+// clientErr scrubs the cause of an http.Client error, which can quote a
+// malformed response, and keeps the request it names (ours) whole.
+func (s scrubber) clientErr(err error) error {
+	if ue, ok := err.(*url.Error); ok {
+		ue.Err = errors.New(s.text(ue.Err.Error()))
+	}
+	return err
+}
+
 func withUpstream(err error, rec *recorder) error {
 	if cause := rec.firstOpErr(); cause != "" {
 		return fmt.Errorf("%w; upstream: %s", err, cause)

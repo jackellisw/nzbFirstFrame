@@ -28,8 +28,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/fakestack"
 )
 
-// syntheticMedia writes n pseudo-random bytes: the servers only move bytes,
-// so most tests need no encoder.
 func syntheticMedia(t *testing.T, n int) (path string, data []byte) {
 	t.Helper()
 	data = make([]byte, n)
@@ -213,8 +211,6 @@ type nzbDoc struct {
 	} `xml:"file"`
 }
 
-// nntpClient is a line-level client for the test's own reading of the
-// protocol.
 type nntpClient struct {
 	conn net.Conn
 	r    *bufio.Reader
@@ -235,7 +231,6 @@ func (c *nntpClient) cmd(t *testing.T, line string) string {
 	return c.status(t)
 }
 
-// body reads a multi-line block and undoes dot-stuffing.
 func (c *nntpClient) body(t *testing.T) []string {
 	t.Helper()
 	var lines []string
@@ -252,7 +247,6 @@ func (c *nntpClient) body(t *testing.T) []string {
 	}
 }
 
-// ydecode decodes one yEnc part and checks it against its own trailer.
 func ydecode(t *testing.T, lines []string) (begin int64, data []byte) {
 	t.Helper()
 	if len(lines) < 3 || !strings.HasPrefix(lines[0], "=ybegin ") || !strings.HasPrefix(lines[1], "=ypart ") {
@@ -397,7 +391,6 @@ func TestConfigMeasuresAllFourLayersAndSurvivesYAML(t *testing.T) {
 		t.Errorf("results dir %s is not under %s", cfg.Results.Dir, dir)
 	}
 
-	// `nzbff dev-stack` prints this config for `nzbff run -c`.
 	text, err := yaml.Marshal(cfg)
 	if err != nil {
 		t.Fatal(err)
@@ -489,7 +482,6 @@ func TestGenerateEncodesTheSpecWithTheIndexAtTheEnd(t *testing.T) {
 			}
 			indexAfterData(t, path)
 
-			// Cached: the second call must not need an encoder at all.
 			again, err := fakestack.Generate(t.Context(), filepath.Join(t.TempDir(), "no-ffmpeg"), t.TempDir(), spec)
 			if err != nil {
 				t.Fatalf("second Generate for the same spec ran the encoder again: %v", err)
@@ -507,7 +499,6 @@ func TestGenerateEncodesTheSpecWithTheIndexAtTheEnd(t *testing.T) {
 	}
 }
 
-// moovFollowsMdat walks the top-level MP4 boxes.
 func moovFollowsMdat(t *testing.T, path string) {
 	t.Helper()
 	f, err := os.Open(path)
@@ -538,7 +529,6 @@ func moovFollowsMdat(t *testing.T, path string) {
 	}
 }
 
-// cuesFollowClusters walks the children of the Matroska Segment.
 func cuesFollowClusters(t *testing.T, path string) {
 	t.Helper()
 	data, err := os.ReadFile(path)

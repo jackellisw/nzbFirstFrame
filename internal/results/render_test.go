@@ -47,7 +47,6 @@ func TestRenderTable(t *testing.T) {
 	}
 	for i, want := range wantRows {
 		got := strings.Fields(rows[i])
-		// The truncated target has a space in it.
 		got = append([]string{got[0] + " " + got[1] + " " + got[2]}, got[3:]...)
 		if strings.Join(got, "|") != strings.Join(want, "|") {
 			t.Errorf("row %d = %q\nwant %q", i, got, want)
@@ -153,7 +152,7 @@ func TestRenderFixtureTable(t *testing.T) {
 		`  foo/jellyfin #3 seek 10%: timeout after 1m0s in phase "seek 10%" (ffprobe: signal: killed)` + "\n",
 		"  bar-s01e02/jellyfin warmup #0 startup: ffprobe: exit status 1:",
 		"  foo/usenet #4 seek 00:45:00: nntp: BODY <part2262of6292.Xq3vT9@news.example>: 430 No Such Article\n",
-		"stored run 20261116T031502Z-7c41e9 in /var/lib/nzbff/results\n",
+		"stored run 20261116T031502.000Z-7c41e9 in /var/lib/nzbff/results\n",
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("missing %q", want)

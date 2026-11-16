@@ -12,8 +12,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// scriptedFFprobe returns a config whose "ffprobe" is a shell script, so
-// the driver can be shown exact output without a real media file.
 func scriptedFFprobe(t *testing.T, script string) (*config.Config, config.Target) {
 	t.Helper()
 	if runtime.GOOS == "windows" {
@@ -39,12 +37,15 @@ func scriptedFFprobe(t *testing.T, script string) (*config.Config, config.Target
 
 func TestDriverTurnsFrameLinesIntoMarksAndIgnoresTheRest(t *testing.T) {
 	cfg, target := scriptedFFprobe(t, `
-echo 'pts_time=0.000000'
+echo 'packet|pts_time=0.000000'
+echo 'frame|pts_time=0.000000'
 echo '[matroska @ 0x1] some warning on stdout'
 echo ''
-echo 'pts_time=14.041667'
-echo 'pts_time=N/A'
-echo 'pts_time=99.000000'
+echo 'packet|pts_time=14.041667'
+echo 'frame|pts_time=14.041667'
+echo 'packet|pts_time=N/A'
+echo 'frame|pts_time=N/A'
+echo 'frame|pts_time=99.000000'
 exit 1
 `)
 	plan := planAt(0.25, 0.5)
@@ -58,16 +59,18 @@ exit 1
 		pts = append(pts, m.PTS)
 	}
 	if want := []float64{0, 14.041667, -1}; len(pts) != 3 || pts[0] != want[0] || pts[1] != want[1] || pts[2] != want[2] {
-		t.Errorf("mark PTS %v, want %v (one per phase, the extra frame line dropped)", pts, want)
+		t.Errorf("mark PTS %v, want %v (one per phase, the interval's extra frame line dropped)", pts, want)
 	}
 }
 
 func TestDriverStampsEachLineWhenItArrives(t *testing.T) {
 	const gap = 300 * time.Millisecond
 	cfg, target := scriptedFFprobe(t, `
-echo 'pts_time=0.000000'
+echo 'packet|pts_time=0.000000'
+echo 'frame|pts_time=0.000000'
 sleep 0.3
-echo 'pts_time=15.000000'
+echo 'packet|pts_time=15.000000'
+echo 'frame|pts_time=15.000000'
 sleep 0.3
 `)
 	tl, err := newProber(cfg).Sample(t.Context(), config.LayerRclone, target, planAt(0.25))
@@ -87,7 +90,8 @@ sleep 0.3
 
 func TestDriverReportsThePhaseWithoutAFrameAndStderrTail(t *testing.T) {
 	cfg, target := scriptedFFprobe(t, `
-echo 'pts_time=0.000000'
+echo 'packet|pts_time=0.000000'
+echo 'frame|pts_time=0.000000'
 i=0; while [ $i -lt 400 ]; do echo "noise line $i padding padding padding" >&2; i=$((i+1)); done
 echo 'moov atom not found' >&2
 exit 1
@@ -112,11 +116,10 @@ exit 1
 	}
 }
 
-// The script's sleep is a child that outlives the killed shell and keeps
-// stdout open, as a wrapper around ffprobe would.
 func TestDriverReturnsAtTheTimeoutWhenFFprobeHangs(t *testing.T) {
 	cfg, target := scriptedFFprobe(t, `
-echo 'pts_time=0.000000'
+echo 'packet|pts_time=0.000000'
+echo 'frame|pts_time=0.000000'
 sleep 30
 `)
 	cfg.Profile.Timeout = config.Duration(300 * time.Millisecond)
@@ -131,5 +134,30 @@ sleep 30
 	checkTimelineInvariants(t, tl)
 	if want := []results.Mark{{Phase: 0, PTS: 0}}; len(tl.Marks) != 1 || tl.Marks[0].Phase != want[0].Phase {
 		t.Errorf("marks %+v, want startup only", tl.Marks)
+	}
+}
+
+func TestDriverFailsAnIntervalWithoutAFrameAndMarksNothingAfterIt(t *testing.T) {
+	cfg, target := scriptedFFprobe(t, `
+echo 'packet|pts_time=0.042000'
+echo 'packet|pts_time=5.000000'
+echo 'frame|pts_time=5.000000'
+echo 'packet|pts_time=17.000000'
+echo 'frame|pts_time=17.000000'
+sleep 30
+`)
+	cfg.Profile.Timeout = config.Duration(10 * time.Second)
+	plan := planAt(0.1, 0.3)
+	start := time.Now()
+	tl, err := newProber(cfg).Sample(t.Context(), config.LayerRclone, target, plan)
+	if took := time.Since(start); took > 3*time.Second {
+		t.Errorf("sample took %v; once startup has no frame, no later phase can count, so ffprobe should be stopped", took)
+	}
+	checkTimelineInvariants(t, tl)
+	if err == nil || !strings.Contains(err.Error(), `phase "startup"`) || strings.Contains(err.Error(), "timeout") {
+		t.Errorf("err = %v, want startup reported as the phase whose interval decoded no frame", err)
+	}
+	if len(tl.Marks) != 0 {
+		t.Errorf("marks %+v; the seeks' frames must not stand in for startup's", tl.Marks)
 	}
 }

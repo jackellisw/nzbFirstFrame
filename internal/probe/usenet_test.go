@@ -2,6 +2,7 @@ package probe_test
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -13,6 +14,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"sync"
@@ -23,13 +25,10 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// news is a scripted NNTP server: it greets, logs every command line, and
-// answers BODY from bodies (wire form, already dot-stuffed, without the
-// terminator). A missing id answers 430.
 type news struct {
 	greeting string
 	bodies   map[string]string
-	stall    string // message-id whose body stops halfway and never ends
+	stall    string
 
 	mu       sync.Mutex
 	commands []string
@@ -89,7 +88,6 @@ func (n *news) saw() []string {
 	return slices.Clone(n.commands)
 }
 
-// usenetConfig points a usenet-only config at ln and writes nzb beside it.
 func usenetConfig(t *testing.T, ln net.Listener, nzb string) (*config.Config, config.Target) {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "release.nzb")
@@ -116,8 +114,6 @@ func listen(t *testing.T) net.Listener {
 	return ln
 }
 
-// The media is the second, larger file. Its segments are listed out of
-// order, one is repeated, and they differ in size: offsets are 0, 100, 400.
 const mixedNZB = `<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE nzb PUBLIC "-//newzBin//DTD NZB 1.1//EN" "http://www.newzbin.com/DTD/nzb/nzb-1.1.dtd">
 <nzb xmlns="http://www.newzbin.com/DTD/2003/nzb">
@@ -143,8 +139,6 @@ func TestUsenetFetchesTheSegmentAtEachFractionOfTheLargestFile(t *testing.T) {
 	srv.serve(t, ln)
 	cfg, target := usenetConfig(t, ln, mixedNZB)
 
-	// Of 1000 bytes: 0.05 is in segment 1, 0.1 is the first byte of
-	// segment 2, 0.39 its last, 0.4 the first of segment 3, 1.0 the end.
 	plan := planAt(0.05, 0.1, 0.39, 0.4, 1)
 	tl, err := newProber(cfg).Sample(t.Context(), config.LayerUsenet, target, plan)
 	if err != nil {
@@ -174,10 +168,9 @@ func TestUsenetFetchesTheSegmentAtEachFractionOfTheLargestFile(t *testing.T) {
 }
 
 func TestUsenetBodySizeIsTheContentAfterDotUnstuffing(t *testing.T) {
-	// Content lines: ".hidden", ".", "", "plain", "..two", each with CRLF.
 	const wire = "..hidden\r\n..\r\n\r\nplain\r\n...two\r\n"
 	const content = ".hidden\r\n.\r\n\r\nplain\r\n..two\r\n"
-	long := strings.Repeat("x", 200_000) + "\r\n" // longer than any read buffer
+	long := strings.Repeat("x", 200_000) + "\r\n"
 	srv := &news{greeting: "200 hi", bodies: map[string]string{"<m1@example>": wire, "<m2@example>": long}}
 	ln := listen(t)
 	srv.serve(t, ln)
@@ -324,5 +317,90 @@ func TestUsenetConnectsOverVerifiedTLS(t *testing.T) {
 	}
 	if len(tl.Ops) != 1 || tl.Ops[0].Kind != results.OpConnect || tl.Ops[0].Err == "" {
 		t.Errorf("ops %+v, want one failed connect", tl.Ops)
+	}
+}
+
+func TestUsenetFailsAnOverlongStatusLineWithoutBufferingIt(t *testing.T) {
+	const sent = 4 << 20
+	ln := listen(t)
+	hold := make(chan struct{})
+	t.Cleanup(func() { close(hold) })
+	greeting := append([]byte("200 "), bytes.Repeat([]byte("A"), sent)...)
+	go func() {
+		conn, err := ln.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		conn.Write(greeting)
+		<-hold
+	}()
+	cfg, target := usenetConfig(t, ln, mixedNZB)
+	cfg.Profile.Timeout = config.Duration(5 * time.Second)
+
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	start := time.Now()
+	_, err := newProber(cfg).Sample(t.Context(), config.LayerUsenet, target, planAt())
+	took := time.Since(start)
+	runtime.ReadMemStats(&after)
+
+	if err == nil || !strings.Contains(err.Error(), "longer than 512 bytes") {
+		t.Errorf("err = %v, want the greeting rejected as longer than RFC 3977's 512 bytes", err)
+	}
+	if took > time.Second {
+		t.Errorf("sample took %s; an over-long line must fail when its 512th byte arrives, not at the 5s timeout", took)
+	}
+	if alloc := after.TotalAlloc - before.TotalAlloc; alloc > 1<<20 {
+		t.Errorf("reading one status line allocated %d KiB while the server sent %d KiB", alloc>>10, sent>>10)
+	}
+}
+
+func TestUsenetLoginTimeIsWaitNotTransfer(t *testing.T) {
+	const userWait, passWait = 20 * time.Millisecond, 200 * time.Millisecond
+	ln := listen(t)
+	go func() {
+		conn, err := ln.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		fmt.Fprint(conn, "200 ready\r\n")
+		in := bufio.NewScanner(conn)
+		for in.Scan() {
+			switch line := in.Text(); {
+			case strings.HasPrefix(line, "AUTHINFO USER"):
+				time.Sleep(userWait)
+				fmt.Fprint(conn, "381 password required\r\n")
+			case strings.HasPrefix(line, "AUTHINFO PASS"):
+				time.Sleep(passWait)
+				fmt.Fprint(conn, "281 ok\r\n")
+			case strings.HasPrefix(line, "BODY"):
+				fmt.Fprint(conn, "222 0 <m1@example>\r\none\r\n.\r\n")
+			case line == "QUIT":
+				fmt.Fprint(conn, "205 bye\r\n")
+				return
+			}
+		}
+	}()
+	cfg, target := usenetConfig(t, ln, mixedNZB)
+	cfg.Usenet.Username, cfg.Usenet.Password = "user", "pass"
+
+	tl, err := newProber(cfg).Sample(t.Context(), config.LayerUsenet, target, planAt())
+	if err != nil {
+		t.Fatal(err)
+	}
+	checkTimelineInvariants(t, tl)
+	for _, op := range tl.Ops {
+		if op.Kind != results.OpArticle && op.FirstByte != op.End {
+			t.Errorf("%s op: first byte %v, end %v; an exchange without payload is all wait", op.Kind, op.FirstByte, op.End)
+		}
+	}
+	startup := results.Analyze(tl, planAt()).Phases[0]
+	if startup.Wait < userWait+passWait {
+		t.Errorf("startup wait %v, want at least the login's %v", startup.Wait, userWait+passWait)
+	}
+	if startup.Transfer > passWait/4 {
+		t.Errorf("startup transfer %v; only the article body delivers bytes, and it is a few bytes on loopback", startup.Transfer)
 	}
 }

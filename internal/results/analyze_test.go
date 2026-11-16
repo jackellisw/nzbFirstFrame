@@ -10,8 +10,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// ms converts milliseconds, rounded to the microsecond so float arithmetic
-// on fixture constants doesn't leak sub-µs noise into the stored values.
 func ms(v float64) time.Duration { return time.Duration(math.Round(v*1000)) * time.Microsecond }
 
 func seekPoints(t *testing.T, s string) []config.SeekPoint {
@@ -31,8 +29,8 @@ func TestNewPlanKnownDuration(t *testing.T) {
 	want := []Seek{
 		{Point: "50%", Offset: 50 * time.Second, Fraction: 0.5},
 		{Point: "30s", Offset: 30 * time.Second, Fraction: 0.3},
-		{Point: "100%", Offset: 99 * time.Second, Fraction: 0.99},  // clamped: no frame past EOF
-		{Point: "02:00", Offset: 99 * time.Second, Fraction: 0.99}, // clamped
+		{Point: "100%", Offset: 99 * time.Second, Fraction: 0.99},
+		{Point: "02:00", Offset: 99 * time.Second, Fraction: 0.99},
 	}
 	if !slices.Equal(plan.Seeks, want) {
 		t.Fatalf("seeks = %+v\nwant   %+v", plan.Seeks, want)
@@ -74,8 +72,6 @@ func durEq(t *testing.T, what string, got, want time.Duration) {
 	}
 }
 
-// The prototype's MKV session: one read to first frame, then the first seek
-// pays three round trips (cues at the end of the file, seek head, target).
 func TestAnalyzeStartupAndSeeks(t *testing.T) {
 	tl := Timeline{
 		Ops: []Op{
@@ -157,7 +153,7 @@ func TestAnalyzeOverlappingOpsTransferWins(t *testing.T) {
 			{Kind: OpRead, Start: ms(1), FirstByte: ms(2), End: ms(3), Bytes: 1},
 			{Kind: OpRead, Start: ms(10), FirstByte: ms(50), End: ms(80), Bytes: 1},
 			{Kind: OpRead, Start: ms(30), FirstByte: ms(60), End: ms(70), Bytes: 1},
-			{Kind: OpRead, Start: ms(85), End: ms(95), Err: "reset"}, // no byte ever: waits throughout
+			{Kind: OpRead, Start: ms(85), End: ms(95), Err: "reset"},
 		},
 		Marks: []Mark{{Phase: 0, At: ms(5)}, {Phase: 1, At: ms(100)}},
 	}
@@ -168,6 +164,51 @@ func TestAnalyzeOverlappingOpsTransferWins(t *testing.T) {
 	durEq(t, "client", p.Client, ms(15))
 	if p.Requests != 3 {
 		t.Fatalf("requests = %d, want 3", p.Requests)
+	}
+}
+
+func TestAnalyzeAbandonedReadStopsTransferringAtTheNextRequest(t *testing.T) {
+	for name, tc := range map[string]struct {
+		first                  Op
+		wait, transfer, client time.Duration
+	}{
+		"bytes still landing when the next request goes out": {
+			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(30), End: ms(100), Bytes: 1000, Abandoned: true},
+			wait:     ms(20 + 50),
+			transfer: ms(10 + 5),
+			client:   ms(90 - 70 - 15),
+		},
+		"first byte after the next request went out": {
+			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(50), End: ms(100), Bytes: 1000, Abandoned: true},
+			wait:     ms(80),
+			transfer: ms(5),
+			client:   ms(90 - 80 - 5),
+		},
+		"a read that was not abandoned keeps its whole delivery": {
+			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(30), End: ms(100), Bytes: 1000},
+			wait:     ms(20),
+			transfer: ms(70),
+			client:   0,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			tl := Timeline{
+				Ops: []Op{
+					tc.first,
+					{Kind: OpRead, Start: ms(40), FirstByte: ms(90), End: ms(95), Bytes: 10},
+				},
+				Marks: []Mark{{Phase: 0, At: ms(100)}},
+			}
+			a := Analyze(tl, Plan{})
+			p := a.Phases[0]
+			durEq(t, "latency", p.Latency, ms(90))
+			durEq(t, "wait", p.Wait, tc.wait)
+			durEq(t, "transfer", p.Transfer, tc.transfer)
+			durEq(t, "client", p.Client, tc.client)
+			if p.Bytes != 1010 || a.Bytes != 1010 {
+				t.Errorf("bytes = %d (phase) %d (sample), want 1010: late bytes are still upstream cost", p.Bytes, a.Bytes)
+			}
+		})
 	}
 }
 

@@ -11,23 +11,24 @@
 
 jellyfin:
   url: http://jellyfin.local:8096
-  api_key: ${NZBFF_JELLYFIN_API_KEY}
-  user_id: ""                # optional; some endpoints are user-scoped
+  api_key: ${NZBFF_JELLYFIN_API_KEY}   # sent as the X-Emby-Token header, never stored
+  user_id: ""                # unused: the stream endpoint needs only the API key
   insecure_skip_verify: false
 
 rclone:
   mount_path: /mnt/media     # where the infinidysk remote is mounted
-  rc_url: ""                 # e.g. http://127.0.0.1:5572 — needed for cold_cache
+  rc_url: ""                 # rclone remote control, e.g. http://127.0.0.1:5572; needed for cold_cache
   rc_user: ""
   rc_password: ""
 
 infinidysk:
-  url: http://infinidysk.local:8080   # the HTTP/WebDAV endpoint rclone mounts
+  url: http://infinidysk.local:8080   # the HTTP endpoint rclone mounts; must answer Range requests
   username: ""
   password: ""
   insecure_skip_verify: false
 
-# Optional provider baseline (raw NNTP latency). Uncomment to enable.
+# Optional provider floor (NNTP article latency). Uncomment to enable; each
+# target then needs an nzb.
 # usenet:
 #   host: news.example.com
 #   port: 563
@@ -38,11 +39,12 @@ infinidysk:
 # --- How to measure -------------------------------------------------------
 profile:
   layers: []                 # empty = every layer configured above
-  iterations: 5              # measured runs per target per layer
-  warmup: 1                  # discarded runs before measuring
-  timeout: 60s               # per first-frame / seek measurement
-  cooldown: 2s               # pause between iterations
-  cold_cache: false          # flush rclone VFS cache before each run (needs rclone.rc_url)
+  iterations: 5              # measured samples per target per layer
+  warmup: 1                  # samples per layer taken first and left out of the statistics
+  timeout: 60s               # per sample: the open and every seek together
+  cooldown: 2s               # pause between samples
+  cold_cache: false          # rclone vfs/forget before each jellyfin/rclone sample (needs rclone.rc_url);
+                             # drops directory and attribute cache only, never cached file data
   seek_points: ["10%", "50%", "90%"]   # also accepts 90s, 1m30s, 00:42:00
 
 tools:
@@ -54,7 +56,8 @@ output:
   path: ""                   # empty or "-" = stdout
 
 results:
-  dir: ""                    # run history for `nzbff serve`; empty = ~/.local/state/nzbff/results
+  dir: ""                    # one file per run, read by `nzbff serve`;
+                             # empty = $XDG_STATE_HOME/nzbff/results or ~/.local/state/nzbff/results
 
 log:
   level: info                # debug | info | warn | error
@@ -63,6 +66,6 @@ log:
 # --- What to measure ------------------------------------------------------
 targets:
   - name: example-movie
-    jellyfin_item_id: "0123456789abcdef0123456789abcdef"
+    jellyfin_item_id: "0123456789abcdef0123456789abcdef"   # the id= in the item's Jellyfin web UI URL
     path: "movies/Example (2024)/Example (2024).mkv"   # relative to rclone mount & infinidysk root
     # nzb: /path/to/Example.nzb                         # needed for the usenet layer

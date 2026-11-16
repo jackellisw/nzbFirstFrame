@@ -3,6 +3,7 @@ package probe
 import (
 	"context"
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -17,15 +19,13 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// httpSource reads from an HTTP server that supports Range (Jellyfin's
-// static stream, infinidysk). The transport is created per sample and
-// closed with it.
 type httpSource struct {
 	url    string
-	header http.Header // e.g. X-Emby-Token; never on ffprobe's command line
-	user   string      // basic auth, optional
+	header http.Header
+	user   string
 	pass   string
 	client *http.Client
+	scrub  scrubber
 }
 
 func (s *httpSource) open(ctx context.Context, off, end int64) (opened, error) {
@@ -60,9 +60,9 @@ func (s *httpSource) open(ctx context.Context, off, end int64) (opened, error) {
 
 	resp, err := s.client.Do(req)
 	if err != nil {
-		return opened{}, err
+		return opened{}, s.scrub.clientErr(err)
 	}
-	size, err := rangeResponseSize(resp, off)
+	size, err := rangeResponseSize(resp, off, s.scrub)
 	if err != nil {
 		resp.Body.Close()
 		return opened{}, err
@@ -72,23 +72,19 @@ func (s *httpSource) open(ctx context.Context, off, end int64) (opened, error) {
 
 func (s *httpSource) close() { s.client.CloseIdleConnections() }
 
-// rangeResponseSize checks that resp answers a read from off and returns
-// the full media size it reports.
-func rangeResponseSize(resp *http.Response, off int64) (int64, error) {
+func rangeResponseSize(resp *http.Response, off int64, scrub scrubber) (int64, error) {
 	switch resp.StatusCode {
 	case http.StatusPartialContent:
 		cr := resp.Header.Get("Content-Range")
 		start, size, ok := parseContentRange(cr)
 		if !ok {
-			return 0, fmt.Errorf("upstream sent 206 with unusable Content-Range %q", cr)
+			return 0, fmt.Errorf("upstream sent 206 with unusable Content-Range %q", scrub.text(cr))
 		}
 		if start != off || size <= off {
-			return 0, fmt.Errorf("upstream answered Content-Range %q to a read from byte %d", cr, off)
+			return 0, fmt.Errorf("upstream answered Content-Range %q to a read from byte %d", scrub.text(cr), off)
 		}
 		return size, nil
 	case http.StatusOK:
-		// A server without Range support sends the whole file; that is
-		// only the requested bytes when the read starts at 0.
 		if off != 0 {
 			return 0, fmt.Errorf("upstream ignored Range (200 OK to a read from byte %d)", off)
 		}
@@ -108,12 +104,10 @@ func rangeResponseSize(resp *http.Response, off int64) (int64, error) {
 		}
 		return 0, &unsatisfiableError{size: size}
 	default:
-		return 0, fmt.Errorf("upstream answered %s", resp.Status)
+		return 0, fmt.Errorf("upstream answered %s", scrub.text(resp.Status))
 	}
 }
 
-// parseContentRange parses "bytes START-END/SIZE". An unknown size ("*")
-// is not ok: the tap needs it for its own Content-Range.
 func parseContentRange(h string) (start, size int64, ok bool) {
 	spec, found := strings.CutPrefix(h, "bytes ")
 	if !found {
@@ -132,15 +126,37 @@ func parseContentRange(h string) (start, size int64, ok bool) {
 	return start, size, err1 == nil && err2 == nil
 }
 
-// newSampleClient returns a client with its own connection pool, so a
-// sample pays its own connects.
 func newSampleClient(insecureSkipVerify bool) *http.Client {
 	tr := http.DefaultTransport.(*http.Transport).Clone()
 	tr.TLSClientConfig = &tls.Config{InsecureSkipVerify: insecureSkipVerify}
-	return &http.Client{Transport: tr}
+	return &http.Client{Transport: tr, CheckRedirect: credentialsStayOnOrigin}
 }
 
-// fileSource reads a file on the rclone mount, as Jellyfin does.
+var credentialHeaders = []string{"X-Emby-Token", "Authorization"}
+
+// credentialsStayOnOrigin is the redirect policy of every HTTP client that
+// carries credentials. It follows redirects but drops credentials from a
+// redirected request once any hop has left the configured scheme and
+// host:port. net/http copies every header of the first request to each
+// redirect, and only strips Authorization (and only for another domain),
+// so without this the Jellyfin API key goes wherever a Location points.
+// Once dropped they stay dropped: a hop back to the origin was chosen by
+// the other host.
+func credentialsStayOnOrigin(req *http.Request, via []*http.Request) error {
+	if len(via) >= 10 {
+		return errors.New("stopped after 10 redirects")
+	}
+	elsewhere := func(r *http.Request) bool { return !sameOrigin(r.URL, via[0].URL) }
+	if elsewhere(req) || slices.ContainsFunc(via[1:], elsewhere) {
+		for _, h := range credentialHeaders {
+			req.Header.Del(h)
+		}
+	}
+	return nil
+}
+
+func sameOrigin(a, b *url.URL) bool { return a.Scheme == b.Scheme && a.Host == b.Host }
+
 type fileSource struct{ path string }
 
 func (s *fileSource) open(ctx context.Context, off, end int64) (opened, error) {
@@ -169,24 +185,20 @@ func (s *fileSource) open(ctx context.Context, off, end int64) (opened, error) {
 
 func (s *fileSource) close() {}
 
-// jellyfinSource streams the item through Jellyfin unmodified:
-// {url}/Videos/{item}/stream?static=true with the API key in X-Emby-Token.
 func jellyfinSource(p *Prober, t config.Target) source {
 	j := p.cfg.Jellyfin
 	return &httpSource{
 		url:    strings.TrimRight(j.URL, "/") + "/Videos/" + url.PathEscape(t.JellyfinItemID) + "/stream?static=true",
 		header: http.Header{"X-Emby-Token": {j.APIKey}},
 		client: newSampleClient(j.InsecureSkipVerify),
+		scrub:  newScrubber(p.cfg),
 	}
 }
 
-// mountSource reads {mount_path}/{path}.
 func mountSource(p *Prober, t config.Target) source {
 	return &fileSource{path: filepath.Join(p.cfg.Rclone.MountPath, filepath.FromSlash(t.Path))}
 }
 
-// infinidyskSource reads {url}/{path} (each segment path-escaped) with
-// optional basic auth.
 func infinidyskSource(p *Prober, t config.Target) source {
 	d := p.cfg.Infinidysk
 	segments := strings.Split(t.Path, "/")
@@ -198,5 +210,6 @@ func infinidyskSource(p *Prober, t config.Target) source {
 		user:   d.Username,
 		pass:   d.Password,
 		client: newSampleClient(d.InsecureSkipVerify),
+		scrub:  newScrubber(p.cfg),
 	}
 }

@@ -15,23 +15,6 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// sampleUsenet measures the provider floor for the same plan, one NNTP
-// session per sample, with the same phase semantics as the video layers so
-// Analyze needs no special case:
-//
-//	op connect  dial (+TLS) until the 200/201 greeting
-//	op auth     AUTHINFO USER → 381, AUTHINFO PASS → 281 (skipped without creds)
-//	phase 0     op article: BODY <first segment of the largest file>; mark at
-//	            the terminating "." line (the article is needed whole before
-//	            infinidysk can yEnc-decode and serve it)
-//	phase k     op article: BODY <segment at plan.Seeks[k-1].Fraction>; mark
-//	            QUIT
-//
-// Article op: Start when the command is written, FirstByte when the first
-// body byte after the 222 status line arrives (the provider's TTFB), End at
-// ".", Bytes = body bytes after dot-unstuffing, Offset = the segment's
-// cumulative byte offset. Connect and auth ops carry the arrival of the
-// server's first reply line as FirstByte.
 func (p *Prober) sampleUsenet(ctx context.Context, rec *recorder, t config.Target, plan results.Plan) error {
 	files, err := loadNZB(t.NZB)
 	if err != nil {
@@ -63,13 +46,12 @@ func (p *Prober) sampleUsenet(ctx context.Context, rec *recorder, t config.Targe
 	return nil
 }
 
-// nntpSession is one connection to the provider, recording its exchanges
-// on the sample's timeline.
 type nntpSession struct {
-	conn net.Conn
-	r    *bufio.Reader
-	rec  *recorder
-	stop func() bool // detaches conn from the sample's context
+	conn  net.Conn
+	r     *bufio.Reader
+	rec   *recorder
+	scrub scrubber
+	stop  func() bool
 }
 
 func (s *nntpSession) close() {
@@ -77,14 +59,12 @@ func (s *nntpSession) close() {
 	s.conn.Close()
 }
 
-// connectNNTP dials the provider (with TLS when configured) and reads the
-// greeting, as one connect op.
 func (p *Prober) connectNNTP(ctx context.Context, rec *recorder) (*nntpSession, error) {
 	u := p.cfg.Usenet
 	addr := net.JoinHostPort(u.Host, strconv.Itoa(u.Port))
-	op := results.Op{Kind: results.OpConnect, Start: rec.now(), Offset: -1, Ref: addr}
+	op := results.Op{Kind: results.OpConnect, Start: rec.stamp(), Offset: -1, Ref: addr}
 	fail := func(err error) (*nntpSession, error) {
-		op.Err, op.End = err.Error(), rec.now()
+		op.Err, op.End = err.Error(), rec.stamp()
 		rec.op(op)
 		return nil, fmt.Errorf("connect %s: %w", addr, err)
 	}
@@ -103,7 +83,7 @@ func (p *Prober) connectNNTP(ctx context.Context, rec *recorder) (*nntpSession, 
 		conn = secure
 	}
 
-	s := &nntpSession{conn: conn, r: bufio.NewReaderSize(conn, 64<<10), rec: rec}
+	s := &nntpSession{conn: conn, r: bufio.NewReaderSize(conn, 64<<10), rec: rec, scrub: newScrubber(p.cfg)}
 	// Reads on the connection ignore ctx; closing it is what makes the
 	// per-sample timeout and Ctrl-C interrupt a stalled provider.
 	s.stop = context.AfterFunc(ctx, func() { conn.Close() })
@@ -120,11 +100,9 @@ func (p *Prober) connectNNTP(ctx context.Context, rec *recorder) (*nntpSession, 
 	return s, nil
 }
 
-// auth runs AUTHINFO USER/PASS as one auth op.
 func (s *nntpSession) auth(user, pass string) error {
-	op := results.Op{Kind: results.OpAuth, Start: s.rec.now(), Offset: -1}
+	op := results.Op{Kind: results.OpAuth, Start: s.rec.stamp(), Offset: -1}
 	code, line, at, err := s.command("AUTHINFO USER " + user)
-	op.FirstByte = at
 	if err == nil && code == 381 {
 		code, line, at, err = s.command("AUTHINFO PASS " + pass)
 	}
@@ -132,20 +110,18 @@ func (s *nntpSession) auth(user, pass string) error {
 		err = fmt.Errorf("AUTHINFO: %s", line)
 	}
 	if err != nil {
-		op.Err, op.End = err.Error(), s.rec.now()
+		op.Err, op.End = err.Error(), s.rec.stamp()
 		s.rec.op(op)
 		return err
 	}
-	op.End = at
+	op.FirstByte, op.End = at, at
 	s.rec.op(op)
 	return nil
 }
 
-// body fetches one article as one article op and closes the next phase when
-// its last byte has arrived.
 func (s *nntpSession) body(seg nzbSegment) error {
 	ref := "<" + seg.MessageID + ">"
-	op := results.Op{Kind: results.OpArticle, Start: s.rec.now(), Offset: seg.Offset, Ref: ref}
+	op := results.Op{Kind: results.OpArticle, Start: s.rec.stamp(), Offset: seg.Offset, Ref: ref}
 	code, line, _, err := s.command("BODY " + ref)
 	if err == nil && code != 222 {
 		err = fmt.Errorf("%s", line)
@@ -154,12 +130,12 @@ func (s *nntpSession) body(seg nzbSegment) error {
 		// The 222 line only says the provider has the article. Its TTFB is
 		// the first byte of the body.
 		_, err = s.r.Peek(1)
-		op.FirstByte = s.rec.now()
+		op.FirstByte = s.rec.stamp()
 	}
 	if err == nil {
 		op.Bytes, err = readDotBody(s.r)
 	}
-	op.End = s.rec.now()
+	op.End = s.rec.stamp()
 	if err != nil {
 		err = fmt.Errorf("BODY %s: %w", ref, err)
 		op.Err = err.Error()
@@ -171,14 +147,11 @@ func (s *nntpSession) body(seg nzbSegment) error {
 	return nil
 }
 
-// quit ends the session politely. The measurement is over, so a provider
-// that drops the connection instead of answering is not an error.
 func (s *nntpSession) quit() {
 	s.conn.SetDeadline(time.Now().Add(time.Second))
 	s.command("QUIT")
 }
 
-// command sends one command line and reads the status line that answers it.
 func (s *nntpSession) command(line string) (code int, reply string, at time.Duration, err error) {
 	if _, err := io.WriteString(s.conn, line+"\r\n"); err != nil {
 		return 0, "", 0, err
@@ -186,10 +159,9 @@ func (s *nntpSession) command(line string) (code int, reply string, at time.Dura
 	return s.status()
 }
 
-// status reads one status line ("222 0 <id> body") and stamps its arrival.
 func (s *nntpSession) status() (code int, line string, at time.Duration, err error) {
-	line, err = s.r.ReadString('\n')
-	at = s.rec.now()
+	line, err = readStatusLine(s.r)
+	at = s.rec.stamp()
 	if err != nil {
 		return 0, "", at, err
 	}
@@ -197,14 +169,29 @@ func (s *nntpSession) status() (code int, line string, at time.Duration, err err
 	digits, _, _ := strings.Cut(line, " ")
 	code, err = strconv.Atoi(digits)
 	if err != nil || len(digits) != 3 {
-		return 0, "", at, fmt.Errorf("malformed NNTP status line %q", line)
+		return 0, "", at, fmt.Errorf("malformed NNTP status line %q", s.scrub.text(line))
 	}
-	return code, line, at, nil
+	return code, s.scrub.text(line), at, nil
 }
 
-// readDotBody consumes a multi-line data block up to its "." terminator and
-// returns the size of the content: every line with its line ending, minus
-// the dot that dot-stuffing put in front of lines that begin with one.
+// maxStatusLine is RFC 3977's limit on a response line, CRLF included.
+const maxStatusLine = 512
+
+func readStatusLine(r *bufio.Reader) (string, error) {
+	line := make([]byte, 0, maxStatusLine)
+	for len(line) < maxStatusLine {
+		c, err := r.ReadByte()
+		if err != nil {
+			return "", err
+		}
+		line = append(line, c)
+		if c == '\n' {
+			return string(line), nil
+		}
+	}
+	return "", fmt.Errorf("status line longer than %d bytes", maxStatusLine)
+}
+
 func readDotBody(r *bufio.Reader) (int64, error) {
 	var n int64
 	lineStart := true

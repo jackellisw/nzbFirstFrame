@@ -15,9 +15,6 @@
 //	            status line is sent at once and the body after ArticleTTFB,
 //	            so a client that times the status line instead of the first
 //	            body byte reports no latency.
-//
-// Every fake server logs its requests (Hits) so tests can compare what the
-// engine reported against what the server saw.
 package fakestack
 
 import (
@@ -45,8 +42,8 @@ type Options struct {
 	Media string
 	// Spec describes the media to generate when Media is empty.
 	Spec MediaSpec
-	// Dir is the working directory (mount dir, NZB, results).
-	// Empty → a new temp dir removed by Close.
+	// Dir is the working directory (mount dir, NZB, results); a relative
+	// Dir is made absolute. Empty → a new temp dir removed by Close.
 	Dir string
 
 	JellyfinTTFB   time.Duration
@@ -83,13 +80,11 @@ type Stack struct {
 }
 
 const (
-	fakeItemID = "fa4e0000000000000000000000000001"
-	fakeAPIKey = "fakestack-api-key"
-	fakeUser   = "fake"
-	fakePass   = "fake-password"
-	// The directory needs escaping in a URL, so the infinidysk layer's
-	// path handling is exercised by every run.
-	fakeMovieDir = "movies/Fake Movie (2024)"
+	fakeItemID             = "fa4e0000000000000000000000000001"
+	fakeAPIKey             = "fakestack-api-key"
+	fakeUser               = "fake"
+	fakePass               = "fake-password"
+	movieDirNeedingEscapes = "movies/Fake Movie (2024)"
 )
 
 // Start generates media if needed, writes the NZB, and starts the servers on
@@ -114,8 +109,12 @@ func Start(ctx context.Context, opts Options) (_ *Stack, err error) {
 		}
 		s.tempDir = true
 	}
+	// Config's paths are read by another process from another directory.
+	if s.dir, err = filepath.Abs(s.dir); err != nil {
+		return nil, err
+	}
 	s.MountDir = filepath.Join(s.dir, "mount")
-	movieDir := filepath.Join(s.MountDir, filepath.FromSlash(fakeMovieDir))
+	movieDir := filepath.Join(s.MountDir, filepath.FromSlash(movieDirNeedingEscapes))
 	if err := os.MkdirAll(movieDir, 0o755); err != nil {
 		return nil, err
 	}
@@ -142,7 +141,7 @@ func Start(ctx context.Context, opts Options) (_ *Stack, err error) {
 	s.Target = config.Target{
 		Name:           "fake",
 		JellyfinItemID: fakeItemID,
-		Path:           path.Join(fakeMovieDir, filepath.Base(mediaPath)),
+		Path:           path.Join(movieDirNeedingEscapes, filepath.Base(mediaPath)),
 		NZB:            filepath.Join(s.dir, "fake.nzb"),
 	}
 	s.usenet = newNewsServer(s, filepath.Base(mediaPath), st.Size())
@@ -178,7 +177,6 @@ func (s *Stack) serveHTTP(h http.Handler) (url string, err error) {
 
 // Config returns a finalized config measuring every layer of this stack with
 // one target, results stored under Dir. Tests tweak Profile on the copy.
-// There is no cooldown: nothing in the fake stack needs to settle.
 func (s *Stack) Config() *config.Config {
 	host, portStr, _ := net.SplitHostPort(s.NNTPAddr)
 	port, _ := strconv.Atoi(portStr)
@@ -214,7 +212,6 @@ func (s *Stack) Hits() []Hit {
 	return slices.Clone(s.hits)
 }
 
-// hit logs a request on arrival and returns how to report what it sent.
 func (s *Stack) hit(layer config.Layer, ref string) (sent func(bytes int64)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -245,8 +242,6 @@ func (s *Stack) Close() error {
 	return errors.Join(errs...)
 }
 
-// place puts the file src at dst, replacing what is there: a hard link when
-// the filesystem allows it, else a copy.
 func place(src, dst string) error {
 	from, err := os.Stat(src)
 	if err != nil {
@@ -277,7 +272,6 @@ func place(src, dst string) error {
 	return out.Close()
 }
 
-// wait injects latency. It reports false when the client gave up first.
 func wait(ctx context.Context, d time.Duration) bool {
 	if d <= 0 {
 		return true

@@ -18,8 +18,6 @@ func TestSnapshotPutsALateMarkBeforeTheRequestSentAfterIt(t *testing.T) {
 		want  []time.Duration
 	}{
 		{
-			// The seek's request (Start 200) was answered at 350, after the
-			// mark stamped at 201: it was sent after that frame line.
 			name: "mark stamped after the next request started",
 			ops: []results.Op{
 				{Start: 20 * msec, FirstByte: 170 * msec, End: 180 * msec},
@@ -38,8 +36,6 @@ func TestSnapshotPutsALateMarkBeforeTheRequestSentAfterIt(t *testing.T) {
 			want:  []time.Duration{199 * msec, 365 * msec},
 		},
 		{
-			// Start 200, no payload, End 500: still waiting on the upstream
-			// when the mark was stamped.
 			name: "request that never got a byte",
 			ops: []results.Op{
 				{Start: 20 * msec, FirstByte: 170 * msec, End: 180 * msec},
@@ -92,7 +88,7 @@ func TestSnapshotSortsOpsAndStampsAreStrictlyIncreasing(t *testing.T) {
 	for g := range stamps {
 		wg.Go(func() {
 			for range 2000 {
-				stamps[g] = append(stamps[g], rec.now())
+				stamps[g] = append(stamps[g], rec.stamp())
 			}
 		})
 	}

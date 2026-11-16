@@ -32,9 +32,9 @@ func TestFFprobeArgsMatchTheMeasuredCommand(t *testing.T) {
 	want := []string{
 		"-v", "error",
 		"-select_streams", "v:0",
-		"-show_frames",
-		"-show_entries", "frame=pts_time",
-		"-of", "compact=p=0",
+		"-show_packets", "-show_frames",
+		"-show_entries", "packet=pts_time:frame=pts_time",
+		"-of", "compact",
 		"-read_intervals", "%+#1,15.000%+#1,30.500%+#1",
 		"http://127.0.0.1:4242/media",
 	}
@@ -47,25 +47,28 @@ func TestFFprobeArgsMatchTheMeasuredCommand(t *testing.T) {
 	}
 }
 
-func TestParseFrameLine(t *testing.T) {
+func TestParseLine(t *testing.T) {
 	for _, tc := range []struct {
-		line string
-		pts  float64
-		ok   bool
+		line    string
+		section string
+		pts     float64
 	}{
-		{"pts_time=30.000000\n", 30, true},
-		{"pts_time=0.000000\r\n", 0, true},
-		{"pts_time=N/A\n", -1, true},
-		{"pts_time=nan\n", -1, true},
-		{"pts_time=14.041667|side_data_type=x\n", 14.041667, true},
-		{"", 0, false},
-		{"\n", 0, false},
-		{"[h264 @ 0x1] error while decoding\n", 0, false},
-		{"pts_time=soon\n", 0, false},
+		{"frame|pts_time=30.000000\n", "frame", 30},
+		{"frame|pts_time=0.000000\r\n", "frame", 0},
+		{"frame|pts_time=N/A\n", "frame", -1},
+		{"frame|pts_time=nan\n", "frame", -1},
+		{"frame|pts_time=14.041667|side_datum/h_26_45__user_data_unregistered_sei_message:side_data_type=x\n", "frame", 14.041667},
+		{"packet|pts_time=5.000000\n", "packet", 0},
+		{"packet|pts_time=N/A\n", "packet", 0},
+		{"", "", 0},
+		{"\n", "", 0},
+		{"[h264 @ 0x1] error while decoding\n", "", 0},
+		{"frame|pts_time=soon\n", "", 0},
+		{"pts_time=1.000000\n", "", 0},
 	} {
-		pts, ok := parseFrameLine(tc.line)
-		if pts != tc.pts || ok != tc.ok {
-			t.Errorf("parseFrameLine(%q) = %v, %v; want %v, %v", tc.line, pts, ok, tc.pts, tc.ok)
+		section, pts := parseLine(tc.line)
+		if section != tc.section || pts != tc.pts {
+			t.Errorf("parseLine(%q) = %q, %v; want %q, %v", tc.line, section, pts, tc.section, tc.pts)
 		}
 	}
 }

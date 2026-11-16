@@ -8,14 +8,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 )
 
-// rangeServer serves data with net/http's own Range implementation and
-// keeps the last request it saw.
 func rangeServer(t *testing.T, data string) (*httptest.Server, *http.Request) {
 	t.Helper()
 	last := new(http.Request)
@@ -95,6 +94,91 @@ func TestInfinidyskSourceEscapesPathAndSendsBasicAuth(t *testing.T) {
 	}
 }
 
+func TestCredentialsDoNotFollowARedirectToAnotherHost(t *testing.T) {
+	var mu sync.Mutex
+	seen := map[string]http.Header{}
+	var redirect string
+	serve := func(w http.ResponseWriter, r *http.Request) {
+		mu.Lock()
+		seen[r.Host+r.URL.Path] = r.Header.Clone()
+		to := redirect
+		mu.Unlock()
+		switch r.URL.Path {
+		case "/Videos/item/stream", "/movie.mkv":
+			http.Redirect(w, r, to, http.StatusFound)
+		default:
+			http.ServeContent(w, r, "", time.Time{}, strings.NewReader("0123456789"))
+		}
+	}
+	origin := httptest.NewServer(http.HandlerFunc(serve))
+	t.Cleanup(origin.Close)
+	other := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/back" {
+			mu.Lock()
+			seen[r.Host+r.URL.Path] = r.Header.Clone()
+			mu.Unlock()
+			http.Redirect(w, r, origin.URL+"/returned", http.StatusFound)
+			return
+		}
+		serve(w, r)
+	}))
+	t.Cleanup(other.Close)
+
+	cfg := &config.Config{
+		Jellyfin:   config.JellyfinConfig{URL: origin.URL, APIKey: "s3cret"},
+		Infinidysk: config.InfinidyskConfig{URL: origin.URL, Username: "u", Password: "p"},
+	}
+	sources := []struct {
+		name       string
+		src        func() source
+		first      string
+		credential string
+	}{
+		{"jellyfin", func() source { return jellyfinSource(New(cfg, nil), config.Target{JellyfinItemID: "item"}) }, "/Videos/item/stream", "X-Emby-Token"},
+		{"infinidysk", func() source { return infinidyskSource(New(cfg, nil), config.Target{Path: "movie.mkv"}) }, "/movie.mkv", "Authorization"},
+	}
+	for name, tc := range map[string]struct {
+		redirect, final string
+		keep            bool
+	}{
+		"to another host":                {other.URL + "/media", other.URL + "/media", false},
+		"within the origin":              {origin.URL + "/moved", origin.URL + "/moved", true},
+		"to another host and back again": {other.URL + "/back", origin.URL + "/returned", false},
+	} {
+		for _, s := range sources {
+			t.Run(name+"/"+s.name, func(t *testing.T) {
+				mu.Lock()
+				clear(seen)
+				redirect = tc.redirect
+				mu.Unlock()
+				src := s.src()
+				defer src.close()
+				o, err := src.open(t.Context(), 4, -1)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if got := readAll(t, o); got != "456789" {
+					t.Errorf("read %q through the redirect, want 456789", got)
+				}
+
+				mu.Lock()
+				defer mu.Unlock()
+				first := seen[strings.TrimPrefix(origin.URL, "http://")+s.first]
+				if first == nil || first.Get(s.credential) == "" {
+					t.Fatalf("the configured URL got no %s", s.credential)
+				}
+				final := seen[strings.TrimPrefix(tc.final, "http://")]
+				if final == nil {
+					t.Fatalf("%s was never requested; saw %v", tc.final, seen)
+				}
+				if got := final.Get(s.credential); (got != "") != tc.keep {
+					t.Errorf("%s reached %s with %s %q; want it sent: %v", s.name, tc.final, s.credential, got, tc.keep)
+				}
+			})
+		}
+	}
+}
+
 func TestHTTPSourceReportsDialOnlyForNewConnections(t *testing.T) {
 	srv, _ := rangeServer(t, "0123456789")
 	src := &httpSource{url: srv.URL, client: newSampleClient(false)}
@@ -104,7 +188,7 @@ func TestHTTPSourceReportsDialOnlyForNewConnections(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	readAll(t, first) // drained, so the connection returns to the pool
+	readAll(t, first)
 	second, err := src.open(t.Context(), 0, -1)
 	if err != nil {
 		t.Fatal(err)

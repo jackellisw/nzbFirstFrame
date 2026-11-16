@@ -55,8 +55,8 @@ func TestStoreRoundTrip(t *testing.T) {
 	}
 	w := create(t, s, t0)
 	id := w.Run().ID
-	if !strings.HasPrefix(id, "20261116T101502Z-") || len(id) != len("20261116T101502Z-3f9a1c") {
-		t.Fatalf("id = %q, want <start UTC>-<6 hex>", id)
+	if !strings.HasPrefix(id, "20261116T101502.000Z-") || len(id) != len("20261116T101502.000Z-3f9a1c") {
+		t.Fatalf("id = %q, want <start UTC to the millisecond>-<6 hex>", id)
 	}
 
 	first, err := s.Load(id)
@@ -133,7 +133,7 @@ func TestStoreCreateDoesNotShareCallerSlices(t *testing.T) {
 
 func TestStoreCreateNeverClaimsAnExistingID(t *testing.T) {
 	s := openStore(t)
-	taken := filepath.Join(s.Dir(), "20261116T101502Z-aaaaaa.json")
+	taken := filepath.Join(s.Dir(), "20261116T101502.000Z-aaaaaa.json")
 	if err := os.WriteFile(taken, []byte("someone else's run"), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +143,7 @@ func TestStoreCreateNeverClaimsAnExistingID(t *testing.T) {
 	defer func() { randSuffix = orig }()
 
 	w := create(t, s, t0)
-	if w.Run().ID != "20261116T101502Z-bbbbbb" {
+	if w.Run().ID != "20261116T101502.000Z-bbbbbb" {
 		t.Fatalf("id = %q, want retry with a new suffix", w.Run().ID)
 	}
 	if b, _ := os.ReadFile(taken); string(b) != "someone else's run" {
@@ -321,4 +321,44 @@ func TestStoreReaderNeverSeesTornFile(t *testing.T) {
 		t.Fatalf("final read: %v", err)
 	}
 	t.Logf("%d concurrent reads, all complete", reads)
+}
+
+func TestStoreListsRunsInStartOrderWithinOneSecondAndAcrossIDFormats(t *testing.T) {
+	s := openStore(t)
+	suffixes := []string{"ffffff", "000000"}
+	orig := randSuffix
+	randSuffix = func() string { s := suffixes[0]; suffixes = suffixes[1:]; return s }
+	defer func() { randSuffix = orig }()
+	second := time.Date(2026, 11, 16, 12, 0, 0, 0, time.UTC)
+	earlier := create(t, s, second.Add(100*time.Millisecond)).Run().ID
+	later := create(t, s, second.Add(200*time.Millisecond)).Run().ID
+
+	// Runs stored before IDs carried milliseconds.
+	legacySame, legacyNext := "20261116T120000Z-aaaaaa", "20261116T120001Z-bbbbbb"
+	for _, id := range []string{legacySame, legacyNext} {
+		body := fmt.Sprintf(`{"schema": 1, "id": %q, "status": "done"}`, id)
+		if err := os.WriteFile(filepath.Join(s.Dir(), id+".json"), []byte(body), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	runs, err := s.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+	var ids []string
+	for _, r := range runs {
+		ids = append(ids, r.ID)
+	}
+	if want := []string{legacyNext, later, earlier, legacySame}; fmt.Sprint(ids) != fmt.Sprint(want) {
+		t.Errorf("ids = %v, want newest start first %v", ids, want)
+	}
+	if len(runs) == 4 && !runs[1].Started.Equal(second.Add(200*time.Millisecond)) {
+		t.Errorf("started %v, want the run's start to the millisecond", runs[1].Started)
+	}
+	for _, id := range []string{later, legacySame} {
+		if _, err := s.Load(id); err != nil {
+			t.Errorf("Load(%s): %v", id, err)
+		}
+	}
 }

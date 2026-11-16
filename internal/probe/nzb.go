@@ -11,27 +11,23 @@ import (
 	"unicode/utf8"
 )
 
-// nzbFile is the part of an NZB we use: one file's segments in order.
 type nzbFile struct {
 	Subject  string
-	Segments []nzbSegment // sorted by Number, never empty
+	Segments []nzbSegment
 }
 
 type nzbSegment struct {
 	Number    int
 	Bytes     int64
-	MessageID string // without angle brackets
-	Offset    int64  // cumulative bytes of earlier segments
+	MessageID string
+	Offset    int64
 }
 
-// size is the file's total article bytes.
 func (f nzbFile) size() int64 {
 	last := f.Segments[len(f.Segments)-1]
 	return last.Offset + last.Bytes
 }
 
-// loadNZB parses an .nzb (encoding/xml) into its files that have segments.
-// It returns at least one file or an error.
 func loadNZB(path string) ([]nzbFile, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -96,7 +92,7 @@ func nzbCharset(label string, in io.Reader) (io.Reader, error) {
 
 type latin1Reader struct {
 	in  io.Reader
-	out []byte // decoded UTF-8 not yet handed out
+	out []byte
 }
 
 func (l *latin1Reader) Read(p []byte) (int, error) {
@@ -115,14 +111,10 @@ func (l *latin1Reader) Read(p []byte) (int, error) {
 	return n, nil
 }
 
-// largest returns the file with the most bytes: the media itself, assuming
-// the release is not split into RAR volumes (see RATIONALE open questions).
 func largest(files []nzbFile) nzbFile {
 	return slices.MaxFunc(files, func(a, b nzbFile) int { return cmp.Compare(a.size(), b.size()) })
 }
 
-// segmentAt returns the first segment whose byte range contains
-// fraction*total, or the last segment when the fraction points at the end.
 func (f nzbFile) segmentAt(fraction float64) nzbSegment {
 	target := int64(fraction * float64(f.size()))
 	for _, s := range f.Segments {
