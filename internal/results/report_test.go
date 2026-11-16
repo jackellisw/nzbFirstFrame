@@ -30,9 +30,11 @@ func session(lat ...float64) Timeline {
 	return tl
 }
 
-func TestSummarize(t *testing.T) {
+// summarizeRun has a target with five measured samples (one failing its
+// seek), two warmups, an empty series and a target that could not be planned.
+func summarizeRun() *Run {
 	plan := Plan{Seeks: []Seek{{Point: "50%", Offset: 50 * time.Second, Fraction: 0.5}}}
-	run := &Run{
+	return &Run{
 		ID: "20261116T101502Z-3f9a1c", Status: StatusDone,
 		Targets: []Target{{Name: "foo", Plan: plan}, {Name: "bar", Err: "duration probe: timeout"}},
 		Series: []Series{
@@ -49,6 +51,10 @@ func TestSummarize(t *testing.T) {
 			{SeriesKey: SeriesKey{"bar", config.LayerRclone}},
 		},
 	}
+}
+
+func TestSummarize(t *testing.T) {
+	run := summarizeRun()
 	rep := Summarize(run)
 
 	if rep.Run.ID != run.ID || len(rep.Targets) != 2 {
