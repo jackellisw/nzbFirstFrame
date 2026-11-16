@@ -8,15 +8,18 @@ package profiler
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/jackellisw/nzbfirstframe/internal/config"
 	"github.com/jackellisw/nzbfirstframe/internal/probe"
 	"github.com/jackellisw/nzbfirstframe/internal/results"
+	"github.com/jackellisw/nzbfirstframe/internal/version"
 )
 
 // Mode selects which measurements to run.
@@ -42,6 +45,10 @@ type Options struct {
 // FailedError reports that the run completed and was stored but some
 // samples or targets failed. The report (with the errors) was rendered
 // before it is returned, so cron gets both output and a non-zero exit.
+//
+// Total is every measured (non-warmup) sample the run scheduled. Failed
+// counts the measured samples that failed, plus all measured samples of a
+// target that could not be planned.
 type FailedError struct {
 	RunID         string
 	Failed, Total int
@@ -59,40 +66,151 @@ func (e *FailedError) Error() string {
 // cancellation stop it. On cancellation the partial run is finished as
 // "interrupted" and rendered, then ctx.Err() is returned.
 func Run(ctx context.Context, opts Options) error {
-	// TODO:
-	//   cfg := opts.Config
-	//   store, err := results.Open(cfg.Results.Dir)                        → return err
-	//   w, err := store.Create(newRun(cfg, opts.Mode, time.Now()))         → return err
-	//   p := probe.New(cfg, opts.Logger)
-	//   for _, t := range cfg.Targets {
-	//       tr := planTarget(ctx, p, cfg, opts.Mode, t); w.SetTarget(tr)
-	//       if tr.Err != "" { log; continue }
-	//       for _, s := range schedule(cfg.Profile) {                       // interleaved
-	//           if ctx.Err() != nil { break out }
-	//           if s.first == false { sleep cooldown (ctx-aware) }
-	//           tl, err := p.Sample(ctx, s.layer, t, tr.Plan)
-	//           w.Add(SeriesKey{t.Name, s.layer}, Sample{s.iteration, s.warmup, at, tl, errString(err)})
-	//           log one line: layer, target, iteration, phase latencies via results.Analyze
-	//       }
-	//   }
-	//   status := done | interrupted; w.Finish(status, now)
-	//   rep := results.Summarize(w.Run()); results.Render(opts.Out, rep, cfg.Output.Format)
-	//   return ctx.Err() | *FailedError | nil
-	_ = ctx
-	return ErrNotImplemented // sketch: keeps the existing CLI test meaningful
+	cfg, log := opts.Config, opts.Logger
+	store, err := results.Open(cfg.Results.Dir)
+	if err != nil {
+		return err
+	}
+	w, err := store.Create(newRun(cfg, opts.Mode, time.Now()))
+	if err != nil {
+		return err
+	}
+	id := w.Run().ID
+	log.Info("run started", "id", id, "dir", store.Dir(), "mode", opts.Mode)
+
+	p := probe.New(cfg, log)
+	steps := schedule(cfg.Profile)
+	perTarget := cfg.Profile.Iterations * len(cfg.Profile.Layers)
+	failed := 0
+targets:
+	for _, t := range cfg.Targets {
+		tr := planTarget(ctx, p, cfg, opts.Mode, t)
+		if ctx.Err() != nil {
+			break
+		}
+		if err := w.SetTarget(tr); err != nil {
+			return err
+		}
+		if tr.Err != "" {
+			log.Warn("target not planned", "target", t.Name, "err", tr.Err)
+			failed += perTarget
+			continue
+		}
+		log.Info("target planned", "target", t.Name, "duration", tr.Duration, "phases", tr.Plan.Len())
+
+		for _, s := range steps {
+			pause := cfg.Profile.Cooldown.D()
+			if s.first {
+				pause = 0
+			}
+			if !sleep(ctx, pause) {
+				break targets
+			}
+			at := time.Now().UTC()
+			tl, err := p.Sample(ctx, s.layer, t, tr.Plan)
+			if err != nil && ctx.Err() != nil {
+				// Cut short by our own cancellation, not by the stack:
+				// stored, it would read as a failure of the layer.
+				break targets
+			}
+			sample := results.Sample{Iteration: s.iteration, Warmup: s.warmup, At: at, Timeline: tl}
+			if err != nil {
+				sample.Err = err.Error()
+				if !s.warmup {
+					failed++
+				}
+			}
+			if err := w.Add(results.SeriesKey{Target: t.Name, Layer: s.layer}, sample); err != nil {
+				return err
+			}
+			logSample(log, t.Name, s, tr.Plan, sample)
+		}
+	}
+
+	status := results.StatusDone
+	if ctx.Err() != nil {
+		status = results.StatusInterrupted
+	}
+	if err := w.Finish(status, time.Now().UTC()); err != nil {
+		return err
+	}
+	if err := results.Render(opts.Out, results.Summarize(w.Run()), cfg.Output.Format, store.Dir()); err != nil {
+		return fmt.Errorf("render report: %w", err)
+	}
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if failed > 0 {
+		return &FailedError{RunID: id, Failed: failed, Total: perTarget * len(cfg.Targets)}
+	}
+	return nil
 }
 
-// ErrNotImplemented is kept for the CLI test until the engine lands.
-var ErrNotImplemented = errors.New("profiling is not implemented yet (use -dry-run to inspect the plan)")
+// sleep waits d, or reports false as soon as ctx is done.
+func sleep(ctx context.Context, d time.Duration) bool {
+	if ctx.Err() != nil {
+		return false
+	}
+	if d <= 0 {
+		return true
+	}
+	t := time.NewTimer(d)
+	defer t.Stop()
+	select {
+	case <-t.C:
+		return true
+	case <-ctx.Done():
+		return false
+	}
+}
+
+// logSample writes one line per sample with each phase's latency.
+func logSample(log *slog.Logger, target string, s step, plan results.Plan, sample results.Sample) {
+	a := results.Analyze(sample.Timeline, plan)
+	phases := make([]string, len(a.Phases))
+	for k, ph := range a.Phases {
+		latency := "-"
+		if ph.OK {
+			latency = ph.Latency.Round(100 * time.Microsecond).String()
+		}
+		phases[k] = plan.Label(k) + " " + latency
+	}
+	attrs := []any{"target", target, "layer", s.layer, "iteration", s.iteration, "warmup", s.warmup,
+		"phases", strings.Join(phases, ", ")}
+	if sample.Err != "" {
+		log.Warn("sample", append(attrs, "err", sample.Err)...)
+		return
+	}
+	log.Info("sample", attrs...)
+}
 
 // planTarget resolves duration and the seek plan. Startup-only mode skips
 // the duration probe entirely (no seeks to resolve, nothing warmed).
 // Usenet-only runs have no video layer to probe; percent points then
-// resolve with a nominal duration (Fraction is all usenet uses) and
-// absolute points are a target error.
+// resolve without a duration (Fraction is all usenet uses) and absolute
+// points are a target error.
 func planTarget(ctx context.Context, p *probe.Prober, cfg *config.Config, mode Mode, t config.Target) results.Target {
-	_ = results.NewPlan
-	panic("not implemented")
+	tr := results.Target{Name: t.Name, Path: t.Path, ItemID: t.JellyfinItemID}
+	var points []config.SeekPoint
+	if mode.Seek() {
+		points = cfg.Profile.SeekPoints
+	}
+	usenetOnly := slices.Equal(cfg.Profile.Layers, []config.Layer{config.LayerUsenet})
+	if len(points) > 0 && !usenetOnly {
+		m, err := p.Media(ctx, t)
+		if err != nil {
+			tr.Err = err.Error()
+			return tr
+		}
+		tr.Duration = m.Duration
+	}
+	plan, err := results.NewPlan(points, tr.Duration)
+	if err != nil {
+		tr.Err = err.Error() + " (a usenet-only run has no video layer to read it from; use percent seek points)"
+		return tr
+	}
+	tr.Plan = plan
+	return tr
 }
 
 // step is one scheduled sample.
@@ -115,9 +233,57 @@ type step struct {
 // the same byte ranges, so infinidysk/provider caches are warm for all
 // measured samples whatever the order. What is measured is the warm path
 // plus (with cold_cache) cold rclone metadata; see RATIONALE open questions.
-func schedule(p config.ProfileConfig) []step { panic("not implemented") }
+func schedule(p config.ProfileConfig) []step {
+	var steps []step
+	add := func(n int, warmup bool) {
+		for i := range n {
+			for _, l := range stackOrder(p.Layers) {
+				steps = append(steps, step{layer: l, iteration: i, warmup: warmup, first: len(steps) == 0})
+			}
+		}
+	}
+	add(p.Warmup, true)
+	add(p.Iterations, false)
+	return steps
+}
 
-// newRun builds the stored run header from config.
+// stackOrder returns the selected layers, top of the stack first.
+func stackOrder(selected []config.Layer) []config.Layer {
+	return slices.DeleteFunc(slices.Clone(config.AllLayers), func(l config.Layer) bool {
+		return !slices.Contains(selected, l)
+	})
+}
+
+// newRun builds the stored run header from config, with every target and
+// (target, layer) series in place so a partial file still shows the plan.
 func newRun(cfg *config.Config, mode Mode, started time.Time) results.Run {
-	panic("not implemented")
+	p := cfg.Profile
+	host, _ := os.Hostname()
+	layers := stackOrder(p.Layers)
+	run := results.Run{
+		Started: started.UTC(),
+		Host:    host,
+		Version: version.Version,
+		Mode:    string(mode),
+		Settings: results.Settings{
+			Layers:     layers,
+			Iterations: p.Iterations,
+			Warmup:     p.Warmup,
+			Timeout:    p.Timeout.D(),
+			Cooldown:   p.Cooldown.D(),
+			ColdCache:  p.ColdCache,
+		},
+	}
+	if mode.Seek() {
+		for _, sp := range p.SeekPoints {
+			run.Settings.SeekPoints = append(run.Settings.SeekPoints, sp.String())
+		}
+	}
+	for _, t := range cfg.Targets {
+		run.Targets = append(run.Targets, results.Target{Name: t.Name, Path: t.Path, ItemID: t.JellyfinItemID})
+		for _, l := range layers {
+			run.Series = append(run.Series, results.Series{SeriesKey: results.SeriesKey{Target: t.Name, Layer: l}})
+		}
+	}
+	return run
 }

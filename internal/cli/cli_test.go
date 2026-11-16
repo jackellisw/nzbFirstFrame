@@ -114,14 +114,6 @@ func TestBadFlagIsUsageError(t *testing.T) {
 	}
 }
 
-func TestRunNotImplementedYet(t *testing.T) {
-	cfg := writeConfig(t)
-	code, _, errOut := run(t, "run", "-c", cfg)
-	if code != exitFail || !strings.Contains(errOut, "not implemented") {
-		t.Errorf("exit %d, stderr %q", code, errOut)
-	}
-}
-
 func TestConfigSubcommands(t *testing.T) {
 	cfg := writeConfig(t)
 
