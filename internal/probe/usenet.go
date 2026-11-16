@@ -160,7 +160,7 @@ func (s *nntpSession) command(line string) (code int, reply string, at time.Dura
 }
 
 func (s *nntpSession) status() (code int, line string, at time.Duration, err error) {
-	line, err = s.r.ReadString('\n')
+	line, err = readStatusLine(s.r)
 	at = s.rec.stamp()
 	if err != nil {
 		return 0, "", at, err
@@ -172,6 +172,24 @@ func (s *nntpSession) status() (code int, line string, at time.Duration, err err
 		return 0, "", at, fmt.Errorf("malformed NNTP status line %q", line)
 	}
 	return code, line, at, nil
+}
+
+// maxStatusLine is RFC 3977's limit on a response line, CRLF included.
+const maxStatusLine = 512
+
+func readStatusLine(r *bufio.Reader) (string, error) {
+	line := make([]byte, 0, maxStatusLine)
+	for len(line) < maxStatusLine {
+		c, err := r.ReadByte()
+		if err != nil {
+			return "", err
+		}
+		line = append(line, c)
+		if c == '\n' {
+			return string(line), nil
+		}
+	}
+	return "", fmt.Errorf("status line longer than %d bytes", maxStatusLine)
 }
 
 func readDotBody(r *bufio.Reader) (int64, error) {

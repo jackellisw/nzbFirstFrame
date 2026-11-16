@@ -2,6 +2,7 @@ package probe_test
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
@@ -13,6 +14,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"sync"
@@ -315,5 +317,41 @@ func TestUsenetConnectsOverVerifiedTLS(t *testing.T) {
 	}
 	if len(tl.Ops) != 1 || tl.Ops[0].Kind != results.OpConnect || tl.Ops[0].Err == "" {
 		t.Errorf("ops %+v, want one failed connect", tl.Ops)
+	}
+}
+
+func TestUsenetFailsAnOverlongStatusLineWithoutBufferingIt(t *testing.T) {
+	const sent = 4 << 20
+	ln := listen(t)
+	hold := make(chan struct{})
+	t.Cleanup(func() { close(hold) })
+	greeting := append([]byte("200 "), bytes.Repeat([]byte("A"), sent)...)
+	go func() {
+		conn, err := ln.Accept()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+		conn.Write(greeting)
+		<-hold
+	}()
+	cfg, target := usenetConfig(t, ln, mixedNZB)
+	cfg.Profile.Timeout = config.Duration(5 * time.Second)
+
+	var before, after runtime.MemStats
+	runtime.ReadMemStats(&before)
+	start := time.Now()
+	_, err := newProber(cfg).Sample(t.Context(), config.LayerUsenet, target, planAt())
+	took := time.Since(start)
+	runtime.ReadMemStats(&after)
+
+	if err == nil || !strings.Contains(err.Error(), "longer than 512 bytes") {
+		t.Errorf("err = %v, want the greeting rejected as longer than RFC 3977's 512 bytes", err)
+	}
+	if took > time.Second {
+		t.Errorf("sample took %s; an over-long line must fail when its 512th byte arrives, not at the 5s timeout", took)
+	}
+	if alloc := after.TotalAlloc - before.TotalAlloc; alloc > 1<<20 {
+		t.Errorf("reading one status line allocated %d KiB while the server sent %d KiB", alloc>>10, sent>>10)
 	}
 }
