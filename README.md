@@ -25,7 +25,7 @@ The `jellyfin` layer asks for the original file (`static=true`), the way a clien
 
 Each sample of the `jellyfin`, `rclone`, or `infinidysk` layer is one ffprobe session. nzbff starts a small HTTP server on `127.0.0.1` (the tap) and points ffprobe at it. The tap fetches every byte ffprobe asks for from the layer and records each request: when it started, when its first byte arrived, when it ended, its byte offset, and how many bytes it delivered.
 
-In that one session, ffprobe opens the file and decodes one frame, then seeks to each seek point in turn and decodes one frame there. nzbff stamps each frame the moment ffprobe prints it, on the same clock as the requests.
+In that one session, ffprobe opens the file and decodes one frame, then seeks to each seek point in turn and decodes one frame there. nzbff stamps each frame the moment ffprobe prints it, on the same clock as the requests. If a phase decodes no frame, that phase fails and nzbff stops the session there. A file cut between keyframes does this at startup.
 
 - Startup is the first frame minus the start of the first upstream request. ffprobe spends about 25 ms starting before it asks for anything, and that time is not the stack's.
 - Seek k is frame k minus frame k-1. ffprobe sends the next seek's first request about 0.3 ms after it prints a frame, so the gap between two frames is the seek.

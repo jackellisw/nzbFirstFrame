@@ -514,3 +514,47 @@ func TestSecretsStayOffFFprobeCommandLine(t *testing.T) {
 		}
 	}
 }
+
+// A file cut by stream copy at a non-keyframe: ffprobe's startup interval
+// reads one packet it cannot decode, so it prints no frame for startup and
+// one frame for each seek.
+func TestStreamStartingBetweenKeyframesFailsStartupInsteadOfShiftingFrames(t *testing.T) {
+	for _, tool := range []string{"ffmpeg", "ffprobe"} {
+		if _, err := exec.LookPath(tool); err != nil {
+			t.Skipf("%s not on PATH", tool)
+		}
+	}
+	src, err := fakestack.Generate(t.Context(), "ffmpeg", t.TempDir(), fakestack.MediaSpec{Length: mediaLength})
+	if err != nil {
+		t.Fatal(err)
+	}
+	mount := t.TempDir()
+	cut := exec.Command("ffmpeg", "-v", "error", "-nostdin", "-y", "-i", src,
+		"-ss", (gopLength / 2).String(), "-c", "copy", "-copyinkf", filepath.Join(mount, "cut.mkv"))
+	if out, err := cut.CombinedOutput(); err != nil {
+		t.Fatalf("cut: %v: %s", err, out)
+	}
+	cfg := config.Default()
+	cfg.Rclone.MountPath = mount
+	cfg.Profile.Layers = []config.Layer{config.LayerRclone}
+	target := config.Target{Name: "cut", Path: "cut.mkv"}
+	prober := newProber(cfg)
+	m, err := prober.Media(t.Context(), target)
+	if err != nil {
+		t.Fatal(err)
+	}
+	points, _ := config.ParseSeekPoints("10%,30%")
+	plan, err := results.NewPlan(points, m.Duration)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tl, err := prober.Sample(t.Context(), config.LayerRclone, target, plan)
+	checkTimelineInvariants(t, tl)
+	if err == nil || !strings.Contains(err.Error(), `phase "startup"`) {
+		t.Errorf("err = %v, want startup reported as the phase without a frame", err)
+	}
+	for _, mk := range tl.Marks {
+		t.Errorf("phase %s marked by the frame at %.3fs; no phase may be marked after startup failed", plan.Label(mk.Phase), mk.PTS)
+	}
+}

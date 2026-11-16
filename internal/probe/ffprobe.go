@@ -15,11 +15,15 @@ import (
 	"github.com/jackellisw/nzbfirstframe/internal/results"
 )
 
-// Frames, not packets: ffprobe flushes the decoder at the end of every read
-// interval, so interval k's frame line prints before interval k+1's first
-// request. Measured on MKV and MP4 (h264, 2 B-frames): frame and packet
-// lines agree within 15 ms per interval, and frames also catch streams that
-// fail to decode.
+// Packet lines delimit the read intervals and frame lines mark them. Each
+// interval (#1) prints exactly one packet line when it reads its packet, and
+// ffprobe flushes the decoder at the end of every interval, so interval k's
+// frame line prints before interval k+1's packet line and request. An
+// interval can print no frame: a stream cut between keyframes decodes
+// nothing from the startup packet, and counting frame lines alone would
+// hand the next interval's frame to startup. Measured on MKV and MP4 (h264,
+// 2 B-frames, with and without audio): frame and packet lines agree within
+// 15 ms per interval, and frames also catch streams that fail to decode.
 func ffprobeArgs(url string, plan results.Plan) []string {
 	intervals := "%+#1"
 	for _, s := range plan.Seeks {
@@ -28,9 +32,9 @@ func ffprobeArgs(url string, plan results.Plan) []string {
 	return []string{
 		"-v", "error",
 		"-select_streams", "v:0",
-		"-show_frames",
-		"-show_entries", "frame=pts_time",
-		"-of", "compact=p=0",
+		"-show_packets", "-show_frames",
+		"-show_entries", "packet=pts_time:frame=pts_time",
+		"-of", "compact",
 		"-read_intervals", intervals,
 		url,
 	}
@@ -40,7 +44,9 @@ const pipeGrace = 500 * time.Millisecond
 
 func (p *Prober) ffprobe(ctx context.Context, rec *recorder, url string, plan results.Plan) error {
 	var stderr tail
-	cmd := exec.CommandContext(ctx, p.cfg.Tools.FFprobe, ffprobeArgs(url, plan)...)
+	run, kill := context.WithCancel(ctx)
+	defer kill()
+	cmd := exec.CommandContext(run, p.cfg.Tools.FFprobe, ffprobeArgs(url, plan)...)
 	cmd.Stderr = &stderr
 	cmd.WaitDelay = pipeGrace
 	stdout, err := cmd.StdoutPipe()
@@ -52,10 +58,11 @@ func (p *Prober) ffprobe(ctx context.Context, rec *recorder, url string, plan re
 	}
 
 	// Killing ffprobe frees its pipes only if nothing else holds them. A
-	// wrapper script's child can, so the timeout also closes our end of
-	// stdout here and (WaitDelay) of stderr in Wait.
-	defer context.AfterFunc(ctx, func() { stdout.Close() })()
+	// wrapper script's child can, so a kill also closes our end of stdout
+	// here and (WaitDelay) of stderr in Wait.
+	defer context.AfterFunc(run, func() { stdout.Close() })()
 
+	interval := -1
 	lines := bufio.NewReader(stdout)
 	for {
 		line, rerr := lines.ReadString('\n')
@@ -63,12 +70,22 @@ func (p *Prober) ffprobe(ctx context.Context, rec *recorder, url string, plan re
 		// by ~0.3 ms, and a late stamp would move time from this phase into
 		// the next.
 		at := rec.stamp()
-		if pts, ok := parseFrameLine(line); !ok {
+		switch section, pts := parseLine(line); section {
+		case "packet":
+			interval++
+			// The previous interval printed no frame, and marks must stay
+			// contiguous, so no later phase can be marked either.
+			if interval > rec.marked() {
+				kill()
+			}
+		case "frame":
+			if interval == rec.marked() && interval < plan.Len() {
+				rec.mark(at, pts)
+			}
+		default:
 			if strings.TrimSpace(line) != "" {
 				p.log.Debug("ffprobe: ignored output line", "line", strings.TrimSpace(line))
 			}
-		} else if rec.marked() < plan.Len() {
-			rec.mark(at, pts)
 		}
 		if rerr != nil {
 			break
@@ -76,43 +93,56 @@ func (p *Prober) ffprobe(ctx context.Context, rec *recorder, url string, plan re
 	}
 	werr := cmd.Wait()
 
-	if n := rec.marked(); n < plan.Len() {
-		detail := "ffprobe exited without printing a frame"
+	n := rec.marked()
+	if n == plan.Len() {
 		if werr != nil {
-			detail = "ffprobe: " + werr.Error()
+			// ffprobe can exit non-zero over a read it abandoned. Every
+			// phase completed, so the sample stands.
+			p.log.Debug("ffprobe exited non-zero after the last frame", "err", werr, "stderr", stderr.String())
 		}
-		if s := stderr.String(); s != "" {
-			detail += ": " + s
-		}
-		return p.phaseError(ctx, plan.Label(n), detail)
+		return nil
 	}
-	if werr != nil {
-		// ffprobe can exit non-zero over a read it abandoned. Every phase
-		// completed, so the sample stands.
-		p.log.Debug("ffprobe exited non-zero after the last frame", "err", werr, "stderr", stderr.String())
+	detail := "ffprobe exited without printing a frame"
+	switch {
+	case interval >= n:
+		detail = "ffprobe read this phase's packet but decoded no frame from it"
+	case werr != nil:
+		detail = "ffprobe: " + werr.Error()
 	}
-	return nil
+	if s := stderr.String(); s != "" {
+		detail += ": " + s
+	}
+	return p.phaseError(ctx, plan.Label(n), detail)
 }
 
-func parseFrameLine(line string) (pts float64, ok bool) {
-	for _, field := range strings.Split(strings.TrimSpace(line), "|") {
-		v, found := strings.CutPrefix(field, "pts_time=")
-		if !found {
-			continue
+// parseLine reads one line of ffprobe's compact output. section is "packet",
+// "frame", or "" for any other line; pts is a frame's presentation time in
+// seconds, -1 when ffprobe printed none.
+func parseLine(line string) (section string, pts float64) {
+	fields := strings.Split(strings.TrimSpace(line), "|")
+	switch fields[0] {
+	case "packet":
+		return "packet", 0
+	case "frame":
+		for _, field := range fields[1:] {
+			v, found := strings.CutPrefix(field, "pts_time=")
+			if !found {
+				continue
+			}
+			if v == "N/A" {
+				return "frame", -1
+			}
+			pts, err := strconv.ParseFloat(v, 64)
+			if err != nil {
+				return "", 0
+			}
+			if math.IsNaN(pts) || math.IsInf(pts, 0) {
+				return "frame", -1
+			}
+			return "frame", pts
 		}
-		if v == "N/A" {
-			return -1, true
-		}
-		pts, err := strconv.ParseFloat(v, 64)
-		if err != nil {
-			return 0, false
-		}
-		if math.IsNaN(pts) || math.IsInf(pts, 0) {
-			return -1, true
-		}
-		return pts, true
 	}
-	return 0, false
+	return "", 0
 }
 
 func (p *Prober) mediaDuration(ctx context.Context, url string) (time.Duration, error) {
