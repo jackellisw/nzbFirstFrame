@@ -13,6 +13,7 @@ package probe
 
 import (
 	"context"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -29,6 +30,10 @@ import (
 type Prober struct {
 	cfg *config.Config
 	log *slog.Logger
+
+	// nntpRoots verifies the provider's TLS certificate; nil means the
+	// system roots. Tests point it at their own CA.
+	nntpRoots *x509.CertPool
 }
 
 // New returns a Prober for a finalized (validated) config.
