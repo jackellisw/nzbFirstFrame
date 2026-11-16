@@ -171,6 +171,57 @@ func TestAnalyzeOverlappingOpsTransferWins(t *testing.T) {
 	}
 }
 
+// After the client seeks away, an abandoned read's late bytes overlap the
+// next request's wait. Its delivery is cut at that request's Start, so the
+// wait stays wait.
+func TestAnalyzeAbandonedReadStopsTransferringAtTheNextRequest(t *testing.T) {
+	for name, tc := range map[string]struct {
+		first                  Op
+		wait, transfer, client time.Duration
+	}{
+		// first [10,30) wait, [30,40) transfer; next [40,90) wait, [90,95) transfer
+		"bytes still landing when the next request goes out": {
+			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(30), End: ms(100), Bytes: 1000, Abandoned: true},
+			wait:     ms(20 + 50),
+			transfer: ms(10 + 5),
+			client:   ms(90 - 70 - 15),
+		},
+		// first [10,50) wait, none of its bytes before 40; next [40,90) wait, [90,95) transfer
+		"first byte after the next request went out": {
+			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(50), End: ms(100), Bytes: 1000, Abandoned: true},
+			wait:     ms(80),
+			transfer: ms(5),
+			client:   ms(90 - 80 - 5),
+		},
+		// not abandoned: its bytes count until End, and flowing bytes win
+		"a read that was not abandoned keeps its whole delivery": {
+			first:    Op{Kind: OpRead, Start: ms(10), FirstByte: ms(30), End: ms(100), Bytes: 1000},
+			wait:     ms(20),
+			transfer: ms(70),
+			client:   0,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			tl := Timeline{
+				Ops: []Op{
+					tc.first,
+					{Kind: OpRead, Start: ms(40), FirstByte: ms(90), End: ms(95), Bytes: 10},
+				},
+				Marks: []Mark{{Phase: 0, At: ms(100)}},
+			}
+			a := Analyze(tl, Plan{})
+			p := a.Phases[0]
+			durEq(t, "latency", p.Latency, ms(90))
+			durEq(t, "wait", p.Wait, tc.wait)
+			durEq(t, "transfer", p.Transfer, tc.transfer)
+			durEq(t, "client", p.Client, tc.client)
+			if p.Bytes != 1010 || a.Bytes != 1010 {
+				t.Errorf("bytes = %d (phase) %d (sample), want 1010: late bytes are still upstream cost", p.Bytes, a.Bytes)
+			}
+		})
+	}
+}
+
 func TestAnalyzeUsenetConnectAuthCountTowardStartupButNotRequests(t *testing.T) {
 	tl := Timeline{
 		Ops: []Op{

@@ -30,10 +30,12 @@ type PhaseResult struct {
 
 	// Breakdown of Latency over the phase window, from the attributed ops
 	// only. Transfer = union of time any op was delivering bytes (FirstByte
-	// to End). Wait = union of time an op was waiting for its first byte (an
-	// op that never got one waits Start to End), minus Transfer: overlaps are
-	// counted once and flowing bytes win. Client = Latency - Wait - Transfer:
-	// time the client spent between ops (parsing, seeking, decoding).
+	// to End, where an abandoned op's delivery ends no later than the Start
+	// of the next op in the timeline). Wait = union of time an op was
+	// waiting for its first byte (an op that never got one waits Start to
+	// End), minus Transfer: overlaps are counted once and flowing bytes win.
+	// Client = Latency - Wait - Transfer: time the client spent between ops
+	// (parsing, seeking, decoding).
 	Wait     time.Duration `json:"wait_ns"`
 	Transfer time.Duration `json:"transfer_ns"`
 	Client   time.Duration `json:"client_ns"`
@@ -118,8 +120,16 @@ func split(ops []Op, idx []int, from, to time.Duration) (wait, transfer time.Dur
 			add(op.Start, op.End, false)
 			continue
 		}
+		end := op.End
+		// A client that seeks away stops reading, but the kernel keeps
+		// accepting the abandoned read's bytes into the socket buffer while
+		// the next request waits. Those bytes serve nobody, and counting
+		// them as flowing would hide that wait.
+		if op.Abandoned && i+1 < len(ops) {
+			end = min(end, ops[i+1].Start)
+		}
 		add(op.Start, op.FirstByte, false)
-		add(op.FirstByte, op.End, true)
+		add(op.FirstByte, end, true)
 	}
 	if len(spans) == 0 {
 		return 0, 0
