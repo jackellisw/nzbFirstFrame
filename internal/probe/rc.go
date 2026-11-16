@@ -36,12 +36,18 @@ func (p *Prober) forget(ctx context.Context, path string) error {
 		req.SetBasicAuth(rc.RCUser, rc.RCPassword)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	client := http.Client{CheckRedirect: credentialsStayOnOrigin}
+	resp, err := client.Do(req)
 	if err != nil {
 		return fmt.Errorf("rclone rc vfs/forget: %w", err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode == http.StatusOK {
+	// A 301-303 replays the POST as a GET without the body, and another
+	// origin never saw the login: either way nothing was forgotten.
+	if answered := resp.Request; answered.Method != http.MethodPost || !sameOrigin(answered.URL, req.URL) {
+		return fmt.Errorf("rclone rc vfs/forget: redirected to %s %s, so rclone did not run it", answered.Method, answered.URL.Redacted())
+	}
+	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		return nil
 	}
 	reply, _ := io.ReadAll(io.LimitReader(resp.Body, 4<<10))

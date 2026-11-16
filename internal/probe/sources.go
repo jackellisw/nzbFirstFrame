@@ -133,7 +133,8 @@ func newSampleClient(insecureSkipVerify bool) *http.Client {
 
 var credentialHeaders = []string{"X-Emby-Token", "Authorization"}
 
-// credentialsStayOnOrigin follows redirects but drops credentials from a
+// credentialsStayOnOrigin is the redirect policy of every HTTP client that
+// carries credentials. It follows redirects but drops credentials from a
 // redirected request once any hop has left the configured scheme and
 // host:port. net/http copies every header of the first request to each
 // redirect, and only strips Authorization (and only for another domain),
@@ -144,10 +145,7 @@ func credentialsStayOnOrigin(req *http.Request, via []*http.Request) error {
 	if len(via) >= 10 {
 		return errors.New("stopped after 10 redirects")
 	}
-	origin := via[0].URL
-	elsewhere := func(r *http.Request) bool {
-		return r.URL.Scheme != origin.Scheme || r.URL.Host != origin.Host
-	}
+	elsewhere := func(r *http.Request) bool { return !sameOrigin(r.URL, via[0].URL) }
 	if elsewhere(req) || slices.ContainsFunc(via[1:], elsewhere) {
 		for _, h := range credentialHeaders {
 			req.Header.Del(h)
@@ -155,6 +153,8 @@ func credentialsStayOnOrigin(req *http.Request, via []*http.Request) error {
 	}
 	return nil
 }
+
+func sameOrigin(a, b *url.URL) bool { return a.Scheme == b.Scheme && a.Host == b.Host }
 
 type fileSource struct{ path string }
 
