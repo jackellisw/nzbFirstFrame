@@ -159,7 +159,8 @@ func TestFailedRunWritesTheReportThenExits1(t *testing.T) {
 		}
 	}
 
-	summary := "nzbff run: run " + id + ": 12 of 12 samples failed (see report)\n"
+	// 2 targets × 2 layers × (1 warmup + 3 iterations), none planned.
+	summary := "nzbff run: run " + id + ": 16 of 16 samples failed (see report)\n"
 	if !strings.HasSuffix(errOut, summary) {
 		t.Errorf("stderr does not end with %q:\n%s", summary, errOut)
 	}

@@ -203,8 +203,8 @@ The same data is available as JSON at `/api/runs`, `/api/runs/latest`, and `/api
 
 nzbff exits with:
 
-- 0 when every measured sample completed.
-- 1 when a measured sample failed or a target could not be planned. nzbff prints the report first, then one line on stderr such as `nzbff run: run 20261116T031502Z-7c41e9: 2 of 20 samples failed (see report)`. Exit code 1 also covers an interrupted run and any other error.
+- 0 when every sample completed, warmups included.
+- 1 when a sample failed, warmup or measured, or a target could not be planned. nzbff prints the report first, then one line on stderr such as `nzbff run: run 20261116T031502Z-7c41e9: 2 of 24 samples failed (see report)`. The count includes warmups. Exit code 1 also covers an interrupted run and any other error.
 - 2 for a bad flag or argument.
 
 Cron starts jobs with almost no environment. Put the secrets in the config file, which `config init` creates with mode 0600, or set them as `NAME=value` lines at the top of the crontab:

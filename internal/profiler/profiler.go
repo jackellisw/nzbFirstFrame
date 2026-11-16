@@ -42,8 +42,9 @@ type Options struct {
 // samples or targets failed. The report (with the errors) was rendered
 // before it is returned, so cron gets both output and a non-zero exit.
 //
-// Total is every measured (non-warmup) sample the run scheduled. Failed
-// counts the measured samples that failed, plus all measured samples of a
+// Total is every sample the run scheduled, warmups included. Failed counts
+// the samples that failed, warmups included (a failed warmup is a broken
+// stack even though its timing is not a statistic), plus all samples of a
 // target that could not be planned.
 type FailedError struct {
 	RunID         string
@@ -76,7 +77,7 @@ func Run(ctx context.Context, opts Options) error {
 
 	p := probe.New(cfg, log)
 	steps := schedule(cfg.Profile)
-	perTarget := cfg.Profile.Iterations * len(cfg.Profile.Layers)
+	perTarget := len(steps)
 	failed := 0
 targets:
 	for _, t := range cfg.Targets {
@@ -110,9 +111,7 @@ targets:
 			sample := results.Sample{Iteration: s.iteration, Warmup: s.warmup, At: at, Timeline: tl}
 			if err != nil {
 				sample.Err = err.Error()
-				if !s.warmup {
-					failed++
-				}
+				failed++
 			}
 			if err := w.Add(results.SeriesKey{Target: t.Name, Layer: s.layer}, sample); err != nil {
 				return err

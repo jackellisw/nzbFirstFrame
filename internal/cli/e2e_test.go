@@ -425,3 +425,35 @@ func TestDevStackConfigWorksFromAnyDirectory(t *testing.T) {
 		}
 	}
 }
+
+func TestRunExitsNonZeroWhenOnlyAWarmupFailed(t *testing.T) {
+	st := startStack(t, fakestack.Options{})
+	real, _ := exec.LookPath("ffprobe")
+	bin := t.TempDir()
+	wrapper := filepath.Join(bin, "ffprobe")
+	marker := filepath.Join(bin, "called")
+	script := "#!/bin/sh\nif [ ! -e " + marker + " ]; then touch " + marker + "; echo 'injected warmup failure' >&2; exit 1; fi\nexec " + real + " \"$@\"\n"
+	if err := os.WriteFile(wrapper, []byte(script), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	cfg := st.Config()
+	cfg.Tools.FFprobe = wrapper
+	cfg.Profile.Layers = []config.Layer{config.LayerRclone}
+	cfg.Profile.Warmup, cfg.Profile.Iterations = 1, 1
+	dir := filepath.Join(t.TempDir(), "results")
+
+	code, out, errOut := run(t, "startup", "-c", configFile(t, cfg), "-results", dir)
+	if code != exitFail {
+		t.Errorf("exit %d, want %d so cron sees the failed warmup\nstdout:\n%s\nstderr:\n%s", code, exitFail, out, errOut)
+	}
+	_, stored := onlyRun(t, dir)
+	if summary := "run " + stored.ID + ": 1 of 2 samples failed"; !strings.Contains(errOut, summary) {
+		t.Errorf("stderr lacks %q:\n%s", summary, errOut)
+	}
+	if !strings.Contains(out, "injected warmup failure") {
+		t.Errorf("report does not list the failed warmup:\n%s", out)
+	}
+	if !regexp.MustCompile(`(?m)^fake\s+rclone\s+startup\s+1\s+\d`).MatchString(out) {
+		t.Errorf("table should count the one measured sample and leave the warmup out:\n%s", out)
+	}
+}
