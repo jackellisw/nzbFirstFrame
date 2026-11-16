@@ -13,7 +13,11 @@ package probe
 
 import (
 	"context"
+	"crypto/x509"
+	"errors"
+	"fmt"
 	"log/slog"
+	"slices"
 	"time"
 
 	"github.com/jackellisw/nzbfirstframe/internal/config"
@@ -26,6 +30,10 @@ import (
 type Prober struct {
 	cfg *config.Config
 	log *slog.Logger
+
+	// nntpRoots verifies the provider's TLS certificate; nil means the
+	// system roots. Tests point it at their own CA.
+	nntpRoots *x509.CertPool
 }
 
 // New returns a Prober for a finalized (validated) config.
@@ -46,11 +54,33 @@ type Media struct {
 // layer is selected; usenet-only runs can still use percent seek points (see
 // the engine).
 func (p *Prober) Media(ctx context.Context, t config.Target) (Media, error) {
-	// TODO: for l in reverse(config.AllLayers) if p.cfg.HasLayer(l) && layers[l].video != nil:
-	//   start a tap on layers[l].video(p, t) with a throwaway recorder,
-	//   run ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 <url>,
-	//   parse float seconds. Bounded by profile.timeout.
-	panic("not implemented")
+	for _, l := range slices.Backward(config.AllLayers) {
+		if m := layers[l]; p.cfg.HasLayer(l) && m.video != nil {
+			d, err := p.durationVia(ctx, m.video(p, t))
+			if err != nil {
+				return Media{}, fmt.Errorf("duration via %s: %w", l, err)
+			}
+			return Media{Duration: d, Via: l}, nil
+		}
+	}
+	return Media{}, errors.New("no video layer selected to read the media duration from")
+}
+
+func (p *Prober) durationVia(ctx context.Context, src source) (time.Duration, error) {
+	defer src.close()
+	ctx, cancel := context.WithTimeout(ctx, p.cfg.Profile.Timeout.D())
+	defer cancel()
+	rec := newRecorder()
+	tap, err := startTap(src, rec)
+	if err != nil {
+		return 0, err
+	}
+	d, err := p.mediaDuration(ctx, tap.url)
+	tap.close()
+	if err != nil {
+		return 0, withUpstream(err, rec)
+	}
+	return d, nil
 }
 
 // Sample runs one measurement of plan on layer for target and returns what it
@@ -62,17 +92,39 @@ func (p *Prober) Media(ctx context.Context, t config.Target) (Media, error) {
 //     rclone, POST vfs/forget for the target path first (not on the timeline);
 //   - isolation: a fresh upstream transport per sample, so each sample pays
 //     its own connects, as a fresh player session does;
-//   - timeout: profile.timeout bounds the whole session.
+//   - timeout: profile.timeout bounds the whole session, the cold-cache call
+//     included.
 func (p *Prober) Sample(ctx context.Context, layer config.Layer, t config.Target, plan results.Plan) (results.Timeline, error) {
-	// TODO:
-	//   m := layers[layer]   // validated config guarantees presence
-	//   if p.cfg.Profile.ColdCache && m.viaRclone { if err := p.forget(ctx, t.Path); err != nil { return {}, err } }
-	//   ctx, cancel := context.WithTimeout(ctx, p.cfg.Profile.Timeout.D())
-	//   rec := newRecorder()
-	//   var err error
-	//   if m.video != nil { err = p.runVideo(ctx, rec, m.video(p, t), plan) } else { err = m.custom(p, ctx, rec, t, plan) }
-	//   return rec.snapshot(), err
-	panic("not implemented")
+	m := layers[layer]
+	ctx, cancel := context.WithTimeout(ctx, p.cfg.Profile.Timeout.D())
+	defer cancel()
+	if p.cfg.Profile.ColdCache && m.viaRclone {
+		if err := p.forget(ctx, t.Path); err != nil {
+			return newRecorder().snapshot(), fmt.Errorf("cold cache: %w", err)
+		}
+	}
+	rec := newRecorder()
+	var err error
+	if m.video != nil {
+		err = p.runVideo(ctx, rec, m.video(p, t), plan)
+	} else {
+		err = m.custom(p, ctx, rec, t, plan)
+	}
+	return rec.snapshot(), err
+}
+
+// phaseError words a sample failure the same way for every layer: which
+// phase was open, and whether the per-sample timeout or a cancellation
+// ended it.
+func (p *Prober) phaseError(ctx context.Context, phase, detail string) error {
+	switch {
+	case errors.Is(ctx.Err(), context.DeadlineExceeded):
+		return fmt.Errorf("timeout after %s in phase %q (%s)", p.cfg.Profile.Timeout, phase, detail)
+	case ctx.Err() != nil:
+		return fmt.Errorf("phase %q: %w (%s)", phase, ctx.Err(), detail)
+	default:
+		return fmt.Errorf("phase %q: %s", phase, detail)
+	}
 }
 
 // method is how one layer is measured: either as a byte source behind the
@@ -93,9 +145,24 @@ var layers = map[config.Layer]method{
 
 // runVideo serves src on a local tap and drives ffprobe against it.
 func (p *Prober) runVideo(ctx context.Context, rec *recorder, src source, plan results.Plan) error {
-	// TODO:
-	//   tap, err := startTap(src, rec); defer tap.close()
-	//   (tap.close waits for in-flight handlers so their ops are recorded)
-	//   return p.ffprobe(ctx, rec, tap.url, plan)
-	panic("not implemented")
+	defer src.close()
+	tap, err := startTap(src, rec)
+	if err != nil {
+		return err
+	}
+	err = p.ffprobe(ctx, rec, tap.url, plan)
+	tap.close()
+	if err != nil {
+		return withUpstream(err, rec)
+	}
+	return nil
+}
+
+// withUpstream adds the first upstream failure to err. ffprobe only sees
+// the tap's 502, so its own message cannot say why the stack failed.
+func withUpstream(err error, rec *recorder) error {
+	if cause := rec.firstOpErr(); cause != "" {
+		return fmt.Errorf("%w; upstream: %s", err, cause)
+	}
+	return err
 }
