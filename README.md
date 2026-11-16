@@ -153,7 +153,7 @@ bin/nzbff seek -target foo -seek 10%,00:42:00 -iterations 10
 	fake    usenet      seek 10%  5  88ms   88ms   85ms   88ms   1     756K
 	fake    usenet      seek 50%  5  87ms   88ms   87ms   88ms   1     756K
 	fake    usenet      seek 90%  5  87ms   89ms   84ms   89ms   1     756K
-	stored run 20261116T162733Z-e3a2ab in /tmp/nzbff-dev/results
+	stored run 20261116T162733.512Z-e3a2ab in /tmp/nzbff-dev/results
 	```
 
 	Each HTTP request costs one 200 ms wait, so startup is one request (about 210 ms). Seek 10% costs three requests (about 613 ms), because the MKV keeps its cues at the end of the file and ffprobe loads them on the first seek. The later seeks cost one request each. The rclone rows show local disk speed, and the usenet rows show the 80 ms article wait plus the transfer.
@@ -204,7 +204,7 @@ The same data is available as JSON at `/api/runs`, `/api/runs/latest`, and `/api
 nzbff exits with:
 
 - 0 when every sample completed, warmups included.
-- 1 when a sample failed, warmup or measured, or a target could not be planned. nzbff prints the report first, then one line on stderr such as `nzbff run: run 20261116T031502Z-7c41e9: 2 of 24 samples failed (see report)`. The count includes warmups. Exit code 1 also covers an interrupted run and any other error.
+- 1 when a sample failed, warmup or measured, or a target could not be planned. nzbff prints the report first, then one line on stderr such as `nzbff run: run 20261116T031502.640Z-7c41e9: 2 of 24 samples failed (see report)`. The count includes warmups. Exit code 1 also covers an interrupted run and any other error.
 - 2 for a bad flag or argument.
 
 Cron starts jobs with almost no environment. Put the secrets in the config file, which `config init` creates with mode 0600, or set them as `NAME=value` lines at the top of the crontab:

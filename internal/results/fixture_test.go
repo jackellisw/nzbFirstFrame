@@ -76,7 +76,7 @@ func buildFixture() Run {
 			mp4: true, size: 1_395_864_371, dur: 41*time.Minute + 37*time.Second},
 	}
 	run := Run{
-		Schema: SchemaVersion, ID: "20261116T031502Z-7c41e9", Status: StatusDone, Started: started,
+		Schema: SchemaVersion, ID: "20261116T031502.000Z-7c41e9", Status: StatusDone, Started: started,
 		Host: "mediabox", Version: "v0.3.0", Mode: "all",
 		Settings: Settings{
 			Layers: config.AllLayers, Iterations: 5, Warmup: 2, Timeout: time.Minute, Cooldown: 2 * time.Second,

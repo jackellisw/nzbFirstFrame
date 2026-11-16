@@ -96,9 +96,9 @@ func TestLatestWithoutRunsIsNotFound(t *testing.T) {
 }
 
 func TestOnlyListedRunsAreLoaded(t *testing.T) {
-	st := newFakeStore(info("20261116T101502Z-3f9a1c", time.Now()))
+	st := newFakeStore(info("20261116T101502.000Z-3f9a1c", time.Now()))
 	h := New(st)
-	for _, path := range []string{"/api/runs/20261116T000000Z-000000", "/api/runs/..%2F..%2Fetc%2Fpasswd"} {
+	for _, path := range []string{"/api/runs/20261116T000000.000Z-000000", "/api/runs/..%2F..%2Fetc%2Fpasswd"} {
 		rec := get(t, h, path)
 		if rec.Code != http.StatusNotFound {
 			t.Errorf("%s: got %d, want 404", path, rec.Code)
@@ -110,7 +110,7 @@ func TestOnlyListedRunsAreLoaded(t *testing.T) {
 }
 
 func TestUnreadableRunIsListedWithItsError(t *testing.T) {
-	const id = "20261116T120000Z-0badf0"
+	const id = "20261116T120000.000Z-0badf0"
 	st := newFakeStore(info(id, time.Now()))
 	st.errs[id] = errors.New("decode: unexpected end of JSON input")
 	h := New(st)
@@ -271,7 +271,7 @@ func firstDiff(want, got any, at string) string {
 }
 
 func TestReportIsAnalyzedOncePerModTime(t *testing.T) {
-	const id = "20261116T101502Z-3f9a1c"
+	const id = "20261116T101502.000Z-3f9a1c"
 	t0 := time.Date(2026, 11, 16, 10, 16, 0, 0, time.UTC)
 	st := newFakeStore(info(id, t0))
 	st.runs[id] = run(id)
@@ -300,7 +300,7 @@ func TestReportIsAnalyzedOncePerModTime(t *testing.T) {
 }
 
 func TestRunListDoesNotReloadViewedHistory(t *testing.T) {
-	ids := []string{"20261116T101502Z-3f9a1c", "20261115T030005Z-1a2b3c", "20261114T030005Z-4d5e6f"}
+	ids := []string{"20261116T101502.000Z-3f9a1c", "20261115T030005Z-1a2b3c", "20261114T030005Z-4d5e6f"}
 	var infos []results.RunInfo
 	for _, id := range ids {
 		infos = append(infos, info(id, time.Now()))
@@ -323,7 +323,7 @@ func TestRunListDoesNotReloadViewedHistory(t *testing.T) {
 }
 
 func TestRunsAndLatestFollowTheListing(t *testing.T) {
-	newer, older := "20261116T101502Z-3f9a1c", "20261115T030005Z-1a2b3c"
+	newer, older := "20261116T101502.000Z-3f9a1c", "20261115T030005Z-1a2b3c"
 	st := newFakeStore(info(newer, time.Now()), info(older, time.Now()))
 	st.runs[newer], st.runs[older] = run(newer), run(older)
 	h := New(st)

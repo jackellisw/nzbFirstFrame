@@ -17,7 +17,7 @@ import (
 
 // Store is a directory of run files, one JSON file per run:
 //
-//	<dir>/20261116T101502Z-3f9a1c.json
+//	<dir>/20261116T101502.348Z-3f9a1c.json
 //
 // Concurrency model: per-actor files, merge at read. Each run is written by
 // exactly one RunWriter (one process, one goroutine), so concurrent
@@ -26,7 +26,7 @@ import (
 // directory), so a reader (`nzbff serve`) sees either the previous complete
 // JSON or the next one, never a torn file, and a power loss can't leave an
 // empty file behind a valid name.
-// IDs sort lexically by start time, so listing needs no index.
+// An ID starts with the run's start time, so listing needs no index.
 type Store struct {
 	dir string
 }
@@ -56,9 +56,18 @@ func Open(dir string) (*Store, error) {
 // ErrNewerSchema is returned by Load for a run written by a newer nzbff.
 var ErrNewerSchema = errors.New("run file schema is newer than this nzbff supports")
 
-const idTimeLayout = "20060102T150405Z"
+// idTimeLayout formats an ID's start time to the millisecond, so runs
+// started within the same second still list in start order. IDs written
+// before that have no fraction ("20261116T101502Z-3f9a1c"); they still
+// load, and parsing with the layout's whole-second form reads both.
+const idTimeLayout = "20060102T150405.000Z"
 
-var idPattern = regexp.MustCompile(`^[0-9]{8}T[0-9]{6}Z-[0-9a-f]{6}$`)
+var idPattern = regexp.MustCompile(`^[0-9]{8}T[0-9]{6}(\.[0-9]{3})?Z-[0-9a-f]{6}$`)
+
+func idStarted(id string) (time.Time, error) {
+	stamp, _, _ := strings.Cut(id, "-")
+	return time.Parse("20060102T150405Z", stamp)
+}
 
 var randSuffix = func() string {
 	b := make([]byte, 3)
@@ -175,7 +184,7 @@ func (s *Store) List() ([]RunInfo, error) {
 		if !ok || !idPattern.MatchString(id) {
 			continue
 		}
-		started, err := time.Parse(idTimeLayout, id[:len(idTimeLayout)])
+		started, err := idStarted(id)
 		if err != nil {
 			continue
 		}
@@ -188,7 +197,14 @@ func (s *Store) List() ([]RunInfo, error) {
 		}
 		out = append(out, RunInfo{ID: id, Started: started, Modified: info.ModTime()})
 	}
-	slices.SortFunc(out, func(a, b RunInfo) int { return strings.Compare(b.ID, a.ID) })
+	// By time, not text: '.' sorts before 'Z', so an old ID would list
+	// after a newer one from the same second.
+	slices.SortFunc(out, func(a, b RunInfo) int {
+		if c := b.Started.Compare(a.Started); c != 0 {
+			return c
+		}
+		return strings.Compare(b.ID, a.ID)
+	})
 	return out, nil
 }
 
