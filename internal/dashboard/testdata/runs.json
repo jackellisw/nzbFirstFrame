@@ -1,0 +1,3432 @@
+[
+ {
+  "id": "20261116T101502Z-3f9a1c",
+  "status": "done",
+  "started": "2026-11-16T10:15:02Z",
+  "finished": "2026-11-16T10:19:55Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 342300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1014400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 357300000,
+    "n": 4
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 351300000,
+    "n": 4
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 316700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 955300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 315500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 323300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 198100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 580800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 196300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 200100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 301900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 194700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 181900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 190100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1060900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 358500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 358700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 339200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 970600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 311800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 316600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 313100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 600800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 200100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 188100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 195800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 306200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 185500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 185700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 179100000,
+    "n": 4
+   }
+  ]
+ },
+ {
+  "id": "20261115T030001Z-194539",
+  "status": "done",
+  "started": "2026-11-15T03:00:01Z",
+  "finished": "2026-11-15T03:04:01Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 363900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1115000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 373600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 358600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 334500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 982700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 326100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 340800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 216300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 655100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 215400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 226300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 323900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 213000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 199400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 205300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1111400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 366400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 362000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 362700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 1037300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 336700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 333000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 346800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 659700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 218400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 211100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 212800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 325300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 207400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 199600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 200100000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261114T030000Z-18a702",
+  "status": "done",
+  "started": "2026-11-14T03:00:00Z",
+  "finished": "2026-11-14T03:04:08Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 385700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1120200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 380300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 378400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 353000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 1015500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 342200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 350500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 227000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 665000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 222000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 220300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 335900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 209900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 219000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 211800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1162900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 383900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 389100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 375700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 1061200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 334300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 351600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 338500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 681800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 228300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 233400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 225100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 329800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 206300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 221000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 222800000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261113T030006Z-1808cb",
+  "status": "done",
+  "started": "2026-11-13T03:00:06Z",
+  "finished": "2026-11-13T03:04:13Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 381700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1142700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 388100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 379900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 338100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 1015000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 347200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 356400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 225700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 671400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 224000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 227400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 337300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 224700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 217000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 213400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1148900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 393500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 393800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 381400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 1074000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 355300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 352100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 334400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 695600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 227400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 236100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 227600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 337400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 217600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 213700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 226600000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261112T030005Z-176a94",
+  "status": "done",
+  "started": "2026-11-12T03:00:05Z",
+  "finished": "2026-11-12T03:04:12Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 364300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1105300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 384300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 382800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 334100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 1020100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 350800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 333000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 227800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 663600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 225100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 234200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 325400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 223900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 214100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 215800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1139700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 380100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 386000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 383800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 1039200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 345300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 356000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 341100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 699700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 221700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 231100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 231800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 336000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 221900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 221600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 217600000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261111T030004Z-16cc5d",
+  "status": "done",
+  "started": "2026-11-11T03:00:04Z",
+  "finished": "2026-11-11T03:04:09Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 356200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1110600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 370000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 367900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 347300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 992900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 340000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 340900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 223800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 666200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 223100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 227200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 338100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 211900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 210200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 206500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1146600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 365800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 375300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 375400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 1030200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 331500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 332100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 334800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 685800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 221900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 212800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 216000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 330600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 218700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 207200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 209600000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261110T030003Z-162e26",
+  "status": "done",
+  "started": "2026-11-10T03:00:03Z",
+  "finished": "2026-11-10T03:03:56Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 334100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1013300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 340400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 340400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 321200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 923300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 321200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 294700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 185500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 562400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 186200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 188100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 305200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 179300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 180700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 180100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1045100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 342300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 352900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 342800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 936000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 317500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 303300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 301800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 575300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 198500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 190600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 184500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 297500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 178300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 176800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 188600000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261109T030002Z-158fef",
+  "status": "done",
+  "started": "2026-11-09T03:00:02Z",
+  "finished": "2026-11-09T03:03:57Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 331400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1046300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 355100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 367800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 319100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 942500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 329200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 324900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 193800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 582100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 202400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 199800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 302200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 185300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 188700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 191800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1068200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 359200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 353400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 341200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 983000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 323500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 306500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 309700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 598100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 190400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 198300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 208700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 302100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 185000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 186000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 181500000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261108T030001Z-14f1b8",
+  "status": "interrupted",
+  "started": "2026-11-08T03:00:01Z",
+  "finished": "2026-11-08T03:03:55Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 349500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 322500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 192700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 311000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 0,
+    "n": 0
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 0,
+    "n": 0
+   }
+  ]
+ },
+ {
+  "id": "20261107T030000Z-145381",
+  "status": "done",
+  "started": "2026-11-07T03:00:00Z",
+  "finished": "2026-11-07T03:03:50Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 333300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1015600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 336800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 351600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 298500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 913500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 312800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 312900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 194700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 566900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 182800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 200400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 299100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 181400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 181500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 180900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1034000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 341300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 354200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 357200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 951100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 311700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 314500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 307800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 598200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 196800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 189300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 188000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 301700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 183900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 178600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 183100000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261106T030006Z-13b54a",
+  "status": "done",
+  "started": "2026-11-06T03:00:06Z",
+  "finished": "2026-11-06T03:03:58Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 330600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1035500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 342100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 365400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 304400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 959700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 313800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 326800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 193300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 571200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 202500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 194800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 317700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 194500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 185700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 186700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1059700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 355700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 337200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 355300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 982400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 309000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 312500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 325000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 614200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 197200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 202400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 196900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 313600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 181100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 190200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 193200000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261105T030005Z-131713",
+  "status": "done",
+  "started": "2026-11-05T03:00:05Z",
+  "finished": "2026-11-05T03:03:59Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 341000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1035800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 352200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 350300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 322400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 959600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 304600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 319800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 201400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 567600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 195800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 196800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 305400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 183300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 183300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 184900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1037400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 342900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 334700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 333800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 977100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 320700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 311900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 326700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 612400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 202900000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 191800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 188300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 303200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 187700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 187800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 180800000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261104T030004Z-1278dc",
+  "status": "done",
+  "started": "2026-11-04T03:00:04Z",
+  "finished": "2026-11-04T03:03:56Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 341700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1007200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 342000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 342300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 316400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 932100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 305100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 306200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 184200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 557900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 182600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 200100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 307500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 183200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 186000000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 178300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1040100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 352000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 347700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 344100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 979100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 322100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 320600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 312800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 595300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 191200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 187000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 193700000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 303500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 182300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 178200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 175200000,
+    "n": 5
+   }
+  ]
+ },
+ {
+  "id": "20261103T030003Z-11daa5",
+  "status": "done",
+  "started": "2026-11-03T03:00:03Z",
+  "finished": "2026-11-03T03:03:56Z",
+  "host": "mediabox",
+  "version": "v0.2.0",
+  "mode": "all",
+  "settings": {
+   "layers": [
+    "jellyfin",
+    "rclone",
+    "infinidysk",
+    "usenet"
+   ],
+   "iterations": 5,
+   "warmup": 2,
+   "timeout_ns": 60000000000,
+   "cooldown_ns": 2000000000,
+   "cold_cache": true,
+   "seek_points": [
+    "10%",
+    "50%",
+    "90%"
+   ]
+  },
+  "points": [
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 353900000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 1032700000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 336800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 343600000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 334500000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 942100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 316400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 318800000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 193100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 586200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 192100000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 190300000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 310400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 191200000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 183400000,
+    "n": 5
+   },
+   {
+    "target": "foo",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 185600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "startup",
+    "p50_ns": 1036400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 10%",
+    "p50_ns": 350200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 50%",
+    "p50_ns": 355500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "jellyfin",
+    "label": "seek 90%",
+    "p50_ns": 355600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "startup",
+    "p50_ns": 981500000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 10%",
+    "p50_ns": 313000000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 50%",
+    "p50_ns": 317600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "rclone",
+    "label": "seek 90%",
+    "p50_ns": 332300000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "startup",
+    "p50_ns": 597200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 10%",
+    "p50_ns": 194200000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 50%",
+    "p50_ns": 189400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "infinidysk",
+    "label": "seek 90%",
+    "p50_ns": 193100000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "startup",
+    "p50_ns": 306800000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 10%",
+    "p50_ns": 180600000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 50%",
+    "p50_ns": 180400000,
+    "n": 5
+   },
+   {
+    "target": "bar-s01e03",
+    "layer": "usenet",
+    "label": "seek 90%",
+    "p50_ns": 183400000,
+    "n": 5
+   }
+  ]
+ }
+]
