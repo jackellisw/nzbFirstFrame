@@ -45,6 +45,7 @@ type Config struct {
 	Profile ProfileConfig `yaml:"profile"`
 	Tools   ToolsConfig   `yaml:"tools"`
 	Output  OutputConfig  `yaml:"output"`
+	Results ResultsConfig `yaml:"results"`
 	Log     LogConfig     `yaml:"log"`
 
 	Targets []Target `yaml:"targets"`
@@ -112,6 +113,13 @@ type OutputConfig struct {
 	Format OutputFormat `yaml:"format"`
 	// Path to write results to; empty or "-" means stdout.
 	Path string `yaml:"path"`
+}
+
+// ResultsConfig is where runs are stored for history and the dashboard.
+type ResultsConfig struct {
+	// Dir holds one JSON file per run. Empty means the platform state dir:
+	// $XDG_STATE_HOME/nzbff/results, else ~/.local/state/nzbff/results.
+	Dir string `yaml:"dir"`
 }
 
 type LogConfig struct {

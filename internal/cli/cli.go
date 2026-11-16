@@ -23,6 +23,7 @@ Commands:
   run        Measure startup (first frame) and seek times
   startup    Measure startup time to first frame only
   seek       Measure seek times only
+  serve      Serve the results dashboard
   config     Inspect, validate or create a config file
   version    Print version information
 
@@ -57,6 +58,10 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer) int {
 		err = runProfile(ctx, "startup", rest, stdout, stderr)
 	case "seek":
 		err = runProfile(ctx, "seek", rest, stdout, stderr)
+	case "serve":
+		err = runServe(ctx, rest, stdout, stderr)
+	case "dev-stack":
+		err = runDevStack(ctx, rest, stdout, stderr)
 	case "config":
 		err = runConfig(rest, stdout, stderr)
 	case "version", "-version", "--version":

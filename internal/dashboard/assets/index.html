@@ -1,0 +1,18 @@
+<!doctype html>
+<!-- Sketch: layout only. Three views driven by app.js from /api/*. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nzbff</title>
+</head>
+<body>
+<header><h1>nzbff</h1><select id="run"></select><span id="status"></span></header>
+<main>
+  <section id="latest"><!-- strip plots: target × phase, rows = layers in stack order --></section>
+  <section id="trends"><!-- p50 over runs per (target, phase label), line per layer --></section>
+  <section id="sample"><!-- waterfall of one sample's ops and marks --></section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

@@ -53,6 +53,9 @@ output:
   format: table              # table | json | csv
   path: ""                   # empty or "-" = stdout
 
+results:
+  dir: ""                    # run history for `nzbff serve`; empty = ~/.local/state/nzbff/results
+
 log:
   level: info                # debug | info | warn | error
   format: text               # text | json
