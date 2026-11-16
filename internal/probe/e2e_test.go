@@ -283,6 +283,20 @@ func TestMediaUsesDeepestSelectedVideoLayer(t *testing.T) {
 	if m, err := newProber(cfg).Media(t.Context(), st.Target); err == nil {
 		t.Errorf("usenet-only: got %+v, want an error because no layer can report a duration", m)
 	}
+
+	cfg = st.Config()
+	cfg.Infinidysk.URL = "http://" + closedPort(t)
+	if m, err := newProber(cfg).Media(t.Context(), st.Target); err != nil || m.Via != config.LayerRclone {
+		t.Errorf("infinidysk down: got %+v, %v; want the duration read via rclone, the next layer up", m, err)
+	}
+	cfg.Rclone.MountPath = t.TempDir()
+	cfg.Jellyfin.APIKey = "wrong"
+	_, err := newProber(cfg).Media(t.Context(), st.Target)
+	for _, l := range []string{"via infinidysk", "via rclone", "via jellyfin"} {
+		if err == nil || !strings.Contains(err.Error(), l) {
+			t.Errorf("every video layer down: err = %v, want it to report the failure %s", err, l)
+		}
+	}
 }
 
 func TestColdCacheForgetsOnlyForLayersBehindRclone(t *testing.T) {

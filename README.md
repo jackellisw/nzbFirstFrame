@@ -43,7 +43,7 @@ A phase ends when the whole article has arrived, because infinidysk needs the wh
 
 ### How a run is scheduled
 
-For each target, nzbff first reads the media duration with one short ffprobe call through the deepest selected video layer (infinidysk, then rclone, then jellyfin). It needs the duration to turn `50%` into a position. `nzbff startup` skips this call. A run with only the `usenet` layer skips it too, and then accepts only percent seek points.
+For each target, nzbff first reads the media duration with one short ffprobe call through the deepest selected video layer (infinidysk, then rclone, then jellyfin). It needs the duration to turn `50%` into a position. If that layer fails, nzbff asks the next one up, and the failing layer's own samples fail while the other layers are measured. The target is skipped only when every selected video layer fails. `nzbff startup` skips this call. A run with only the `usenet` layer skips it too, and then accepts only percent seek points.
 
 Then nzbff takes `warmup` samples of every layer, followed by `iterations` samples of every layer. It goes iteration by iteration: iteration 0 of every layer, then iteration 1 of every layer, and so on, top of the stack first. If the provider slows down for a while, the slowdown affects every layer of the same iterations, instead of every sample of one layer. `cooldown` passes between samples. `timeout` bounds one sample, open and seeks together.
 

@@ -43,20 +43,29 @@ type Media struct {
 var ErrNoVideoLayer = errors.New("no video layer selected to read the media duration from")
 
 // Media resolves the target's runtime with a quick
-// `ffprobe -show_entries format=duration` through the deepest configured
+// `ffprobe -show_entries format=duration` through the deepest selected
 // video layer (infinidysk, then rclone, then jellyfin), so the probe warms as
-// little of the stack above it as possible.
+// little of the stack above it as possible. A layer that fails hands over to
+// the next one up: one broken layer must not keep the others from being
+// measured. The error reports every layer's failure once all have failed.
 func (p *Prober) Media(ctx context.Context, t config.Target) (Media, error) {
+	var failures []string
 	for _, l := range slices.Backward(config.AllLayers) {
-		if m := layers[l]; p.cfg.HasLayer(l) && m.video != nil {
-			d, err := p.durationVia(ctx, m.video(p, t))
-			if err != nil {
-				return Media{}, fmt.Errorf("duration via %s: %w", l, err)
-			}
+		m := layers[l]
+		if !p.cfg.HasLayer(l) || m.video == nil {
+			continue
+		}
+		d, err := p.durationVia(ctx, m.video(p, t))
+		if err == nil {
 			return Media{Duration: d, Via: l}, nil
 		}
+		p.log.Warn("duration probe failed, trying the next layer up", "target", t.Name, "layer", l, "err", err)
+		failures = append(failures, fmt.Sprintf("duration via %s: %v", l, err))
 	}
-	return Media{}, ErrNoVideoLayer
+	if len(failures) == 0 {
+		return Media{}, ErrNoVideoLayer
+	}
+	return Media{}, errors.New(strings.Join(failures, "; "))
 }
 
 func (p *Prober) durationVia(ctx context.Context, src source) (time.Duration, error) {

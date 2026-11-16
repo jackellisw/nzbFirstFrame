@@ -339,3 +339,35 @@ func TestRunWithAMissingTargetMeasuresTheOther(t *testing.T) {
 		}
 	}
 }
+
+func TestRunWithAnUnreachableLayerMeasuresTheOthers(t *testing.T) {
+	st := startStack(t, fakestack.Options{})
+	cfg := st.Config()
+	cfg.Infinidysk.URL = "http://127.0.0.1:1"
+	cfg.Profile.Warmup, cfg.Profile.Iterations = 0, 1
+	cfg.Profile.Cooldown = 0
+	cfg.Profile.SeekPoints = seekPoints(t, "50%")
+	dir := filepath.Join(t.TempDir(), "results")
+
+	code, out, errOut := run(t, "run", "-c", configFile(t, cfg), "-results", dir)
+	if code != exitFail {
+		t.Fatalf("exit %d, want %d\nstdout:\n%s\nstderr:\n%s", code, exitFail, out, errOut)
+	}
+	_, stored := onlyRun(t, dir)
+	if tr := stored.Targets[0]; tr.Err != "" || tr.Plan.Len() != 2 {
+		t.Errorf("target %+v; want it planned through a layer that answers", tr)
+	}
+	if summary := "run " + stored.ID + ": 1 of 4 samples failed"; !strings.Contains(errOut, summary) {
+		t.Errorf("stderr lacks %q:\n%s", summary, errOut)
+	}
+	for _, se := range stored.Series {
+		if len(se.Samples) != 1 {
+			t.Errorf("%s: %d samples, want 1", se.Layer, len(se.Samples))
+			continue
+		}
+		s := se.Samples[0]
+		if broken := se.Layer == config.LayerInfinidysk; (s.Err != "") != broken || !broken && len(s.Timeline.Marks) != 2 {
+			t.Errorf("%s: err %q, %d marks; want only infinidysk to fail and every other layer measured", se.Layer, s.Err, len(s.Timeline.Marks))
+		}
+	}
+}
